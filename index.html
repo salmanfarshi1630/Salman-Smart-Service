@@ -238,7 +238,7 @@
             </div>
         </section>
 
-        <!-- Comprehensive Dynamic Form (CV & Biodata) -->
+        <!-- Dynamic Form (CV & Biodata) -->
         <section id="view-cv-form" class="view-section hidden">
             <div class="form-container">
                 <div class="form-header-bar">
@@ -330,7 +330,7 @@
                         </div>
                     </div>
 
-                    <!-- Language Skills Dynamic Block -->
+                    <!-- Languages -->
                     <div class="form-section">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                             <h3><i class="fa-solid fa-language"></i> <span data-i18n="languages">ভাষা দক্ষতা</span></h3>
@@ -339,7 +339,7 @@
                         <div id="language-entries-container"></div>
                     </div>
 
-                    <!-- Dynamic Work Experience Block -->
+                    <!-- Experience -->
                     <div class="form-section">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                             <h3><i class="fa-solid fa-briefcase"></i> <span data-i18n="sec_experience">কর্মঅভিজ্ঞতা (Optional)</span></h3>
@@ -474,7 +474,6 @@
         const SUPABASE_ANON_KEY = "sb_publishable_lszQoOpRAP9oDy7SJZ6Y1g_FOYOpTgv";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Utility: HTML Escaping for XSS Protection
         function escapeHTML(str) {
             if (str === null || str === undefined) return '';
             return String(str).replace(/[&<>"']/g, function(m) {
@@ -482,14 +481,12 @@
             });
         }
 
-        // Utility: Safe Unique Filename Generator
         function getSafeFilename(originalName) {
             const ext = originalName.split('.').pop();
             const cleanName = originalName.replace(/[^a-zA-Z0-9]/g, "_");
             return `${Date.now()}_${cleanName}.${ext}`;
         }
 
-        // Complete Central Translation System (i18n)
         const translations = {
             bn: {
                 bismillah: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
@@ -551,7 +548,7 @@
                 add_more: "যোগ করুন",
                 remove: "মুছুন",
                 exam_name: "পরীক্ষার নাম",
-                passing_year: "পাশের সাল",
+                passing_year: " পাশের সাল",
                 institute: "ইনস্টিটিউট",
                 gpa: "জিপিএ/ফলাফল",
                 skills: "দক্ষতাসমূহ",
@@ -593,7 +590,6 @@
                 status_rejected: "বাতিল (Rejected)",
                 status_completed: "সম্পন্ন (Completed)",
                 
-                // Dynamic Placeholders
                 email_ph: "example@gmail.com",
                 password_ph: "••••••••",
                 full_name_ph: "আপনার নাম লিখুন",
@@ -707,7 +703,6 @@
                 status_rejected: "Rejected",
                 status_completed: "Completed",
 
-                // Dynamic Placeholders
                 email_ph: "example@gmail.com",
                 password_ph: "••••••••",
                 full_name_ph: "Enter your full name",
@@ -738,7 +733,6 @@
             applyLanguage: function() {
                 document.getElementById('lang-btn-text').innerText = this.currentLang === 'bn' ? 'English' : 'বাংলা';
                 
-                // Translate Text Nodes
                 document.querySelectorAll('[data-i18n]').forEach(el => {
                     const key = el.getAttribute('data-i18n');
                     if (translations[this.currentLang] && translations[this.currentLang][key]) {
@@ -746,7 +740,6 @@
                     }
                 });
 
-                // Translate Placeholders
                 document.querySelectorAll('[data-i18n-ph]').forEach(el => {
                     const key = el.getAttribute('data-i18n-ph');
                     if (translations[this.currentLang] && translations[this.currentLang][key]) {
@@ -754,7 +747,6 @@
                     }
                 });
 
-                // Update Dynamic Auth UI Text if active
                 auth.updateAuthText();
             },
             t: function(key) {
@@ -921,7 +913,6 @@
 
                     const { data: srv } = await _supabase.from('services').select('id').eq('code', 'CV_BIODATA').maybeSingle();
 
-                    // Step 1: Create Application Entry First to obtain ID
                     const { data: newApp, error: appErr } = await _supabase.from('applications').insert([{
                         user_id: userId,
                         service_id: srv ? srv.id : null,
@@ -932,7 +923,6 @@
                     if (appErr) throw appErr;
                     const appId = newApp.id;
 
-                    // Step 2: Upload Photo to bucket: profile-avatars path: {user_id}/{filename}
                     let photoPath = "";
                     const photoFile = document.getElementById('cv-photo').files[0];
                     if (photoFile) {
@@ -942,7 +932,6 @@
                         if (!photoErr) photoPath = pPath;
                     }
 
-                    // Step 3: Upload Documents to bucket: application-documents path: {application_id}/{filename}
                     const docPaths = [];
                     const docFiles = document.getElementById('cv-documents').files;
                     for (let i = 0; i < docFiles.length; i++) {
@@ -953,11 +942,10 @@
                         if (!dErr) docPaths.push({ name: dFile.name, path: dPath });
                     }
 
-                    // Collect Educational Qualifications
                     const eduList = [];
                     document.querySelectorAll('.edu-row').forEach(row => {
                         const exam = row.querySelector('.edu-exam').value;
-                        if (exam) {
+                        if (exam.trim() !== '') {
                             eduList.push({
                                 exam_name: exam,
                                 passing_year: row.querySelector('.edu-year').value,
@@ -967,11 +955,10 @@
                         }
                     });
 
-                    // Collect Language Skills
                     const langList = [];
                     document.querySelectorAll('.lang-row').forEach(row => {
                         const name = row.querySelector('.lang-title').value;
-                        if (name) {
+                        if (name.trim() !== '') {
                             langList.push({
                                 name: name,
                                 proficiency: row.querySelector('.lang-level').value
@@ -979,11 +966,10 @@
                         }
                     });
 
-                    // Collect Experiences
                     const expList = [];
                     document.querySelectorAll('.exp-row').forEach(row => {
                         const company = row.querySelector('.exp-company').value;
-                        if (company) {
+                        if (company.trim() !== '') {
                             expList.push({
                                 company: company,
                                 designation: row.querySelector('.exp-designation').value,
@@ -1034,7 +1020,7 @@
             }
         };
 
-        // Professional PDF Generator & Preview Engine
+        // Professional PDF Generator Engine
         const cvPdf = {
             buildHtmlContent: async function() {
                 const appData = dashboard.currentApp;
@@ -1170,7 +1156,6 @@
                 const appData = dashboard.currentApp;
                 if (!appData) return;
 
-                // Create a temporary visible container for perfect html2canvas rendering
                 const tempDiv = document.createElement('div');
                 tempDiv.className = 'a4-paper';
                 tempDiv.style.position = 'fixed';
@@ -1232,7 +1217,6 @@
                 const tbody = document.getElementById('admin-applications-list');
                 tbody.innerHTML = `<tr><td colspan='5'>${i18n.t('loading')}</td></tr>`;
                 
-                // Fixed Admin Fetch Issue
                 const { data: apps, error } = await _supabase.from('applications').select('*').order('created_at', { ascending: false });
                 if (error || !apps) { tbody.innerHTML = `<tr><td colspan='5'>${i18n.t('no_data')}</td></tr>`; return; }
 
@@ -1328,7 +1312,6 @@
                 i18n.init();
                 auth.checkUserAndRedirect();
                 
-                // Initialize default dynamic fields
                 cvForm.addEducationRow();
                 cvForm.addLanguageRow();
                 cvForm.addExperienceRow();

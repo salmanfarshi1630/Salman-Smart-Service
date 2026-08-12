@@ -46,6 +46,8 @@
         .btn-secondary { background: #E2E8F0; color: var(--text-dark); border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
         .btn-success { background: #10B981; color: white; border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
         .btn-success:hover { background: #059669; }
+        .btn-danger { background: #EF4444; color: white; border: none; padding: 8px 14px; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
+        .btn-danger:hover { background: #DC2626; }
         .btn-info { background: #0284C7; color: white; border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
         .btn-info:hover { background: #0369A1; }
         .btn-lang, .btn-logout { background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
@@ -84,6 +86,11 @@
         .form-group textarea { resize: vertical; min-height: 70px; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent-sky); }
 
+        .dynamic-item-card { background: #FFFFFF; border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; margin-bottom: 10px; position: relative; }
+        .dynamic-item-card .remove-btn { position: absolute; top: 10px; right: 10px; }
+
+        .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; user-select: none; }
+
         .table-responsive { overflow-x: auto; }
         .data-table { width: 100%; border-collapse: collapse; }
         .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.88rem; }
@@ -116,7 +123,7 @@
         .a4-paper { width: 210mm; min-height: 297mm; padding: 20mm; background: #FFFFFF; color: #1E293B; box-shadow: 0 0 10px rgba(0,0,0,0.1); box-sizing: border-box; }
         .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-navy); padding-bottom: 12px; margin-bottom: 15px; }
         .pdf-header-text h1 { font-size: 20pt; color: var(--primary-navy); text-transform: uppercase; margin-bottom: 4px; }
-        .pdf-header-text p { font-size: 9.5pt; color: var(--accent-sky); font-weight: 600; }
+        .pdf-header-text p { font-size: 9.5pt; color: #475569; font-weight: 500; margin-bottom: 2px; }
         .pdf-photo { width: 35mm; height: 45mm; object-fit: cover; border: 1px solid #CBD5E1; border-radius: 4px; }
         
         .pdf-section { margin-bottom: 16px; page-break-inside: avoid; }
@@ -246,6 +253,7 @@
                         <div class="form-grid">
                             <div class="form-group"><label data-i18n="full_name">পূর্ণ নাম *</label><input type="text" id="cv-full-name" required data-i18n-ph="full_name_ph"></div>
                             <div class="form-group"><label data-i18n="mobile">মোবাইল নম্বর *</label><input type="tel" id="cv-mobile" required data-i18n-ph="mobile_ph"></div>
+                            <div class="form-group"><label data-i18n="website">ওয়েবসাইট (অপশনাল)</label><input type="url" id="cv-website" placeholder="https://yourwebsite.com"></div>
                             <div class="form-group"><label data-i18n="father_name">পিতার নাম</label><input type="text" id="cv-father-name" data-i18n-ph="father_name_ph"></div>
                             <div class="form-group"><label data-i18n="mother_name">মাতার নাম</label><input type="text" id="cv-mother-name" data-i18n-ph="mother_name_ph"></div>
                             <div class="form-group"><label data-i18n="dob">জন্ম তারিখ</label><input type="date" id="cv-dob"></div>
@@ -281,16 +289,22 @@
                     <div class="form-section">
                         <h3><i class="fa-solid fa-location-dot"></i> <span data-i18n="sec_present_addr">২. বর্তমান ঠিকানা</span></h3>
                         <div class="form-grid">
-                            <div class="form-group"><label data-i18n="village">গ্রাম/মহল্লা</label><input type="text" id="cv-pres-village"></div>
-                            <div class="form-group"><label data-i18n="post_office">ডাকঘর</label><input type="text" id="cv-pres-po"></div>
-                            <div class="form-group"><label data-i18n="thana">থানা/উপজেলা</label><input type="text" id="cv-pres-thana"></div>
-                            <div class="form-group"><label data-i18n="district">জেলা</label><input type="text" id="cv-pres-district"></div>
+                            <div class="form-group"><label data-i18n="village">গ্রাম/মহল্লা</label><input type="text" id="cv-pres-village" oninput="cvForm.syncAddress()"></div>
+                            <div class="form-group"><label data-i18n="post_office">ডাকঘর</label><input type="text" id="cv-pres-po" oninput="cvForm.syncAddress()"></div>
+                            <div class="form-group"><label data-i18n="thana">থানা/উপজেলা</label><input type="text" id="cv-pres-thana" oninput="cvForm.syncAddress()"></div>
+                            <div class="form-group"><label data-i18n="district">জেলা</label><input type="text" id="cv-pres-district" oninput="cvForm.syncAddress()"></div>
                         </div>
                     </div>
 
                     <!-- Permanent Address -->
                     <div class="form-section">
-                        <h3><i class="fa-solid fa-house"></i> <span data-i18n="sec_permanent_addr">৩. স্থায়ী ঠিকানা</span></h3>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <h3><i class="fa-solid fa-house"></i> <span data-i18n="sec_permanent_addr">৩. স্থায়ী ঠিকানা</span></h3>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="same-as-present-chk" onchange="cvForm.toggleSameAddress(this)">
+                                <span data-i18n="same_as_present">বর্তমান ঠিকানাই স্থায়ী ঠিকানা</span>
+                            </label>
+                        </div>
                         <div class="form-grid">
                             <div class="form-group"><label data-i18n="village">গ্রাম/মহল্লা</label><input type="text" id="cv-perm-village"></div>
                             <div class="form-group"><label data-i18n="post_office">ডাকঘর</label><input type="text" id="cv-perm-po"></div>
@@ -308,22 +322,35 @@
                         <div id="education-entries-container"></div>
                     </div>
 
-                    <!-- Skills & Experience -->
+                    <!-- Skills -->
                     <div class="form-section">
-                        <h3><i class="fa-solid fa-briefcase"></i> <span data-i18n="sec_skills_exp">৫. দক্ষতা ও অভিজ্ঞতা (Optional)</span></h3>
-                        <div class="form-grid">
-                            <div class="form-group"><label data-i18n="skills">দক্ষতাসমূহ (কমা দিয়ে লিখুন)</label><input type="text" id="cv-skills" data-i18n-ph="skills_ph"></div>
-                            <div class="form-group"><label data-i18n="languages">ভাষার দক্ষতা</label><input type="text" id="cv-languages" data-i18n-ph="languages_ph"></div>
+                        <h3><i class="fa-solid fa-lightbulb"></i> <span data-i18n="skills">দক্ষতাসমূহ</span></h3>
+                        <div class="form-group">
+                            <input type="text" id="cv-skills" data-i18n-ph="skills_ph" placeholder="যেমন: MS Office, Graphic Design, Web Development (কমা দিয়ে লিখুন)">
                         </div>
-                        <div class="form-group" style="margin-top:12px;">
-                            <label data-i18n="experience">কর্মঅভিজ্ঞতা (যদি থাকে)</label>
-                            <textarea id="cv-experience" data-i18n-ph="experience_ph"></textarea>
+                    </div>
+
+                    <!-- Language Skills Dynamic Block -->
+                    <div class="form-section">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <h3><i class="fa-solid fa-language"></i> <span data-i18n="languages">ভাষা দক্ষতা</span></h3>
+                            <button type="button" class="btn-secondary btn-sm" onclick="cvForm.addLanguageRow()"><i class="fa-solid fa-plus"></i> <span data-i18n="add_more">যোগ করুন</span></button>
                         </div>
+                        <div id="language-entries-container"></div>
+                    </div>
+
+                    <!-- Dynamic Work Experience Block -->
+                    <div class="form-section">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <h3><i class="fa-solid fa-briefcase"></i> <span data-i18n="sec_experience">কর্মঅভিজ্ঞতা (Optional)</span></h3>
+                            <button type="button" class="btn-secondary btn-sm" onclick="cvForm.addExperienceRow()"><i class="fa-solid fa-plus"></i> <span data-i18n="add_more">যোগ করুন</span></button>
+                        </div>
+                        <div id="experience-entries-container"></div>
                     </div>
 
                     <!-- Documents -->
                     <div class="form-section">
-                        <h3><i class="fa-solid fa-paperclip"></i> <span data-i18n="sec_documents">৬. সাপোর্ট ফাইল/কাগজপত্র</span></h3>
+                        <h3><i class="fa-solid fa-paperclip"></i> <span data-i18n="sec_documents">৭. সাপোর্ট ফাইল/কাগজপত্র</span></h3>
                         <div class="form-group"><input type="file" id="cv-documents" multiple></div>
                     </div>
 
@@ -496,6 +523,7 @@
                 sec_personal_info: "১. ব্যক্তিগত তথ্য",
                 full_name: "পূর্ণ নাম *",
                 mobile: "মোবাইল নম্বর *",
+                website: "ওয়েবসাইট (অপশনাল)",
                 father_name: "পিতার নাম",
                 mother_name: "মাতার নাম",
                 dob: "জন্ম তারিখ",
@@ -514,21 +542,28 @@
                 career_objective: "ক্যারিয়ার উদ্দেশ্য (Objective / Summary)",
                 sec_present_addr: "২. বর্তমান ঠিকানা",
                 sec_permanent_addr: "৩. স্থায়ী ঠিকানা",
+                same_as_present: "বর্তমান ঠিকানাই স্থায়ী ঠিকানা",
                 village: "গ্রাম/মহল্লা",
                 post_office: "ডাকঘর",
                 thana: "থানা/উপজেলা",
                 district: "জেলা",
                 sec_education: "৪. শিক্ষাগত যোগ্যতা",
                 add_more: "যোগ করুন",
+                remove: "মুছুন",
                 exam_name: "পরীক্ষার নাম",
                 passing_year: "পাশের সাল",
                 institute: "ইনস্টিটিউট",
                 gpa: "জিপিএ/ফলাফল",
-                sec_skills_exp: "৫. দক্ষতা ও অভিজ্ঞতা (Optional)",
-                skills: "দক্ষতাসমূহ (কমা দিয়ে লিখুন)",
+                skills: "দক্ষতাসমূহ",
                 languages: "ভাষার দক্ষতা",
-                experience: "কর্মঅভিজ্ঞতা (যদি থাকে)",
-                sec_documents: "৬. সাপোর্ট ফাইল/কাগজপত্র",
+                lang_name: "ভাষার নাম",
+                proficiency: "দক্ষতার মাত্রা",
+                sec_experience: "কর্মঅভিজ্ঞতা (Optional)",
+                company_name: "প্রতিষ্ঠানের নাম",
+                designation: "পদবী",
+                duration: "সময়কাল",
+                exp_desc: "দায়িত্ব/বিবরণ",
+                sec_documents: "৭. সাপোর্ট ফাইল/কাগজপত্র",
                 btn_cancel: "বাতিল করুন",
                 btn_submit_app: "আবেদন জমা দিন",
                 btn_back: "ব্যাক",
@@ -568,9 +603,7 @@
                 height_ph: "যেমন: 5 feet 8 inch",
                 weight_ph: "যেমন: 65 kg",
                 objective_ph: "সংক্ষেপে ক্যারিয়ার উদ্দেশ্য বা জীবনবৃত্তান্তের সারসংক্ষেপ...",
-                skills_ph: "যেমন: MS Office, Graphic Design, Web Development",
-                languages_ph: "যেমন: Bangla, English",
-                experience_ph: "প্রতিষ্ঠানের নাম, পদবী, সময়কাল..."
+                skills_ph: "যেমন: MS Office, Graphic Design, Web Development (কমা দিয়ে লিখুন)"
             },
             en: {
                 bismillah: "In the name of Allah, the Most Gracious, the Most Merciful",
@@ -604,6 +637,7 @@
                 sec_personal_info: "1. Personal Information",
                 full_name: "Full Name *",
                 mobile: "Mobile Number *",
+                website: "Website (Optional)",
                 father_name: "Father's Name",
                 mother_name: "Mother's Name",
                 dob: "Date of Birth",
@@ -622,21 +656,28 @@
                 career_objective: "Career Objective / Summary",
                 sec_present_addr: "2. Present Address",
                 sec_permanent_addr: "3. Permanent Address",
+                same_as_present: "Same as Present Address",
                 village: "Village/Street",
                 post_office: "Post Office",
                 thana: "Thana/Upazila",
                 district: "District",
                 sec_education: "4. Educational Qualifications",
                 add_more: "Add More",
+                remove: "Remove",
                 exam_name: "Exam Title",
                 passing_year: "Passing Year",
                 institute: "Institution",
                 gpa: "GPA / Result",
-                sec_skills_exp: "5. Skills & Experience (Optional)",
-                skills: "Skills (Comma separated)",
+                skills: "Skills",
                 languages: "Language Proficiency",
-                experience: "Work Experience (If any)",
-                sec_documents: "6. Supporting Documents",
+                lang_name: "Language",
+                proficiency: "Proficiency Level",
+                sec_experience: "Work Experience (Optional)",
+                company_name: "Company Name",
+                designation: "Designation",
+                duration: "Duration",
+                exp_desc: "Key Responsibilities",
+                sec_documents: "7. Supporting Documents",
                 btn_cancel: "Cancel",
                 btn_submit_app: "Submit Application",
                 btn_back: "Back",
@@ -676,9 +717,7 @@
                 height_ph: "e.g. 5 feet 8 inch",
                 weight_ph: "e.g. 65 kg",
                 objective_ph: "Brief career objective summary...",
-                skills_ph: "e.g. MS Office, Graphic Design, Web Development",
-                languages_ph: "e.g. Bangla, English",
-                experience_ph: "Company Name, Role, Duration..."
+                skills_ph: "e.g. MS Office, Graphic Design, Web Development (Comma separated)"
             }
         };
 
@@ -813,17 +852,59 @@
 
         // CV Form Handler
         const cvForm = {
-            addEducationRow: function() {
+            toggleSameAddress: function(chk) {
+                if (chk.checked) {
+                    this.syncAddress();
+                }
+            },
+            syncAddress: function() {
+                const chk = document.getElementById('same-as-present-chk');
+                if (chk && chk.checked) {
+                    document.getElementById('cv-perm-village').value = document.getElementById('cv-pres-village').value;
+                    document.getElementById('cv-perm-po').value = document.getElementById('cv-pres-po').value;
+                    document.getElementById('cv-perm-thana').value = document.getElementById('cv-pres-thana').value;
+                    document.getElementById('cv-perm-district').value = document.getElementById('cv-pres-district').value;
+                }
+            },
+            addEducationRow: function(data = null) {
                 const container = document.getElementById('education-entries-container');
                 const row = document.createElement('div');
-                row.className = "edu-row";
-                row.style.marginBottom = "10px";
+                row.className = "dynamic-item-card edu-row";
                 row.innerHTML = `
-                    <div class="form-grid">
-                        <div class="form-group"><label>${i18n.t('exam_name')}</label><input type="text" class="edu-exam" placeholder="SSC/HSC/BSc"></div>
-                        <div class="form-group"><label>${i18n.t('passing_year')}</label><input type="text" class="edu-year" placeholder="2022"></div>
-                        <div class="form-group"><label>${i18n.t('institute')}</label><input type="text" class="edu-institute"></div>
-                        <div class="form-group"><label>${i18n.t('gpa')}</label><input type="text" class="edu-result"></div>
+                    <button type="button" class="btn-danger btn-sm remove-btn" onclick="this.parentElement.remove()"><i class="fa-solid fa-trash"></i> ${i18n.t('remove')}</button>
+                    <div class="form-grid" style="padding-right: 70px;">
+                        <div class="form-group"><label>${i18n.t('exam_name')}</label><input type="text" class="edu-exam" value="${escapeHTML(data?.exam_name || '')}" placeholder="SSC/HSC/BSc"></div>
+                        <div class="form-group"><label>${i18n.t('passing_year')}</label><input type="text" class="edu-year" value="${escapeHTML(data?.passing_year || '')}" placeholder="2022"></div>
+                        <div class="form-group"><label>${i18n.t('institute')}</label><input type="text" class="edu-institute" value="${escapeHTML(data?.institute_name || '')}"></div>
+                        <div class="form-group"><label>${i18n.t('gpa')}</label><input type="text" class="edu-result" value="${escapeHTML(data?.result_gpa || '')}"></div>
+                    </div>
+                `;
+                container.appendChild(row);
+            },
+            addLanguageRow: function(data = null) {
+                const container = document.getElementById('language-entries-container');
+                const row = document.createElement('div');
+                row.className = "dynamic-item-card lang-row";
+                row.innerHTML = `
+                    <button type="button" class="btn-danger btn-sm remove-btn" onclick="this.parentElement.remove()"><i class="fa-solid fa-trash"></i> ${i18n.t('remove')}</button>
+                    <div class="form-grid" style="padding-right: 70px;">
+                        <div class="form-group"><label>${i18n.t('lang_name')}</label><input type="text" class="lang-title" value="${escapeHTML(data?.name || '')}" placeholder="e.g. English"></div>
+                        <div class="form-group"><label>${i18n.t('proficiency')}</label><input type="text" class="lang-level" value="${escapeHTML(data?.proficiency || '')}" placeholder="e.g. Fluent / Native"></div>
+                    </div>
+                `;
+                container.appendChild(row);
+            },
+            addExperienceRow: function(data = null) {
+                const container = document.getElementById('experience-entries-container');
+                const row = document.createElement('div');
+                row.className = "dynamic-item-card exp-row";
+                row.innerHTML = `
+                    <button type="button" class="btn-danger btn-sm remove-btn" onclick="this.parentElement.remove()"><i class="fa-solid fa-trash"></i> ${i18n.t('remove')}</button>
+                    <div class="form-grid" style="padding-right: 70px;">
+                        <div class="form-group"><label>${i18n.t('company_name')}</label><input type="text" class="exp-company" value="${escapeHTML(data?.company || '')}"></div>
+                        <div class="form-group"><label>${i18n.t('designation')}</label><input type="text" class="exp-designation" value="${escapeHTML(data?.designation || '')}"></div>
+                        <div class="form-group"><label>${i18n.t('duration')}</label><input type="text" class="exp-duration" value="${escapeHTML(data?.duration || '')}" placeholder="2021 - Present"></div>
+                        <div class="form-group" style="grid-column: 1 / -1;"><label>${i18n.t('exp_desc')}</label><textarea class="exp-description">${escapeHTML(data?.description || '')}</textarea></div>
                     </div>
                 `;
                 container.appendChild(row);
@@ -886,10 +967,37 @@
                         }
                     });
 
+                    // Collect Language Skills
+                    const langList = [];
+                    document.querySelectorAll('.lang-row').forEach(row => {
+                        const name = row.querySelector('.lang-title').value;
+                        if (name) {
+                            langList.push({
+                                name: name,
+                                proficiency: row.querySelector('.lang-level').value
+                            });
+                        }
+                    });
+
+                    // Collect Experiences
+                    const expList = [];
+                    document.querySelectorAll('.exp-row').forEach(row => {
+                        const company = row.querySelector('.exp-company').value;
+                        if (company) {
+                            expList.push({
+                                company: company,
+                                designation: row.querySelector('.exp-designation').value,
+                                duration: row.querySelector('.exp-duration').value,
+                                description: row.querySelector('.exp-description').value
+                            });
+                        }
+                    });
+
                     const formData = {
                         personal_info: {
                             full_name: document.getElementById('cv-full-name').value,
                             mobile: document.getElementById('cv-mobile').value,
+                            website: document.getElementById('cv-website').value,
                             father_name: document.getElementById('cv-father-name').value,
                             mother_name: document.getElementById('cv-mother-name').value,
                             dob: document.getElementById('cv-dob').value,
@@ -906,8 +1014,8 @@
                         permanent_address: { village: document.getElementById('cv-perm-village').value, po: document.getElementById('cv-perm-po').value, thana: document.getElementById('cv-perm-thana').value, district: document.getElementById('cv-perm-district').value },
                         education: eduList,
                         skills: document.getElementById('cv-skills').value,
-                        languages: document.getElementById('cv-languages').value,
-                        experience: document.getElementById('cv-experience').value,
+                        languages: langList,
+                        experiences: expList,
                         documents: docPaths
                     };
 
@@ -937,8 +1045,8 @@
                 const perm = appData.form_data?.permanent_address || {};
                 const edu = appData.form_data?.education || [];
                 const skills = appData.form_data?.skills || '';
-                const languages = appData.form_data?.languages || '';
-                const experience = appData.form_data?.experience || '';
+                const languages = appData.form_data?.languages || [];
+                const experiences = appData.form_data?.experiences || [];
 
                 let photoUrl = '';
                 if (info.photo_path) {
@@ -953,7 +1061,9 @@
                     <div class="pdf-header">
                         <div class="pdf-header-text">
                             <h1>${escapeHTML(info.full_name || 'CURRICULUM VITAE')}</h1>
-                            <p>${escapeHTML(info.email || '')} ${info.mobile ? '| ' + escapeHTML(info.mobile) : ''}</p>
+                            ${info.mobile ? `<p><i class="fa-solid fa-phone"></i> ${escapeHTML(info.mobile)}</p>` : ''}
+                            ${info.email ? `<p><i class="fa-solid fa-envelope"></i> ${escapeHTML(info.email)}</p>` : ''}
+                            ${info.website ? `<p><i class="fa-solid fa-globe"></i> ${escapeHTML(info.website)}</p>` : ''}
                         </div>
                         ${photoUrl ? `<img src="${photoUrl}" class="pdf-photo" alt="Photo" />` : ''}
                     </div>
@@ -1015,18 +1125,26 @@
                         </div>
                     ` : ''}
 
-                    ${skills || languages ? `
+                    ${experiences.length > 0 ? `
                         <div class="pdf-section">
-                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'দক্ষতা ও ভাষা' : 'SKILLS & LANGUAGES'}</div>
-                            ${skills ? `<p style="font-size:9pt; margin-bottom:4px;"><strong>${i18n.t('skills')}:</strong> ${escapeHTML(skills)}</p>` : ''}
-                            ${languages ? `<p style="font-size:9pt;"><strong>${i18n.t('languages')}:</strong> ${escapeHTML(languages)}</p>` : ''}
+                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'কর্মঅভিজ্ঞতা' : 'WORK EXPERIENCE'}</div>
+                            ${experiences.map(exp => `
+                                <div style="margin-bottom:8px;">
+                                    <div style="display:flex; justify-content:space-between; font-size:9.5pt; font-weight:600; color:#0A192F;">
+                                        <span>${escapeHTML(exp.designation)} - ${escapeHTML(exp.company)}</span>
+                                        <span>${escapeHTML(exp.duration)}</span>
+                                    </div>
+                                    ${exp.description ? `<p style="font-size:8.5pt; color:#475569; margin-top:2px;">${escapeHTML(exp.description)}</p>` : ''}
+                                </div>
+                            `).join('')}
                         </div>
                     ` : ''}
 
-                    ${experience ? `
+                    ${skills || languages.length > 0 ? `
                         <div class="pdf-section">
-                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'কর্মঅভিজ্ঞতা' : 'WORK EXPERIENCE'}</div>
-                            <p style="font-size:9pt; white-space:pre-line; color:#334155;">${escapeHTML(experience)}</p>
+                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'দক্ষতা ও ভাষা' : 'SKILLS & LANGUAGES'}</div>
+                            ${skills ? `<p style="font-size:9pt; margin-bottom:4px;"><strong>${i18n.t('skills')}:</strong> ${escapeHTML(skills)}</p>` : ''}
+                            ${languages.length > 0 ? `<p style="font-size:9pt;"><strong>${i18n.t('languages')}:</strong> ${languages.map(l => `${escapeHTML(l.name)} (${escapeHTML(l.proficiency)})`).join(', ')}</p>` : ''}
                         </div>
                     ` : ''}
 
@@ -1113,6 +1231,8 @@
             loadAdminDashboard: async function() {
                 const tbody = document.getElementById('admin-applications-list');
                 tbody.innerHTML = `<tr><td colspan='5'>${i18n.t('loading')}</td></tr>`;
+                
+                // Fixed Admin Fetch Issue
                 const { data: apps, error } = await _supabase.from('applications').select('*').order('created_at', { ascending: false });
                 if (error || !apps) { tbody.innerHTML = `<tr><td colspan='5'>${i18n.t('no_data')}</td></tr>`; return; }
 
@@ -1166,8 +1286,9 @@
                         <h3>${i18n.t('sec_personal_info')}</h3>
                         <p><strong>${i18n.t('full_name')}:</strong> ${escapeHTML(p.full_name)}</p>
                         <p><strong>${i18n.t('mobile')}:</strong> ${escapeHTML(p.mobile)}</p>
-                        <p><strong>${i18n.t('father_name')}:</strong> ${escapeHTML(p.father_name)}</p>
-                        <p><strong>${i18n.t('email')}:</strong> ${escapeHTML(p.email)}</p>
+                        ${p.website ? `<p><strong>${i18n.t('website')}:</strong> ${escapeHTML(p.website)}</p>` : ''}
+                        ${p.father_name ? `<p><strong>${i18n.t('father_name')}:</strong> ${escapeHTML(p.father_name)}</p>` : ''}
+                        ${p.email ? `<p><strong>${i18n.t('email')}:</strong> ${escapeHTML(p.email)}</p>` : ''}
                     </div>
                 `;
                 document.getElementById('det-content-body').innerHTML = html;
@@ -1206,7 +1327,11 @@
             init: function() {
                 i18n.init();
                 auth.checkUserAndRedirect();
+                
+                // Initialize default dynamic fields
                 cvForm.addEducationRow();
+                cvForm.addLanguageRow();
+                cvForm.addExperienceRow();
             },
             navigateTo: function(viewName) {
                 document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));

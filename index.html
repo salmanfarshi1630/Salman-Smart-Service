@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman Smart Service - Professional Portal</title>
+    
+    <!-- Icons & Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kalpurush&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- HTML2PDF Library for Production Ready A4 CV Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --primary-navy: #0A192F;
+            --navy-light: #172A45;
+            --accent-gold: #D4AF37;
+            --accent-sky: #00BCD4;
+            --bg-color: #F4F7FA;
+            --card-bg: #FFFFFF;
+            --text-dark: #1E293B;
+            --text-muted: #64748B;
+            --border-color: #E2E8F0;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', 'Kalpurush', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-dark); display: flex; flex-direction: column; min-height: 100vh; }
+
+        .bismillah-bar { text-align: center; background: var(--primary-navy); color: var(--accent-gold); padding: 6px 0; font-size: 0.95rem; border-bottom: 1px solid rgba(212, 175, 55, 0.3); }
+        .main-header { background-color: var(--navy-light); color: #FFFFFF; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .header-container { max-width: 1200px; margin: 0 auto; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo-area { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .logo-icon { font-size: 2.2rem; color: var(--accent-gold); }
+        .logo-text h1 { font-size: 1.25rem; color: #FFFFFF; font-weight: 600; }
+        .logo-text span { font-size: 0.75rem; color: var(--accent-sky); }
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+
+        .btn-primary { background: var(--primary-navy); color: #FFF; border: none; padding: 10px 20px; border-radius: var(--radius); cursor: pointer; font-weight: 500; transition: all 0.3s ease; }
+        .btn-primary:hover { background: var(--accent-sky); color: var(--primary-navy); }
+        .btn-secondary { background: #E2E8F0; color: var(--text-dark); border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
+        .btn-success { background: #10B981; color: white; border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
+        .btn-success:hover { background: #059669; }
+        .btn-info { background: #0284C7; color: white; border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
+        .btn-info:hover { background: #0369A1; }
+        .btn-lang, .btn-logout { background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+        .btn-logout { border-color: #EF4444; color: #EF4444; }
+        .btn-block { width: 100%; }
+        .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+
+        .main-container { max-width: 1200px; margin: 25px auto; padding: 0 15px; flex: 1; width: 100%; }
+        .hidden { display: none !important; }
+
+        .auth-card, .dash-card, .form-container, .details-card { background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border-color); }
+        .auth-card { max-width: 420px; margin: 30px auto; }
+        .auth-header h2 { color: var(--primary-navy); margin-bottom: 5px; }
+        .auth-header p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
+        .auth-footer { margin-top: 20px; text-align: center; font-size: 0.85rem; }
+        .auth-footer a { color: var(--accent-sky); text-decoration: none; font-weight: 600; }
+
+        .welcome-banner { background: linear-gradient(135deg, var(--primary-navy), var(--navy-light)); color: white; padding: 20px; border-radius: var(--radius); margin-bottom: 20px; border-left: 5px solid var(--accent-gold); }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 900px) { .dashboard-grid { grid-template-columns: 1fr 2fr; } }
+
+        .card-title { font-size: 1.1rem; font-weight: 600; color: var(--primary-navy); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .services-list-container { display: flex; flex-direction: column; gap: 12px; }
+        .service-card { border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); border-left: 4px solid var(--accent-sky); background: #FAF5FF; }
+        .service-card h4 { color: var(--primary-navy); font-size: 1rem; }
+        .service-card p { font-size: 0.8rem; color: var(--text-muted); margin: 5px 0 10px 0; }
+
+        .form-header-bar { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); }
+        .form-note { font-size: 0.85rem; color: #DC2626; }
+        .form-section { margin-bottom: 25px; padding: 15px; background: #F8FAFC; border-radius: var(--radius); border: 1px solid var(--border-color); }
+        .form-section h3 { font-size: 1rem; color: var(--primary-navy); margin-bottom: 15px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.85rem; font-weight: 500; color: var(--text-dark); }
+        .form-group input, .form-group select, .form-group textarea { padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.9rem; }
+        .form-group textarea { resize: vertical; min-height: 70px; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent-sky); }
+
+        .table-responsive { overflow-x: auto; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.88rem; }
+        .data-table th { background: #F1F5F9; color: var(--primary-navy); font-weight: 600; }
+
+        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .badge-pending { background: #FEF3C7; color: #92400E; }
+        .badge-correction { background: #FFEDD5; color: #C2410C; }
+        .badge-approved { background: #D1FAE5; color: #065F46; }
+        .badge-rejected { background: #FEE2E2; color: #991B1B; }
+        .badge-completed { background: #E0E7FF; color: #3730A3; }
+
+        .admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 18px; border-radius: var(--radius); border-left: 4px solid var(--primary-navy); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .stat-card h3 { font-size: 0.85rem; color: var(--text-muted); }
+        .stat-card p { font-size: 1.6rem; font-weight: 700; color: var(--primary-navy); margin-top: 5px; }
+
+        .admin-panel-card { background: #FEFCE8; border: 1px solid #FEF08A; padding: 20px; border-radius: var(--radius); margin-bottom: 20px; }
+        .generated-file-card { background: #EFF6FF; border: 1px solid #BFDBFE; padding: 20px; border-radius: var(--radius); margin-bottom: 20px; }
+        .main-footer { text-align: center; padding: 18px; background: var(--primary-navy); color: var(--accent-gold); font-size: 0.85rem; margin-top: auto; }
+
+        /* Modal Preview Window Styles */
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display:flex; justify-content:center; align-items:center; z-index:9999; padding: 20px; }
+        .modal-container { background: #FFF; width: 100%; max-width: 900px; max-height: 90vh; border-radius: var(--radius); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .modal-header { background: var(--primary-navy); color: #FFF; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { flex: 1; overflow-y: auto; padding: 20px; background: #E2E8F0; display: flex; justify-content: center; }
+        .modal-footer { padding: 12px 20px; background: #F1F5F9; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-color); }
+
+        /* Strict A4 CV Paper Styles */
+        .a4-paper { width: 210mm; min-height: 297mm; padding: 20mm; background: #FFFFFF; color: #1E293B; box-shadow: 0 0 10px rgba(0,0,0,0.1); box-sizing: border-box; }
+        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-navy); padding-bottom: 12px; margin-bottom: 15px; }
+        .pdf-header-text h1 { font-size: 20pt; color: var(--primary-navy); text-transform: uppercase; margin-bottom: 4px; }
+        .pdf-header-text p { font-size: 9.5pt; color: var(--accent-sky); font-weight: 600; }
+        .pdf-photo { width: 35mm; height: 45mm; object-fit: cover; border: 1px solid #CBD5E1; border-radius: 4px; }
+        
+        .pdf-section { margin-bottom: 16px; page-break-inside: avoid; }
+        .pdf-section-title { font-size: 11pt; font-weight: 700; color: var(--primary-navy); background: #F1F5F9; padding: 4px 8px; border-left: 4px solid var(--accent-gold); margin-bottom: 8px; text-transform: uppercase; }
+        
+        .pdf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 9pt; }
+        .pdf-grid-item { display: flex; }
+        .pdf-grid-item strong { width: 120px; color: #475569; flex-shrink: 0; }
+
+        .pdf-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 8.5pt; }
+        .pdf-table th, .pdf-table td { border: 1px solid #CBD5E1; padding: 6px 8px; text-align: left; }
+        .pdf-table th { background: #E2E8F0; color: var(--primary-navy); font-weight: 600; }
+
+        .pdf-footer { margin-top: 30px; text-align: right; font-size: 8.5pt; page-break-inside: avoid; }
+        .pdf-signature-line { width: 160px; border-top: 1px solid #475569; margin-left: auto; margin-top: 35px; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="bismillah-bar" data-i18n="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo-area" onclick="app.navigateTo('dashboard')">
+                <i class="fa-solid fa-graduation-cap logo-icon"></i>
+                <div class="logo-text">
+                    <h1>Salman Smart Service</h1>
+                    <span data-i18n="tagline">Professional Smart Solutions</span>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button id="lang-toggle-btn" class="btn-lang" onclick="i18n.toggleLanguage()">
+                    <i class="fa-solid fa-globe"></i> <span id="lang-btn-text">English</span>
+                </button>
+
+                <div id="user-nav-actions" class="user-nav-actions hidden">
+                    <span id="nav-user-email" class="nav-email"></span>
+                    <button class="btn-logout" onclick="auth.logout()">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="logout">লগআউট</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+
+        <!-- Login / Signup Section -->
+        <section id="view-auth" class="view-section">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h2 id="auth-title" data-i18n="login_title">অ্যাকাউন্টে প্রবেশ করুন</h2>
+                    <p id="auth-subtitle" data-i18n="login_subtitle">স্মার্ট সেবাসমূহ ব্যবহার করতে আপনার ইমেইল ও পাসওয়ার্ড দিন</p>
+                </div>
+                
+                <form id="auth-form" onsubmit="auth.handleAuth(event)">
+                    <div class="form-group">
+                        <label data-i18n="email_label">ইমেইল ঠিকানা</label>
+                        <input type="email" id="auth-email" required data-i18n-ph="email_ph" placeholder="example@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="password_label">পাসওয়ার্ড</label>
+                        <input type="password" id="auth-password" required data-i18n-ph="password_ph" placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn-primary btn-block" id="auth-submit-btn" data-i18n="login_btn">লগইন করুন</button>
+                </form>
+
+                <div class="auth-footer">
+                    <span id="auth-switch-text" data-i18n="no_account">অ্যাকাউন্ট নেই?</span>
+                    <a href="javascript:void(0)" onclick="auth.toggleAuthMode()" id="auth-switch-link" data-i18n="signup_link">নতুন অ্যাকাউন্ট খুলুন</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- User Dashboard Section -->
+        <section id="view-user-dashboard" class="view-section hidden">
+            <div class="welcome-banner">
+                <div>
+                    <h2 id="user-welcome-title" data-i18n="welcome_title">স্বাগতম!</h2>
+                    <p data-i18n="dash_subtitle">আপনার সেবা নির্বাচন করুন অথবা পূর্বের আবেদনের স্ট্যাটাস দেখুন।</p>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dash-card">
+                    <div class="card-title">
+                        <i class="fa-solid fa-cubes"></i> <span data-i18n="available_services">উপলব্ধ সেবাসমূহ</span>
+                    </div>
+                    <div id="services-list" class="services-list-container"></div>
+                </div>
+
+                <div class="dash-card">
+                    <div class="card-title">
+                        <i class="fa-solid fa-file-lines"></i> <span data-i18n="my_applications">আমার আবেদনসমূহ</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="app_no">আবেদন নং</th>
+                                    <th data-i18n="service">সেবা</th>
+                                    <th data-i18n="date">তারিখ</th>
+                                    <th data-i18n="status">স্ট্যাটাস</th>
+                                    <th data-i18n="action">অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-applications-list"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comprehensive Dynamic Form (CV & Biodata) -->
+        <section id="view-cv-form" class="view-section hidden">
+            <div class="form-container">
+                <div class="form-header-bar">
+                    <h2><i class="fa-solid fa-file-signature"></i> <span data-i18n="cv_form_title">CV & Biodata Application Form</span></h2>
+                    <p class="form-note" data-i18n="required_note">(* চিহ্নিত ফিল্ডগুলো পূরণ করা আবশ্যক।)</p>
+                </div>
+
+                <form id="cv-application-form" onsubmit="cvForm.submitApplication(event)">
+                    <!-- Personal Information -->
+                    <div class="form-section">
+                        <h3><i class="fa-solid fa-user"></i> <span data-i18n="sec_personal_info">১. ব্যক্তিগত তথ্য</span></h3>
+                        <div class="form-grid">
+                            <div class="form-group"><label data-i18n="full_name">পূর্ণ নাম *</label><input type="text" id="cv-full-name" required data-i18n-ph="full_name_ph"></div>
+                            <div class="form-group"><label data-i18n="mobile">মোবাইল নম্বর *</label><input type="tel" id="cv-mobile" required data-i18n-ph="mobile_ph"></div>
+                            <div class="form-group"><label data-i18n="father_name">পিতার নাম</label><input type="text" id="cv-father-name" data-i18n-ph="father_name_ph"></div>
+                            <div class="form-group"><label data-i18n="mother_name">মাতার নাম</label><input type="text" id="cv-mother-name" data-i18n-ph="mother_name_ph"></div>
+                            <div class="form-group"><label data-i18n="dob">জন্ম তারিখ</label><input type="date" id="cv-dob"></div>
+                            <div class="form-group"><label data-i18n="nationality">জাতীয়তা</label><input type="text" id="cv-nationality" value="Bangladeshi"></div>
+                            <div class="form-group">
+                                <label data-i18n="gender">লিঙ্গ</label>
+                                <select id="cv-gender">
+                                    <option value="" data-i18n="select_opt">নির্বাচন করুন</option>
+                                    <option value="Male" data-i18n="male">পুরুষ</option>
+                                    <option value="Female" data-i18n="female">মহিলা</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label data-i18n="marital_status">বৈবাহিক অবস্থা</label>
+                                <select id="cv-marital-status">
+                                    <option value="" data-i18n="select_opt">নির্বাচন করুন</option>
+                                    <option value="Single" data-i18n="single">অবিবাহিত</option>
+                                    <option value="Married" data-i18n="married">বিবাহিত</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label data-i18n="height">উচ্চতা</label><input type="text" id="cv-height" data-i18n-ph="height_ph" placeholder="e.g. 5' 8&quot;"></div>
+                            <div class="form-group"><label data-i18n="weight">ওজন</label><input type="text" id="cv-weight" data-i18n-ph="weight_ph" placeholder="e.g. 65 kg"></div>
+                            <div class="form-group"><label data-i18n="email">ইমেইল</label><input type="email" id="cv-email" data-i18n-ph="email_ph"></div>
+                            <div class="form-group"><label data-i18n="photo_upload">ছবি আপলোড (Passport Photo)</label><input type="file" id="cv-photo" accept="image/*"></div>
+                        </div>
+                        <div class="form-group" style="margin-top: 12px;">
+                            <label data-i18n="career_objective">ক্যারিয়ার উদ্দেশ্য (Objective / Summary)</label>
+                            <textarea id="cv-objective" data-i18n-ph="objective_ph" placeholder="Brief statement about your professional goal..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Present Address -->
+                    <div class="form-section">
+                        <h3><i class="fa-solid fa-location-dot"></i> <span data-i18n="sec_present_addr">২. বর্তমান ঠিকানা</span></h3>
+                        <div class="form-grid">
+                            <div class="form-group"><label data-i18n="village">গ্রাম/মহল্লা</label><input type="text" id="cv-pres-village"></div>
+                            <div class="form-group"><label data-i18n="post_office">ডাকঘর</label><input type="text" id="cv-pres-po"></div>
+                            <div class="form-group"><label data-i18n="thana">থানা/উপজেলা</label><input type="text" id="cv-pres-thana"></div>
+                            <div class="form-group"><label data-i18n="district">জেলা</label><input type="text" id="cv-pres-district"></div>
+                        </div>
+                    </div>
+
+                    <!-- Permanent Address -->
+                    <div class="form-section">
+                        <h3><i class="fa-solid fa-house"></i> <span data-i18n="sec_permanent_addr">৩. স্থায়ী ঠিকানা</span></h3>
+                        <div class="form-grid">
+                            <div class="form-group"><label data-i18n="village">গ্রাম/মহল্লা</label><input type="text" id="cv-perm-village"></div>
+                            <div class="form-group"><label data-i18n="post_office">ডাকঘর</label><input type="text" id="cv-perm-po"></div>
+                            <div class="form-group"><label data-i18n="thana">থানা/উপজেলা</label><input type="text" id="cv-perm-thana"></div>
+                            <div class="form-group"><label data-i18n="district">জেলা</label><input type="text" id="cv-perm-district"></div>
+                        </div>
+                    </div>
+
+                    <!-- Education -->
+                    <div class="form-section">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <h3><i class="fa-solid fa-graduation-cap"></i> <span data-i18n="sec_education">৪. শিক্ষাগত যোগ্যতা</span></h3>
+                            <button type="button" class="btn-secondary btn-sm" onclick="cvForm.addEducationRow()"><i class="fa-solid fa-plus"></i> <span data-i18n="add_more">যোগ করুন</span></button>
+                        </div>
+                        <div id="education-entries-container"></div>
+                    </div>
+
+                    <!-- Skills & Experience -->
+                    <div class="form-section">
+                        <h3><i class="fa-solid fa-briefcase"></i> <span data-i18n="sec_skills_exp">৫. দক্ষতা ও অভিজ্ঞতা (Optional)</span></h3>
+                        <div class="form-grid">
+                            <div class="form-group"><label data-i18n="skills">দক্ষতাসমূহ (কমা দিয়ে লিখুন)</label><input type="text" id="cv-skills" data-i18n-ph="skills_ph"></div>
+                            <div class="form-group"><label data-i18n="languages">ভাষার দক্ষতা</label><input type="text" id="cv-languages" data-i18n-ph="languages_ph"></div>
+                        </div>
+                        <div class="form-group" style="margin-top:12px;">
+                            <label data-i18n="experience">কর্মঅভিজ্ঞতা (যদি থাকে)</label>
+                            <textarea id="cv-experience" data-i18n-ph="experience_ph"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Documents -->
+                    <div class="form-section">
+                        <h3><i class="fa-solid fa-paperclip"></i> <span data-i18n="sec_documents">৬. সাপোর্ট ফাইল/কাগজপত্র</span></h3>
+                        <div class="form-group"><input type="file" id="cv-documents" multiple></div>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                        <button type="button" class="btn-secondary" onclick="app.navigateTo('user-dashboard')" data-i18n="btn_cancel">বাতিল করুন</button>
+                        <button type="submit" class="btn-primary" id="cv-submit-btn"><i class="fa-solid fa-paper-plane"></i> <span data-i18n="btn_submit_app">আবেদন জমা দিন</span></button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Application Details Section -->
+        <section id="view-app-details" class="view-section hidden">
+            <div class="details-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <button class="btn-secondary btn-sm" onclick="dashboard.backToDashboard()"><i class="fa-solid fa-arrow-left"></i> <span data-i18n="btn_back">ব্যাক</span></button>
+                    <h2><span data-i18n="app_no">আবেদন নং</span>: <span id="det-app-no">---</span></h2>
+                    <span id="det-status-badge" class="badge">---</span>
+                </div>
+
+                <!-- Live A4 CV Action Bar -->
+                <div class="generated-file-card" style="background:#F0FDF4; border-color:#BBF7D0;">
+                    <h3 style="color:#166534;"><i class="fa-solid fa-file-pdf"></i> <span data-i18n="pdf_download_heading">A4 CV Preview & Instant Download</span></h3>
+                    <p style="font-size:0.85rem; color:#15803D; margin:5px 0 12px 0;" data-i18n="pdf_download_sub">স্বয়ংক্রিয়ভাবে প্রফেশনাল A4 ফরম্যাটে সিভি দেখুন অথবা সরাসরি ডাউনলোড করুন।</p>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn-info btn-sm" onclick="cvPdf.openPreviewModal()"><i class="fa-solid fa-eye"></i> <span data-i18n="preview">Preview A4 CV</span></button>
+                        <button class="btn-success btn-sm" onclick="cvPdf.generateAndDownload()"><i class="fa-solid fa-download"></i> <span data-i18n="download">Download A4 CV PDF</span></button>
+                    </div>
+                </div>
+
+                <div id="generated-file-container" class="generated-file-card hidden">
+                    <h3><i class="fa-solid fa-file-circle-check"></i> <span data-i18n="admin_file_title">অ্যাডমিন কর্তৃক অনুমোদিত ফাইল</span></h3>
+                    <button id="download-gen-file-btn" class="btn-primary btn-sm" style="margin-top:10px;"><i class="fa-solid fa-download"></i> <span data-i18n="btn_download_file">ফাইল দেখুন/ডাউনলোড করুন</span></button>
+                </div>
+
+                <!-- Admin Action Panel -->
+                <div id="admin-action-section" class="admin-panel-card hidden">
+                    <h3><i class="fa-solid fa-user-shield"></i> <span data-i18n="admin_action_heading">অ্যাডমিন অ্যাকশন</span></h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label data-i18n="status">স্ট্যাটাস</label>
+                            <select id="admin-status-select">
+                                <option value="Pending">Pending</option>
+                                <option value="Need Correction">Need Correction</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Rejected">Rejected</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="admin_note">নোট/পরামর্শ</label>
+                            <input type="text" id="admin-note-input" placeholder="নোট দিন...">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:15px;">
+                        <label data-i18n="upload_generated_file">Generated Final File Upload</label>
+                        <input type="file" id="admin-gen-file-input">
+                    </div>
+                    <button class="btn-primary btn-sm" style="margin-top:15px;" onclick="dashboard.saveAdminAction()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn_save">সেভ করুন</span></button>
+                </div>
+
+                <!-- Structured View Body -->
+                <div id="det-content-body"></div>
+            </div>
+        </section>
+
+        <!-- Admin Dashboard Section -->
+        <section id="view-admin-dashboard" class="view-section hidden">
+            <div class="admin-stats-grid">
+                <div class="stat-card"><h3 data-i18n="stat_total">মোট আবেদন</h3><p id="stat-total">0</p></div>
+                <div class="stat-card"><h3 data-i18n="stat_pending">পেন্ডিং</h3><p id="stat-pending">0</p></div>
+                <div class="stat-card"><h3 data-i18n="stat_correction">সংশোধন প্রয়োজন</h3><p id="stat-correction">0</p></div>
+                <div class="stat-card"><h3 data-i18n="stat_completed">সম্পন্ন</h3><p id="stat-approved">0</p></div>
+            </div>
+
+            <div class="dash-card">
+                <h3><i class="fa-solid fa-list-check"></i> <span data-i18n="all_applications">সকল আবেদন</span></h3>
+                <div class="table-responsive" style="margin-top:15px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="app_no">আবেদন নং</th>
+                                <th data-i18n="applicant_name">আবেদনকারীর নাম</th>
+                                <th data-i18n="date">তারিখ</th>
+                                <th data-i18n="status">স্ট্যাটাস</th>
+                                <th data-i18n="action">অ্যাকশন</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-applications-list"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for A4 CV Preview -->
+    <div id="preview-modal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-pdf"></i> <span data-i18n="preview">A4 CV Preview</span></h3>
+                <button class="btn-secondary btn-sm" onclick="cvPdf.closePreviewModal()" style="color:#FFF; background:transparent; font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-a4-content" class="a4-paper"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="cvPdf.closePreviewModal()" data-i18n="close">Close</button>
+                <button class="btn-success" onclick="cvPdf.generateAndDownload()"><i class="fa-solid fa-download"></i> <span data-i18n="download">Download PDF</span></button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <p>Salman Farshi © 2026 | All Rights Reserved</p>
+    </footer>
+
+    <script>
+        // Supabase Client Initialization
+        const SUPABASE_URL = "https://rlusmawepwqtqigihyvw.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_lszQoOpRAP9oDy7SJZ6Y1g_FOYOpTgv";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Utility: HTML Escaping for XSS Protection
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+            });
+        }
+
+        // Utility: Safe Unique Filename Generator
+        function getSafeFilename(originalName) {
+            const ext = originalName.split('.').pop();
+            const cleanName = originalName.replace(/[^a-zA-Z0-9]/g, "_");
+            return `${Date.now()}_${cleanName}.${ext}`;
+        }
+
+        // Complete Central Translation System (i18n)
+        const translations = {
+            bn: {
+                bismillah: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
+                tagline: "প্রফেশনাল স্মার্ট সলিউশনস",
+                login_title: "অ্যাকাউন্টে প্রবেশ করুন",
+                signup_title: "নতুন অ্যাকাউন্ট তৈরি করুন",
+                login_subtitle: "স্মার্ট সেবাসমূহ ব্যবহার করতে আপনার ইমেইল ও পাসওয়ার্ড দিন",
+                signup_subtitle: "রেজিস্ট্রেশন করতে আপনার ইমেইল ও নতুন পাসওয়ার্ড দিন",
+                email_label: "ইমেইল ঠিকানা",
+                password_label: "পাসওয়ার্ড",
+                login_btn: "লগইন করুন",
+                signup_btn: "সাইন আপ করুন",
+                no_account: "অ্যাকাউন্ট নেই?",
+                has_account: "আগে থেকেই অ্যাকাউন্ট আছে?",
+                signup_link: "নতুন অ্যাকাউন্ট খুলুন",
+                login_link: "লগইন করুন",
+                logout: "লগআউট",
+                welcome_title: "স্বাগতম!",
+                dash_subtitle: "আপনার সেবা নির্বাচন করুন অথবা পূর্বের আবেদনের স্ট্যাটাস দেখুন।",
+                available_services: "উপলব্ধ সেবাসমূহ",
+                my_applications: "আমার আবেদনসমূহ",
+                app_no: "আবেদন নং",
+                service: "সেবা",
+                date: "তারিখ",
+                status: "স্ট্যাটাস",
+                action: "অ্যাকশন",
+                applicant_name: "আবেদনকারীর নাম",
+                all_applications: "সকল আবেদন",
+                cv_form_title: "CV & Biodata Application Form",
+                required_note: "(* চিহ্নিত ফিল্ডগুলো পূরণ করা আবশ্যক।)",
+                sec_personal_info: "১. ব্যক্তিগত তথ্য",
+                full_name: "পূর্ণ নাম *",
+                mobile: "মোবাইল নম্বর *",
+                father_name: "পিতার নাম",
+                mother_name: "মাতার নাম",
+                dob: "জন্ম তারিখ",
+                nationality: "জাতীয়তা",
+                gender: "লিঙ্গ",
+                marital_status: "বৈবাহিক অবস্থা",
+                select_opt: "নির্বাচন করুন",
+                male: "পুরুষ",
+                female: "মহিলা",
+                single: "অবিবাহিত",
+                married: "বিবাহিত",
+                height: "উচ্চতা",
+                weight: "ওজন",
+                email: "ইমেইল",
+                photo_upload: "ছবি আপলোড (Passport Photo)",
+                career_objective: "ক্যারিয়ার উদ্দেশ্য (Objective / Summary)",
+                sec_present_addr: "২. বর্তমান ঠিকানা",
+                sec_permanent_addr: "৩. স্থায়ী ঠিকানা",
+                village: "গ্রাম/মহল্লা",
+                post_office: "ডাকঘর",
+                thana: "থানা/উপজেলা",
+                district: "জেলা",
+                sec_education: "৪. শিক্ষাগত যোগ্যতা",
+                add_more: "যোগ করুন",
+                exam_name: "পরীক্ষার নাম",
+                passing_year: "পাশের সাল",
+                institute: "ইনস্টিটিউট",
+                gpa: "জিপিএ/ফলাফল",
+                sec_skills_exp: "৫. দক্ষতা ও অভিজ্ঞতা (Optional)",
+                skills: "দক্ষতাসমূহ (কমা দিয়ে লিখুন)",
+                languages: "ভাষার দক্ষতা",
+                experience: "কর্মঅভিজ্ঞতা (যদি থাকে)",
+                sec_documents: "৬. সাপোর্ট ফাইল/কাগজপত্র",
+                btn_cancel: "বাতিল করুন",
+                btn_submit_app: "আবেদন জমা দিন",
+                btn_back: "ব্যাক",
+                pdf_download_heading: "A4 CV Preview & Instant Download",
+                pdf_download_sub: "স্বয়ংক্রিয়ভাবে প্রফেশনাল A4 ফরম্যাটে সিভি দেখুন অথবা সরাসরি ডাউনলোড করুন।",
+                admin_file_title: "অ্যাডমিন কর্তৃক অনুমোদিত ফাইল",
+                btn_download_file: "ফাইল দেখুন/ডাউনলোড করুন",
+                admin_action_heading: "অ্যাডমিন অ্যাকশন",
+                admin_note: "নোট/পরামর্শ",
+                upload_generated_file: "Generated Final File Upload",
+                btn_save: "সেভ করুন",
+                stat_total: "মোট আবেদন",
+                stat_pending: "পেন্ডিং",
+                stat_correction: "সংশোধন প্রয়োজন",
+                stat_completed: "সম্পন্ন",
+                loading: "লোড হচ্ছে...",
+                no_data: "কোনো তথ্য পাওয়া যায়নি।",
+                view: "দেখুন",
+                manage: "ম্যানেজ",
+                apply_now: "আবেদন করুন",
+                download: "ডাউনলোড PDF",
+                preview: "প্রিভিউ CV",
+                close: "বন্ধ করুন",
+                status_pending: "পেন্ডিং (Pending)",
+                status_correction: "সংশোধন প্রয়োজন (Need Correction)",
+                status_approved: "অনুমোদিত (Approved)",
+                status_rejected: "বাতিল (Rejected)",
+                status_completed: "সম্পন্ন (Completed)",
+                
+                // Dynamic Placeholders
+                email_ph: "example@gmail.com",
+                password_ph: "••••••••",
+                full_name_ph: "আপনার নাম লিখুন",
+                mobile_ph: "০১৭XXXXXXXX",
+                father_name_ph: "পিতার নাম লিখুন",
+                mother_name_ph: "মাতার নাম লিখুন",
+                height_ph: "যেমন: 5 feet 8 inch",
+                weight_ph: "যেমন: 65 kg",
+                objective_ph: "সংক্ষেপে ক্যারিয়ার উদ্দেশ্য বা জীবনবৃত্তান্তের সারসংক্ষেপ...",
+                skills_ph: "যেমন: MS Office, Graphic Design, Web Development",
+                languages_ph: "যেমন: Bangla, English",
+                experience_ph: "প্রতিষ্ঠানের নাম, পদবী, সময়কাল..."
+            },
+            en: {
+                bismillah: "In the name of Allah, the Most Gracious, the Most Merciful",
+                tagline: "Professional Smart Solutions",
+                login_title: "Account Login",
+                signup_title: "Create New Account",
+                login_subtitle: "Enter your email and password to access services",
+                signup_subtitle: "Provide email and password to register an account",
+                email_label: "Email Address",
+                password_label: "Password",
+                login_btn: "Login",
+                signup_btn: "Sign Up",
+                no_account: "Don't have an account?",
+                has_account: "Already have an account?",
+                signup_link: "Register Now",
+                login_link: "Login Here",
+                logout: "Logout",
+                welcome_title: "Welcome!",
+                dash_subtitle: "Select a service or track your application status.",
+                available_services: "Available Services",
+                my_applications: "My Applications",
+                app_no: "App No",
+                service: "Service",
+                date: "Date",
+                status: "Status",
+                action: "Action",
+                applicant_name: "Applicant Name",
+                all_applications: "All Applications",
+                cv_form_title: "CV & Biodata Application Form",
+                required_note: "(* Marked fields are required.)",
+                sec_personal_info: "1. Personal Information",
+                full_name: "Full Name *",
+                mobile: "Mobile Number *",
+                father_name: "Father's Name",
+                mother_name: "Mother's Name",
+                dob: "Date of Birth",
+                nationality: "Nationality",
+                gender: "Gender",
+                marital_status: "Marital Status",
+                select_opt: "Select Option",
+                male: "Male",
+                female: "Female",
+                single: "Single",
+                married: "Married",
+                height: "Height",
+                weight: "Weight",
+                email: "Email Address",
+                photo_upload: "Upload Photo (Passport Size)",
+                career_objective: "Career Objective / Summary",
+                sec_present_addr: "2. Present Address",
+                sec_permanent_addr: "3. Permanent Address",
+                village: "Village/Street",
+                post_office: "Post Office",
+                thana: "Thana/Upazila",
+                district: "District",
+                sec_education: "4. Educational Qualifications",
+                add_more: "Add More",
+                exam_name: "Exam Title",
+                passing_year: "Passing Year",
+                institute: "Institution",
+                gpa: "GPA / Result",
+                sec_skills_exp: "5. Skills & Experience (Optional)",
+                skills: "Skills (Comma separated)",
+                languages: "Language Proficiency",
+                experience: "Work Experience (If any)",
+                sec_documents: "6. Supporting Documents",
+                btn_cancel: "Cancel",
+                btn_submit_app: "Submit Application",
+                btn_back: "Back",
+                pdf_download_heading: "A4 CV Preview & Instant Download",
+                pdf_download_sub: "Instantly view or download professional A4 formatted CV.",
+                admin_file_title: "Admin Approved Final File",
+                btn_download_file: "View / Download File",
+                admin_action_heading: "Admin Action Panel",
+                admin_note: "Note / Instructions",
+                upload_generated_file: "Upload Generated Final File",
+                btn_save: "Save Changes",
+                stat_total: "Total Applications",
+                stat_pending: "Pending",
+                stat_correction: "Need Correction",
+                stat_completed: "Completed",
+                loading: "Loading...",
+                no_data: "No data found.",
+                view: "View",
+                manage: "Manage",
+                apply_now: "Apply Now",
+                download: "Download PDF",
+                preview: "Preview CV",
+                close: "Close",
+                status_pending: "Pending",
+                status_correction: "Need Correction",
+                status_approved: "Approved",
+                status_rejected: "Rejected",
+                status_completed: "Completed",
+
+                // Dynamic Placeholders
+                email_ph: "example@gmail.com",
+                password_ph: "••••••••",
+                full_name_ph: "Enter your full name",
+                mobile_ph: "+88017XXXXXXXX",
+                father_name_ph: "Enter father's name",
+                mother_name_ph: "Enter mother's name",
+                height_ph: "e.g. 5 feet 8 inch",
+                weight_ph: "e.g. 65 kg",
+                objective_ph: "Brief career objective summary...",
+                skills_ph: "e.g. MS Office, Graphic Design, Web Development",
+                languages_ph: "e.g. Bangla, English",
+                experience_ph: "Company Name, Role, Duration..."
+            }
+        };
+
+        const i18n = {
+            currentLang: 'bn',
+            init: function() {
+                const saved = localStorage.getItem('app_lang');
+                if (saved && (saved === 'bn' || saved === 'en')) {
+                    this.currentLang = saved;
+                }
+                this.applyLanguage();
+            },
+            toggleLanguage: function() {
+                this.currentLang = this.currentLang === 'bn' ? 'en' : 'bn';
+                localStorage.setItem('app_lang', this.currentLang);
+                this.applyLanguage();
+            },
+            applyLanguage: function() {
+                document.getElementById('lang-btn-text').innerText = this.currentLang === 'bn' ? 'English' : 'বাংলা';
+                
+                // Translate Text Nodes
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (translations[this.currentLang] && translations[this.currentLang][key]) {
+                        el.innerText = translations[this.currentLang][key];
+                    }
+                });
+
+                // Translate Placeholders
+                document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-ph');
+                    if (translations[this.currentLang] && translations[this.currentLang][key]) {
+                        el.placeholder = translations[this.currentLang][key];
+                    }
+                });
+
+                // Update Dynamic Auth UI Text if active
+                auth.updateAuthText();
+            },
+            t: function(key) {
+                return (translations[this.currentLang] && translations[this.currentLang][key]) ? translations[this.currentLang][key] : key;
+            },
+            getStatusLabel: function(status) {
+                if (status === 'Pending') return this.t('status_pending');
+                if (status === 'Need Correction') return this.t('status_correction');
+                if (status === 'Approved') return this.t('status_approved');
+                if (status === 'Rejected') return this.t('status_rejected');
+                if (status === 'Completed') return this.t('status_completed');
+                return status;
+            }
+        };
+
+        // Auth Logic
+        const auth = {
+            isSignUp: false,
+            toggleAuthMode: function() {
+                this.isSignUp = !this.isSignUp;
+                this.updateAuthText();
+            },
+            updateAuthText: function() {
+                document.getElementById('auth-title').innerText = this.isSignUp ? i18n.t('signup_title') : i18n.t('login_title');
+                document.getElementById('auth-subtitle').innerText = this.isSignUp ? i18n.t('signup_subtitle') : i18n.t('login_subtitle');
+                document.getElementById('auth-submit-btn').innerText = this.isSignUp ? i18n.t('signup_btn') : i18n.t('login_btn');
+                document.getElementById('auth-switch-text').innerText = this.isSignUp ? i18n.t('has_account') : i18n.t('no_account');
+                document.getElementById('auth-switch-link').innerText = this.isSignUp ? i18n.t('login_link') : i18n.t('signup_link');
+            },
+            handleAuth: async function(e) {
+                e.preventDefault();
+                const email = document.getElementById('auth-email').value;
+                const password = document.getElementById('auth-password').value;
+                try {
+                    if (this.isSignUp) {
+                        const { error } = await _supabase.auth.signUp({ email, password });
+                        if (error) throw error;
+                        alert(i18n.currentLang === 'bn' ? "সাইন আপ সফল হয়েছে! আপনার ইমেইল চেক করুন।" : "Sign up successful! Please check your email.");
+                        this.toggleAuthMode();
+                    } else {
+                        const { error } = await _supabase.auth.signInWithPassword({ email, password });
+                        if (error) throw error;
+                        await this.checkUserAndRedirect();
+                    }
+                } catch (err) { alert(err.message || "Authentication error occurred."); }
+            },
+            checkUserAndRedirect: async function() {
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (!session) { app.navigateTo('auth'); return; }
+
+                document.getElementById('user-nav-actions').classList.remove('hidden');
+                document.getElementById('nav-user-email').innerText = escapeHTML(session.user.email);
+
+                const { data: profile } = await _supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle();
+
+                if (profile && profile.role === 'admin') {
+                    app.navigateTo('admin-dashboard');
+                    dashboard.loadAdminDashboard();
+                } else {
+                    app.navigateTo('user-dashboard');
+                    dashboard.loadUserDashboard();
+                    services.loadActiveServices();
+                }
+            },
+            logout: async function() {
+                await _supabase.auth.signOut();
+                document.getElementById('user-nav-actions').classList.add('hidden');
+                app.navigateTo('auth');
+            }
+        };
+
+        // Services System
+        const services = {
+            loadActiveServices: async function() {
+                const container = document.getElementById('services-list');
+                container.innerHTML = `<p>${i18n.t('loading')}</p>`;
+                const { data: servicesList, error } = await _supabase.from('services').select('*').eq('is_active', true);
+                if (error || !servicesList || servicesList.length === 0) {
+                    container.innerHTML = `<p>${i18n.t('no_data')}</p>`;
+                    return;
+                }
+                container.innerHTML = "";
+                servicesList.forEach(srv => {
+                    const card = document.createElement('div');
+                    card.className = "service-card";
+                    card.innerHTML = `
+                        <h4>${escapeHTML(srv.name)}</h4>
+                        <p>${escapeHTML(srv.description || '')}</p>
+                        <button class="btn-primary btn-sm" onclick="app.openServiceForm('${escapeHTML(srv.code)}')">${i18n.t('apply_now')}</button>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+        };
+
+        // CV Form Handler
+        const cvForm = {
+            addEducationRow: function() {
+                const container = document.getElementById('education-entries-container');
+                const row = document.createElement('div');
+                row.className = "edu-row";
+                row.style.marginBottom = "10px";
+                row.innerHTML = `
+                    <div class="form-grid">
+                        <div class="form-group"><label>${i18n.t('exam_name')}</label><input type="text" class="edu-exam" placeholder="SSC/HSC/BSc"></div>
+                        <div class="form-group"><label>${i18n.t('passing_year')}</label><input type="text" class="edu-year" placeholder="2022"></div>
+                        <div class="form-group"><label>${i18n.t('institute')}</label><input type="text" class="edu-institute"></div>
+                        <div class="form-group"><label>${i18n.t('gpa')}</label><input type="text" class="edu-result"></div>
+                    </div>
+                `;
+                container.appendChild(row);
+            },
+            submitApplication: async function(e) {
+                e.preventDefault();
+                const submitBtn = document.getElementById('cv-submit-btn');
+                submitBtn.disabled = true;
+                submitBtn.innerText = i18n.t('loading');
+
+                try {
+                    const { data: { session } } = await _supabase.auth.getSession();
+                    const userId = session.user.id;
+
+                    const { data: srv } = await _supabase.from('services').select('id').eq('code', 'CV_BIODATA').maybeSingle();
+
+                    // Step 1: Create Application Entry First to obtain ID
+                    const { data: newApp, error: appErr } = await _supabase.from('applications').insert([{
+                        user_id: userId,
+                        service_id: srv ? srv.id : null,
+                        status: 'Pending',
+                        form_data: {}
+                    }]).select().single();
+
+                    if (appErr) throw appErr;
+                    const appId = newApp.id;
+
+                    // Step 2: Upload Photo to bucket: profile-avatars path: {user_id}/{filename}
+                    let photoPath = "";
+                    const photoFile = document.getElementById('cv-photo').files[0];
+                    if (photoFile) {
+                        const safePhotoName = getSafeFilename(photoFile.name);
+                        const pPath = `${userId}/${safePhotoName}`;
+                        const { error: photoErr } = await _supabase.storage.from('profile-avatars').upload(pPath, photoFile);
+                        if (!photoErr) photoPath = pPath;
+                    }
+
+                    // Step 3: Upload Documents to bucket: application-documents path: {application_id}/{filename}
+                    const docPaths = [];
+                    const docFiles = document.getElementById('cv-documents').files;
+                    for (let i = 0; i < docFiles.length; i++) {
+                        const dFile = docFiles[i];
+                        const safeDocName = getSafeFilename(dFile.name);
+                        const dPath = `${appId}/${safeDocName}`;
+                        const { error: dErr } = await _supabase.storage.from('application-documents').upload(dPath, dFile);
+                        if (!dErr) docPaths.push({ name: dFile.name, path: dPath });
+                    }
+
+                    // Collect Educational Qualifications
+                    const eduList = [];
+                    document.querySelectorAll('.edu-row').forEach(row => {
+                        const exam = row.querySelector('.edu-exam').value;
+                        if (exam) {
+                            eduList.push({
+                                exam_name: exam,
+                                passing_year: row.querySelector('.edu-year').value,
+                                institute_name: row.querySelector('.edu-institute').value,
+                                result_gpa: row.querySelector('.edu-result').value
+                            });
+                        }
+                    });
+
+                    const formData = {
+                        personal_info: {
+                            full_name: document.getElementById('cv-full-name').value,
+                            mobile: document.getElementById('cv-mobile').value,
+                            father_name: document.getElementById('cv-father-name').value,
+                            mother_name: document.getElementById('cv-mother-name').value,
+                            dob: document.getElementById('cv-dob').value,
+                            nationality: document.getElementById('cv-nationality').value,
+                            gender: document.getElementById('cv-gender').value,
+                            marital_status: document.getElementById('cv-marital-status').value,
+                            height: document.getElementById('cv-height').value,
+                            weight: document.getElementById('cv-weight').value,
+                            email: document.getElementById('cv-email').value,
+                            objective: document.getElementById('cv-objective').value,
+                            photo_path: photoPath
+                        },
+                        present_address: { village: document.getElementById('cv-pres-village').value, po: document.getElementById('cv-pres-po').value, thana: document.getElementById('cv-pres-thana').value, district: document.getElementById('cv-pres-district').value },
+                        permanent_address: { village: document.getElementById('cv-perm-village').value, po: document.getElementById('cv-perm-po').value, thana: document.getElementById('cv-perm-thana').value, district: document.getElementById('cv-perm-district').value },
+                        education: eduList,
+                        skills: document.getElementById('cv-skills').value,
+                        languages: document.getElementById('cv-languages').value,
+                        experience: document.getElementById('cv-experience').value,
+                        documents: docPaths
+                    };
+
+                    await _supabase.from('applications').update({ form_data: formData }).eq('id', appId);
+
+                    alert(i18n.currentLang === 'bn' ? "আবেদন সফলভাবে জমা হয়েছে!" : "Application submitted successfully!");
+                    document.getElementById('cv-application-form').reset();
+                    app.navigateTo('user-dashboard');
+                    dashboard.loadUserDashboard();
+
+                } catch (err) { alert("Error: " + err.message); }
+                finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = i18n.t('btn_submit_app');
+                }
+            }
+        };
+
+        // Professional PDF Generator & Preview Engine
+        const cvPdf = {
+            buildHtmlContent: async function() {
+                const appData = dashboard.currentApp;
+                if (!appData) return '';
+
+                const info = appData.form_data?.personal_info || {};
+                const pres = appData.form_data?.present_address || {};
+                const perm = appData.form_data?.permanent_address || {};
+                const edu = appData.form_data?.education || [];
+                const skills = appData.form_data?.skills || '';
+                const languages = appData.form_data?.languages || '';
+                const experience = appData.form_data?.experience || '';
+
+                let photoUrl = '';
+                if (info.photo_path) {
+                    const { data } = await _supabase.storage.from('profile-avatars').createSignedUrl(info.photo_path, 300);
+                    if (data) photoUrl = data.signedUrl;
+                }
+
+                const presentAddrStr = [pres.village, pres.po, pres.thana, pres.district].filter(Boolean).join(', ');
+                const permAddrStr = [perm.village, perm.po, perm.thana, perm.district].filter(Boolean).join(', ');
+
+                return `
+                    <div class="pdf-header">
+                        <div class="pdf-header-text">
+                            <h1>${escapeHTML(info.full_name || 'CURRICULUM VITAE')}</h1>
+                            <p>${escapeHTML(info.email || '')} ${info.mobile ? '| ' + escapeHTML(info.mobile) : ''}</p>
+                        </div>
+                        ${photoUrl ? `<img src="${photoUrl}" class="pdf-photo" alt="Photo" />` : ''}
+                    </div>
+
+                    ${info.objective ? `
+                        <div class="pdf-section">
+                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'ক্যারিয়ার উদ্দেশ্য' : 'CAREER OBJECTIVE'}</div>
+                            <p style="font-size:9pt; color:#334155; line-height:1.4;">${escapeHTML(info.objective)}</p>
+                        </div>
+                    ` : ''}
+
+                    <div class="pdf-section">
+                        <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'ব্যক্তিগত তথ্য' : 'PERSONAL DETAILS'}</div>
+                        <div class="pdf-grid">
+                            ${info.father_name ? `<div class="pdf-grid-item"><strong>${i18n.t('father_name')}:</strong> ${escapeHTML(info.father_name)}</div>` : ''}
+                            ${info.mother_name ? `<div class="pdf-grid-item"><strong>${i18n.t('mother_name')}:</strong> ${escapeHTML(info.mother_name)}</div>` : ''}
+                            ${info.dob ? `<div class="pdf-grid-item"><strong>${i18n.t('dob')}:</strong> ${escapeHTML(info.dob)}</div>` : ''}
+                            ${info.nationality ? `<div class="pdf-grid-item"><strong>${i18n.t('nationality')}:</strong> ${escapeHTML(info.nationality)}</div>` : ''}
+                            ${info.gender ? `<div class="pdf-grid-item"><strong>${i18n.t('gender')}:</strong> ${escapeHTML(info.gender)}</div>` : ''}
+                            ${info.marital_status ? `<div class="pdf-grid-item"><strong>${i18n.t('marital_status')}:</strong> ${escapeHTML(info.marital_status)}</div>` : ''}
+                            ${info.height ? `<div class="pdf-grid-item"><strong>${i18n.t('height')}:</strong> ${escapeHTML(info.height)}</div>` : ''}
+                            ${info.weight ? `<div class="pdf-grid-item"><strong>${i18n.t('weight')}:</strong> ${escapeHTML(info.weight)}</div>` : ''}
+                        </div>
+                    </div>
+
+                    ${presentAddrStr || permAddrStr ? `
+                        <div class="pdf-section">
+                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'ঠিকানা' : 'ADDRESS DETAILS'}</div>
+                            <div class="pdf-grid">
+                                ${presentAddrStr ? `<div><strong>${i18n.t('sec_present_addr')}:</strong><br>${escapeHTML(presentAddrStr)}</div>` : ''}
+                                ${permAddrStr ? `<div><strong>${i18n.t('sec_permanent_addr')}:</strong><br>${escapeHTML(permAddrStr)}</div>` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${edu.length > 0 ? `
+                        <div class="pdf-section">
+                            <div class="pdf-section-title">${i18n.t('sec_education')}</div>
+                            <table class="pdf-table">
+                                <thead>
+                                    <tr>
+                                        <th>${i18n.t('exam_name')}</th>
+                                        <th>${i18n.t('institute')}</th>
+                                        <th>${i18n.t('passing_year')}</th>
+                                        <th>${i18n.t('gpa')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${edu.map(e => `
+                                        <tr>
+                                            <td>${escapeHTML(e.exam_name)}</td>
+                                            <td>${escapeHTML(e.institute_name)}</td>
+                                            <td>${escapeHTML(e.passing_year)}</td>
+                                            <td>${escapeHTML(e.result_gpa)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    ` : ''}
+
+                    ${skills || languages ? `
+                        <div class="pdf-section">
+                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'দক্ষতা ও ভাষা' : 'SKILLS & LANGUAGES'}</div>
+                            ${skills ? `<p style="font-size:9pt; margin-bottom:4px;"><strong>${i18n.t('skills')}:</strong> ${escapeHTML(skills)}</p>` : ''}
+                            ${languages ? `<p style="font-size:9pt;"><strong>${i18n.t('languages')}:</strong> ${escapeHTML(languages)}</p>` : ''}
+                        </div>
+                    ` : ''}
+
+                    ${experience ? `
+                        <div class="pdf-section">
+                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'কর্মঅভিজ্ঞতা' : 'WORK EXPERIENCE'}</div>
+                            <p style="font-size:9pt; white-space:pre-line; color:#334155;">${escapeHTML(experience)}</p>
+                        </div>
+                    ` : ''}
+
+                    <div class="pdf-footer">
+                        <div class="pdf-signature-line"></div>
+                        <p>${escapeHTML(info.full_name || 'Applicant Signature')}</p>
+                    </div>
+                `;
+            },
+            openPreviewModal: async function() {
+                const modal = document.getElementById('preview-modal');
+                const contentContainer = document.getElementById('modal-a4-content');
+                contentContainer.innerHTML = `<p>${i18n.t('loading')}</p>`;
+                modal.classList.remove('hidden');
+
+                const html = await this.buildHtmlContent();
+                contentContainer.innerHTML = html;
+            },
+            closePreviewModal: function() {
+                document.getElementById('preview-modal').classList.add('hidden');
+            },
+            generateAndDownload: async function() {
+                const appData = dashboard.currentApp;
+                if (!appData) return;
+
+                // Create a temporary visible container for perfect html2canvas rendering
+                const tempDiv = document.createElement('div');
+                tempDiv.className = 'a4-paper';
+                tempDiv.style.position = 'fixed';
+                tempDiv.style.left = '0';
+                tempDiv.style.top = '0';
+                tempDiv.style.zIndex = '-9999';
+                tempDiv.style.background = '#FFFFFF';
+                tempDiv.innerHTML = await this.buildHtmlContent();
+                document.body.appendChild(tempDiv);
+
+                const info = appData.form_data?.personal_info || {};
+                const cleanName = (info.full_name || 'Applicant').replace(/[^a-zA-Z0-9]/g, "_");
+                const fileName = `${cleanName}_CV.pdf`;
+
+                const opt = {
+                    margin:       [10, 10, 10, 10],
+                    filename:     fileName,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+                };
+
+                try {
+                    await html2pdf().set(opt).from(tempDiv).save();
+                } catch (err) {
+                    alert("PDF Generation Error: " + err.message);
+                } finally {
+                    document.body.removeChild(tempDiv);
+                }
+            }
+        };
+
+        // Dashboards Functionality
+        const dashboard = {
+            currentApp: null,
+            loadUserDashboard: async function() {
+                const { data: { session } } = await _supabase.auth.getSession();
+                const tbody = document.getElementById('user-applications-list');
+                tbody.innerHTML = `<tr><td colspan='5'>${i18n.t('loading')}</td></tr>`;
+
+                const { data: apps, error } = await _supabase.from('applications').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false });
+                if (error || !apps || apps.length === 0) { tbody.innerHTML = `<tr><td colspan='5'>${i18n.t('no_data')}</td></tr>`; return; }
+
+                tbody.innerHTML = "";
+                apps.forEach(a => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${escapeHTML(a.id.substring(0,8))}</strong></td>
+                        <td>CV & Biodata</td>
+                        <td>${new Date(a.created_at).toLocaleDateString()}</td>
+                        <td><span class="badge badge-pending">${i18n.getStatusLabel(a.status)}</span></td>
+                        <td><button class="btn-primary btn-sm" onclick="dashboard.viewAppDetails('${escapeHTML(a.id)}')">${i18n.t('view')}</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            },
+            loadAdminDashboard: async function() {
+                const tbody = document.getElementById('admin-applications-list');
+                tbody.innerHTML = `<tr><td colspan='5'>${i18n.t('loading')}</td></tr>`;
+                const { data: apps, error } = await _supabase.from('applications').select('*').order('created_at', { ascending: false });
+                if (error || !apps) { tbody.innerHTML = `<tr><td colspan='5'>${i18n.t('no_data')}</td></tr>`; return; }
+
+                document.getElementById('stat-total').innerText = apps.length;
+                document.getElementById('stat-pending').innerText = apps.filter(x => x.status === 'Pending').length;
+                document.getElementById('stat-correction').innerText = apps.filter(x => x.status === 'Need Correction').length;
+                document.getElementById('stat-approved').innerText = apps.filter(x => x.status === 'Approved' || x.status === 'Completed').length;
+
+                tbody.innerHTML = "";
+                apps.forEach(a => {
+                    const name = a.form_data?.personal_info?.full_name || 'N/A';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${escapeHTML(a.id.substring(0,8))}</strong></td>
+                        <td>${escapeHTML(name)}</td>
+                        <td>${new Date(a.created_at).toLocaleDateString()}</td>
+                        <td><span class="badge badge-pending">${i18n.getStatusLabel(a.status)}</span></td>
+                        <td><button class="btn-primary btn-sm" onclick="dashboard.viewAppDetails('${escapeHTML(a.id)}', true)">${i18n.t('manage')}</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            },
+            viewAppDetails: async function(appId, isAdmin = false) {
+                app.navigateTo('app-details');
+                const { data: a } = await _supabase.from('applications').select('*').eq('id', appId).single();
+                if (!a) return;
+                this.currentApp = a;
+
+                document.getElementById('det-app-no').innerText = escapeHTML(a.id.substring(0,8));
+                document.getElementById('det-status-badge').innerText = i18n.getStatusLabel(a.status);
+
+                const genContainer = document.getElementById('generated-file-container');
+                if ((a.status === 'Approved' || a.status === 'Completed') && a.generated_file_path) {
+                    genContainer.classList.remove('hidden');
+                    document.getElementById('download-gen-file-btn').onclick = async () => {
+                        const { data } = await _supabase.storage.from('generated-files').createSignedUrl(a.generated_file_path, 300);
+                        if (data) window.open(data.signedUrl, '_blank');
+                    };
+                } else { genContainer.classList.add('hidden'); }
+
+                const adminSec = document.getElementById('admin-action-section');
+                if (isAdmin) {
+                    adminSec.classList.remove('hidden');
+                    document.getElementById('admin-status-select').value = a.status;
+                    document.getElementById('admin-note-input').value = a.admin_note || '';
+                } else { adminSec.classList.add('hidden'); }
+
+                const p = a.form_data?.personal_info || {};
+                let html = `
+                    <div style="margin-top:20px;">
+                        <h3>${i18n.t('sec_personal_info')}</h3>
+                        <p><strong>${i18n.t('full_name')}:</strong> ${escapeHTML(p.full_name)}</p>
+                        <p><strong>${i18n.t('mobile')}:</strong> ${escapeHTML(p.mobile)}</p>
+                        <p><strong>${i18n.t('father_name')}:</strong> ${escapeHTML(p.father_name)}</p>
+                        <p><strong>${i18n.t('email')}:</strong> ${escapeHTML(p.email)}</p>
+                    </div>
+                `;
+                document.getElementById('det-content-body').innerHTML = html;
+            },
+            saveAdminAction: async function() {
+                const newStatus = document.getElementById('admin-status-select').value;
+                const note = document.getElementById('admin-note-input').value;
+                const genFile = document.getElementById('admin-gen-file-input').files[0];
+
+                let genFilePath = this.currentApp.generated_file_path || "";
+
+                try {
+                    if (genFile) {
+                        const safeName = getSafeFilename(genFile.name);
+                        const gPath = `${this.currentApp.id}/${safeName}`;
+                        const { error } = await _supabase.storage.from('generated-files').upload(gPath, genFile);
+                        if (!error) genFilePath = gPath;
+                    }
+
+                    await _supabase.from('applications').update({
+                        status: newStatus,
+                        admin_note: note,
+                        generated_file_path: genFilePath
+                    }).eq('id', this.currentApp.id);
+
+                    alert(i18n.currentLang === 'bn' ? "আপডেট সফল হয়েছে!" : "Update successful!");
+                    this.loadAdminDashboard();
+                    app.navigateTo('admin-dashboard');
+                } catch (err) { alert("Error: " + err.message); }
+            },
+            backToDashboard: function() { auth.checkUserAndRedirect(); }
+        };
+
+        // Main App Navigation
+        const app = {
+            init: function() {
+                i18n.init();
+                auth.checkUserAndRedirect();
+                cvForm.addEducationRow();
+            },
+            navigateTo: function(viewName) {
+                document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+                if (viewName === 'auth') document.getElementById('view-auth').classList.remove('hidden');
+                else if (viewName === 'user-dashboard') document.getElementById('view-user-dashboard').classList.remove('hidden');
+                else if (viewName === 'admin-dashboard') document.getElementById('view-admin-dashboard').classList.remove('hidden');
+                else if (viewName === 'cv-form') document.getElementById('view-cv-form').classList.remove('hidden');
+                else if (viewName === 'app-details') document.getElementById('view-app-details').classList.remove('hidden');
+                else if (viewName === 'dashboard') auth.checkUserAndRedirect();
+            },
+            openServiceForm: function(code) {
+                if (code === 'CV_BIODATA') this.navigateTo('cv-form');
+            }
+        };
+
+        window.onload = () => app.init();
+    </script>
+</body>
+</html>

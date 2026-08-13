@@ -12,8 +12,11 @@
     <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- HTML2PDF Library for Production Ready A4 CV Generation -->
+    <!-- HTML2PDF Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- QRCode JS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         :root {
@@ -200,51 +203,38 @@
         .modal-body { flex: 1; overflow-y: auto; padding: 20px; background: #E2E8F0; display: flex; justify-content: center; }
         .modal-footer { padding: 14px 20px; background: #F1F5F9; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-color); flex-wrap: wrap; }
 
-        /* A4 CV Paper */
-        .a4-paper { width: 210mm; min-height: 297mm; padding: 20mm; background: #FFFFFF; color: #1E293B; box-shadow: 0 0 10px rgba(0,0,0,0.1); box-sizing: border-box; }
-        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-navy); padding-bottom: 12px; margin-bottom: 15px; }
-        .pdf-header-text h1 { font-size: 20pt; color: var(--primary-navy); text-transform: uppercase; margin-bottom: 4px; }
-        .pdf-header-text .pdf-contact { font-size: 9.5pt; color: var(--accent-sky); font-weight: 600; display: flex; flex-direction: column; gap: 2px; }
+        /* CV Paper Designs */
+        .a4-paper { width: 210mm; min-height: 297mm; padding: 20mm; background: #FFFFFF; color: #1E293B; box-shadow: 0 0 10px rgba(0,0,0,0.1); box-sizing: border-box; position: relative; }
+        
+        /* Template 1: Professional Modern */
+        .tpl-prof .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-navy); padding-bottom: 12px; margin-bottom: 15px; }
+        .tpl-prof .pdf-header-text h1 { font-size: 20pt; color: var(--primary-navy); text-transform: uppercase; margin-bottom: 4px; }
+        .tpl-prof .pdf-section-title { font-size: 11pt; font-weight: 700; color: var(--primary-navy); background: #F1F5F9; padding: 4px 8px; border-left: 4px solid var(--accent-gold); margin-bottom: 8px; text-transform: uppercase; }
+        
+        /* Template 2: Standard Clean */
+        .tpl-std .pdf-header { text-align: center; border-bottom: 1px solid #CBD5E1; padding-bottom: 15px; margin-bottom: 15px; }
+        .tpl-std .pdf-header h1 { font-size: 22pt; color: #0F172A; text-transform: uppercase; }
+        .tpl-std .pdf-section-title { font-size: 12pt; font-weight: 700; color: #0F172A; border-bottom: 1.5px solid #0F172A; padding-bottom: 3px; margin-bottom: 10px; text-transform: uppercase; }
+
+        /* Template 3: Personal Biodata */
+        .tpl-bio .pdf-header { text-align: center; background: #F8FAFC; padding: 15px; border: 1px solid #CBD5E1; margin-bottom: 15px; border-radius: 4px; }
+        .tpl-bio .pdf-header h1 { font-size: 18pt; color: #1E293B; text-decoration: underline; }
+        .tpl-bio .pdf-section-title { font-size: 11pt; font-weight: 700; color: #1E293B; background: #E2E8F0; padding: 5px 10px; margin-bottom: 8px; }
+
         .pdf-photo { width: 35mm; height: 45mm; object-fit: cover; border: 1px solid #CBD5E1; border-radius: 4px; }
         .pdf-section { margin-bottom: 16px; page-break-inside: avoid; }
-        .pdf-section-title { font-size: 11pt; font-weight: 700; color: var(--primary-navy); background: #F1F5F9; padding: 4px 8px; border-left: 4px solid var(--accent-gold); margin-bottom: 8px; text-transform: uppercase; }
         .pdf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 9pt; }
         .pdf-grid-item { display: flex; }
         .pdf-grid-item strong { width: 130px; color: #475569; flex-shrink: 0; }
         .pdf-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 8.5pt; }
         .pdf-table th, .pdf-table td { border: 1px solid #CBD5E1; padding: 6px 8px; text-align: left; }
         .pdf-table th { background: #E2E8F0; color: var(--primary-navy); font-weight: 600; }
-        .pdf-footer { margin-top: 30px; text-align: right; font-size: 8.5pt; page-break-inside: avoid; }
-        .pdf-signature-line { width: 160px; border-top: 1px solid #475569; margin-left: auto; margin-top: 35px; margin-bottom: 4px; }
+        
+        .qr-container { display: flex; align-items: center; gap: 10px; border: 1px dashed #CBD5E1; padding: 8px; border-radius: 6px; background: #FAFAFA; width: fit-content; }
+        .qr-code-img { width: 65px; height: 65px; }
 
-        /* Additional Info Blocks */
-        .info-block { background: white; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; margin-bottom: 12px; position: relative; }
-        .info-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .info-block-title { font-weight: 600; color: var(--primary-navy); font-size: 0.9rem; }
-        .info-block-remove { background: transparent; border: none; color: var(--danger); cursor: pointer; font-size: 1rem; padding: 4px; }
-        .info-block-remove:hover { color: #DC2626; }
-
-        /* Empty State */
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
-        .empty-state i { font-size: 3rem; margin-bottom: 12px; color: #CBD5E1; }
-        .empty-state p { font-size: 0.95rem; }
-
-        /* Status Timeline */
-        .status-timeline { display: flex; flex-direction: column; gap: 0; margin: 16px 0; }
-        .timeline-item { display: flex; gap: 12px; padding: 10px 0; border-left: 2px solid var(--border-color); padding-left: 16px; position: relative; }
-        .timeline-item::before { content: ''; position: absolute; left: -6px; top: 14px; width: 10px; height: 10px; border-radius: 50%; background: var(--border-color); border: 2px solid white; }
-        .timeline-item.active::before { background: var(--accent-sky); }
-        .timeline-item.active { border-left-color: var(--accent-sky); }
-        .timeline-content h4 { font-size: 0.85rem; color: var(--text-dark); margin-bottom: 2px; }
-        .timeline-content p { font-size: 0.78rem; color: var(--text-muted); }
-
-        /* Detail View */
-        .detail-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        @media(min-width: 768px) { .detail-grid { grid-template-columns: 1fr 1fr; } }
-        .detail-section { background: #F8FAFC; padding: 16px; border-radius: 6px; border: 1px solid var(--border-color); }
-        .detail-section h4 { font-size: 0.9rem; color: var(--primary-navy); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); }
-        .detail-section p { font-size: 0.85rem; margin-bottom: 6px; color: var(--text-dark); }
-        .detail-section p strong { color: var(--text-muted); font-weight: 500; display: inline-block; min-width: 120px; }
+        /* Draft Notice Bar */
+        .draft-banner { background: #FEF3C7; border: 1px solid #F59E0B; padding: 12px 16px; border-radius: var(--radius); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
 
         /* Responsive */
         @media (max-width: 600px) {
@@ -261,7 +251,6 @@
         }
         @media print { .a4-paper { box-shadow: none; } }
     </style>
-<base target="_blank">
 </head>
 
 <body>
@@ -303,9 +292,7 @@
             </div>
             <button onclick="ui.closeDrawer()" style="background:transparent; border:none; color:white; font-size:1.2rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div class="drawer-content" id="drawer-nav-content">
-            <!-- Populated by JS -->
-        </div>
+        <div class="drawer-content" id="drawer-nav-content"></div>
     </div>
 
     <div class="bismillah-bar" data-i18n="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
@@ -339,7 +326,6 @@
     </header>
 
     <main class="main-container">
-
 
         <!-- ==================== AUTH VIEW ==================== -->
         <section id="view-auth" class="view-section">
@@ -473,6 +459,17 @@
         <!-- ==================== CV APPLICATION FORM ==================== -->
         <section id="view-cv-form" class="view-section hidden">
             <div class="form-container">
+                <div id="draft-notice" class="draft-banner hidden">
+                    <div>
+                        <strong style="color:#92400E;"><i class="fa-solid fa-floppy-disk"></i> আপনার একটি অসম্পূর্ণ Draft সংরক্ষণ করা আছে।</strong>
+                        <p style="font-size:0.82rem; color:#B45309;">আপনি কি আগের সংরক্ষিত তথ্য দিয়ে কাজ চালু রাখতে চান?</p>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn-success btn-xs" onclick="cvDraft.restore()"><i class="fa-solid fa-rotate-left"></i> Continue Draft</button>
+                        <button class="btn-danger btn-xs" onclick="cvDraft.clear()"><i class="fa-solid fa-trash"></i> Start New</button>
+                    </div>
+                </div>
+
                 <div class="form-header-bar">
                     <div>
                         <h2><i class="fa-solid fa-file-signature"></i> <span id="cv-form-title" data-i18n="cv_form_title">CV & Biodata Application Form</span></h2>
@@ -485,6 +482,21 @@
 
                 <form id="cv-application-form" onsubmit="cvForm.submitApplication(event)">
                     <input type="hidden" id="cv-edit-id" value="">
+
+                    <!-- Template Selection (User Choice) -->
+                    <div class="form-section" style="background:#EFF6FF; border-color:#BFDBFE;">
+                        <h3><i class="fa-solid fa-palette"></i> <span>CV Template নির্বাচন করুন (Preferred Template)</span></h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>পছন্দের CV Template</label>
+                                <select id="cv-preferred-template">
+                                    <option value="professional">Template 1: Professional Modern CV</option>
+                                    <option value="standard">Template 2: Standard Clean CV</option>
+                                    <option value="biodata">Template 3: Personal Biodata (জীবনবৃত্তান্ত)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Personal Information -->
                     <div class="form-section">
@@ -561,7 +573,7 @@
                         <div id="education-entries-container"></div>
                     </div>
 
-                    <!-- Additional Information (Flexible) -->
+                    <!-- Additional Info -->
                     <div class="form-section">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                             <h3><i class="fa-solid fa-circle-plus"></i> <span data-i18n="sec_additional_info">৫. অতিরিক্ত তথ্য</span></h3>
@@ -609,11 +621,11 @@
                 <!-- Status Timeline -->
                 <div id="status-timeline-container" style="margin-bottom:20px;"></div>
 
-                <!-- Download Section (Conditional) -->
+                <!-- Download Section -->
                 <div id="download-section" class="generated-file-card hidden">
                     <h3 style="color:#166534; margin-bottom:8px;"><i class="fa-solid fa-file-pdf"></i> <span data-i18n="download_section_title">আপনার অনুমোদিত ডকুমেন্ট</span></h3>
                     <p style="font-size:0.85rem; color:#15803D; margin-bottom:12px;" data-i18n="download_section_sub">আপনার আবেদন অনুমোদিত হয়েছে। নিচের বাটনে ক্লিক করে ডকুমেন্ট ডাউনলোড করুন।</p>
-                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
                         <button class="btn-info btn-sm" onclick="cvPdf.openPreviewModal()">
                             <i class="fa-solid fa-eye"></i> <span data-i18n="preview">প্রিভিউ CV</span>
                         </button>
@@ -623,12 +635,20 @@
                         <button class="btn-primary btn-sm hidden" id="download-admin-file-btn">
                             <i class="fa-solid fa-file-circle-check"></i> <span data-i18n="download_admin_file">অ্যাডমিন ফাইল ডাউনলোড</span>
                         </button>
+                        <a id="qr-verify-link" target="_blank" class="btn-secondary btn-sm" style="text-decoration:none;">
+                            <i class="fa-solid fa-qrcode"></i> QR ভেরিফাই করুন
+                        </a>
                     </div>
                 </div>
 
                 <div id="download-denied-section" class="admin-panel-card hidden" style="background:#FEF2F2; border-color:#FECACA;">
                     <h3 style="color:#991B1B;"><i class="fa-solid fa-lock"></i> <span data-i18n="download_denied_title">ডাউনলোড সীমাবদ্ধ</span></h3>
                     <p style="font-size:0.85rem; color:#B91C1C; margin-top:6px;" data-i18n="download_denied_sub">আপনার আবেদন এখনো অনুমোদিত হয়নি। অনুমোদনের পর ডাউনলোড সুবিধা পাবেন।</p>
+                    <div id="need-correction-action" class="hidden" style="margin-top:10px;">
+                        <button class="btn-warning btn-sm" id="user-edit-app-btn">
+                            <i class="fa-solid fa-pen-to-square"></i> তথ্য সংশোধন করুন (Edit Application)
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Admin Action Panel -->
@@ -640,26 +660,36 @@
                             <select id="admin-status-select">
                                 <option value="pending">Pending</option>
                                 <option value="under_review">Under Review</option>
+                                <option value="need_correction">Need Correction</option>
                                 <option value="approved">Approved</option>
                                 <option value="rejected">Rejected</option>
+                                <option value="completed">Completed</option>
                                 <option value="cancelled">Cancelled</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label data-i18n="admin_note">নোট/পরামর্শ</label>
-                            <input type="text" id="admin-note-input" placeholder="নোট দিন...">
+                            <label>CV Template</label>
+                            <select id="admin-template-select">
+                                <option value="professional">Professional Modern CV</option>
+                                <option value="standard">Standard Clean CV</option>
+                                <option value="biodata">Personal Biodata CV</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label data-i18n="admin_note">নোট/পরামর্শ (Admin Note)</label>
+                            <input type="text" id="admin-note-input" placeholder="নোট লিখুন...">
                         </div>
                     </div>
                     <div class="form-group" style="margin-top:15px;">
-                        <label data-i18n="upload_generated_file">Generated Final File Upload</label>
+                        <label data-i18n="upload_generated_file">Final Approved File (Optional Manual Override Upload)</label>
                         <input type="file" id="admin-gen-file-input">
                     </div>
                     <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
                         <button class="btn-primary btn-sm" onclick="dashboard.saveAdminAction()">
                             <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn_save">সেভ করুন</span>
                         </button>
-                        <button class="btn-success btn-sm" onclick="dashboard.quickApprove()">
-                            <i class="fa-solid fa-check"></i> <span data-i18n="btn_approve">অনুমোদন করুন</span>
+                        <button class="btn-success btn-sm" onclick="dashboard.approveAndGenerate()">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Approve & Generate CV
                         </button>
                         <button class="btn-danger btn-sm" onclick="dashboard.quickReject()">
                             <i class="fa-solid fa-xmark"></i> <span data-i18n="btn_reject">বাতিল করুন</span>
@@ -672,10 +702,26 @@
             </div>
         </section>
 
+        <!-- ==================== PUBLIC VERIFICATION PAGE ==================== -->
+        <section id="view-verification" class="view-section hidden">
+            <div class="auth-card" style="max-width:550px;">
+                <div style="text-align:center; margin-bottom:20px;">
+                    <i class="fa-solid fa-shield-halved" style="font-size:3rem; color:var(--accent-sky);"></i>
+                    <h2 style="color:var(--primary-navy); margin-top:10px;">Document Verification</h2>
+                    <p style="font-size:0.85rem; color:var(--text-muted);">Salman Smart Service Document Digital Verification System</p>
+                </div>
+                <div id="verification-result-box"></div>
+                <div style="margin-top:20px; text-align:center;">
+                    <button class="btn-secondary btn-sm" onclick="app.navigateTo('user-dashboard')">
+                        <i class="fa-solid fa-house"></i> হোম পেজে যান
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <!-- ==================== ADMIN DASHBOARD ==================== -->
         <section id="view-admin-dashboard" class="view-section hidden">
             <div class="admin-layout">
-                <!-- Sidebar -->
                 <aside class="admin-sidebar">
                     <h3><i class="fa-solid fa-gauge-high"></i> <span data-i18n="admin_menu">অ্যাডমিন মেনু</span></h3>
                     <div class="admin-nav-item active" onclick="admin.showSection('overview')">
@@ -689,9 +735,7 @@
                     </div>
                 </aside>
 
-                <!-- Main Content -->
                 <div>
-                    <!-- Stats -->
                     <div class="admin-stats-grid">
                         <div class="stat-card total"><h3 data-i18n="stat_total">মোট আবেদন</h3><p id="stat-total">0</p></div>
                         <div class="stat-card pending"><h3 data-i18n="stat_pending">পেন্ডিং</h3><p id="stat-pending">0</p></div>
@@ -701,7 +745,6 @@
                         <div class="stat-card cancelled"><h3 data-i18n="stat_cancelled">বাতিলকৃত</h3><p id="stat-cancelled">0</p></div>
                     </div>
 
-                    <!-- Toolbar -->
                     <div class="dash-card" style="margin-bottom:20px;">
                         <div class="admin-toolbar">
                             <div class="form-group">
@@ -714,8 +757,10 @@
                                     <option value="" data-i18n="all_status">সকল স্ট্যাটাস</option>
                                     <option value="pending">Pending</option>
                                     <option value="under_review">Under Review</option>
+                                    <option value="need_correction">Need Correction</option>
                                     <option value="approved">Approved</option>
                                     <option value="rejected">Rejected</option>
+                                    <option value="completed">Completed</option>
                                     <option value="cancelled">Cancelled</option>
                                 </select>
                             </div>
@@ -735,7 +780,6 @@
                         </div>
                     </div>
 
-                    <!-- Applications Table -->
                     <div class="dash-card">
                         <div class="card-title" style="justify-content:space-between;">
                             <span><i class="fa-solid fa-list-check"></i> <span data-i18n="all_applications">সকল আবেদন</span></span>
@@ -768,7 +812,7 @@
 
     </main>
 
-    <!-- ==================== PREVIEW MODAL ==================== -->
+    <!-- PREVIEW MODAL -->
     <div id="preview-modal" class="modal-overlay hidden">
         <div class="modal-container">
             <div class="modal-header">
@@ -793,15 +837,14 @@
         <p>Salman Farshi &copy; 2026 | All Rights Reserved</p>
     </footer>
 
-
     <script>
-        // ==================== CONFIG ====================
+        // CONFIG
         const SUPABASE_URL = "https://rlusmawepwqtqigihyvw.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_lszQoOpRAP9oDy7SJZ6Y1g_FOYOpTgv";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const ADMIN_EMAIL = "salmanfarshi1630@gmail.com";
 
-        // ==================== UTILITIES ====================
+        // UTILITIES
         const utils = {
             escapeHTML: function(str) {
                 if (str === null || str === undefined) return '';
@@ -829,6 +872,9 @@
                 if (!id) return '---';
                 return id.substring(0, 8).toUpperCase();
             },
+            generateToken: function() {
+                return 'tok_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+            },
             isAdmin: function(email) {
                 return email === ADMIN_EMAIL;
             },
@@ -841,7 +887,7 @@
             }
         };
 
-        // ==================== I18N ====================
+        // I18N SYSTEM
         const translations = {
             bn: {
                 bismillah: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
@@ -934,7 +980,6 @@
                 stat_approved: "অনুমোদিত",
                 stat_rejected: "বাতিল",
                 stat_cancelled: "বাতিলকৃত",
-                stat_correction: "সংশোধন প্রয়োজন",
                 loading: "লোড হচ্ছে...",
                 no_data: "কোনো তথ্য পাওয়া যায়নি।",
                 no_applications: "আপনার কোনো আবেদন নেই।",
@@ -964,13 +1009,6 @@
                 download_denied_title: "ডাউনলোড সীমাবদ্ধ",
                 download_denied_sub: "আপনার আবেদন এখনো অনুমোদিত হয়নি। অনুমোদনের পর ডাউনলোড সুবিধা পাবেন।",
                 download_admin_file: "অ্যাডমিন ফাইল ডাউনলোড",
-                confirm_delete_title: "আবেদন মুছে ফেলুন",
-                confirm_delete_msg: "আপনি কি নিশ্চিত যে এই আবেদনটি মুছে ফেলতে চান? এই কাজটি অপ্রত্যরণযোগ্য।",
-                confirm_reject_title: "আবেদন বাতিল করুন",
-                confirm_reject_msg: "আপনি কি নিশ্চিত যে এই আবেদনটি বাতিল করতে চান?",
-                confirm_cancel_title: "আবেদন বাতিল করুন",
-                confirm_cancel_msg: "আপনি কি নিশ্চিত যে এই আবেদনটি বাতিল করতে চান?",
-                confirm_common_title: "নিশ্চিত করুন",
                 status_pending: "পেন্ডিং",
                 status_under_review: "রিভিউতে আছে",
                 status_approved: "অনুমোদিত",
@@ -988,27 +1026,15 @@
                 weight_ph: "যেমন: 65 kg",
                 objective_ph: "সংক্ষেপে ক্যারিয়ার উদ্দেশ্য বা জীবনবৃত্তান্তের সারসংক্ষেপ...",
                 website_ph: "https://example.com",
-                skills_ph: "যেমন: MS Office, Graphic Design, Web Development",
-                languages_ph: "যেমন: Bangla, English",
-                experience_ph: "প্রতিষ্ঠানের নাম, পদবী, সময়কাল...",
-                block_title_ph: "যেমন: ভাষাগত দক্ষতা",
-                block_desc_ph: "বিস্তারিত তথ্য লিখুন...",
                 toast_login_success: "সফলভাবে লগইন হয়েছে!",
                 toast_signup_success: "সাইন আপ সফল! ইমেইল ভেরিফাই করুন।",
                 toast_logout_success: "লগআউট সফল।",
                 toast_app_submitted: "আবেদন সফলভাবে জমা হয়েছে!",
                 toast_app_updated: "আবেদন সফলভাবে আপডেট হয়েছে!",
-                toast_app_deleted: "আবেদন মুছে ফেলা হয়েছে।",
                 toast_status_updated: "স্ট্যাটাস আপডেট হয়েছে।",
                 toast_profile_updated: "প্রোফাইল আপডেট হয়েছে।",
-                toast_password_updated: "পাসওয়ার্ড আপডেট হয়েছে।",
                 toast_error: "একটি ত্রুটি হয়েছে। আবার চেষ্টা করুন।",
-                toast_no_permission: "আপনার এই কাজের অনুমতি নেই।",
-                toast_download_denied: "অনুমোদনের পর ডাউনলোড করতে পারবেন।",
-                error_auth: "ইমেইল বা পাসওয়ার্ড ভুল।",
-                error_session: "সেশন মেয়াদ শেষ। আবার লগইন করুন।",
-                error_network: "নেটওয়ার্ক ত্রুটি। ইন্টারনেট সংযোগ চেক করুন।",
-                result_count: "টি ফলাফল"
+                error_auth: "ইমেইল বা পাসওয়ার্ড ভুল।"
             },
             en: {
                 bismillah: "In the name of Allah, the Most Gracious, the Most Merciful",
@@ -1101,7 +1127,6 @@
                 stat_approved: "Approved",
                 stat_rejected: "Rejected",
                 stat_cancelled: "Cancelled",
-                stat_correction: "Need Correction",
                 loading: "Loading...",
                 no_data: "No data found.",
                 no_applications: "You have no applications yet.",
@@ -1131,13 +1156,6 @@
                 download_denied_title: "Download Restricted",
                 download_denied_sub: "Your application is not yet approved. Download will be available after approval.",
                 download_admin_file: "Download Admin File",
-                confirm_delete_title: "Delete Application",
-                confirm_delete_msg: "Are you sure you want to delete this application? This action cannot be undone.",
-                confirm_reject_title: "Reject Application",
-                confirm_reject_msg: "Are you sure you want to reject this application?",
-                confirm_cancel_title: "Cancel Application",
-                confirm_cancel_msg: "Are you sure you want to cancel this application?",
-                confirm_common_title: "Confirm",
                 status_pending: "Pending",
                 status_under_review: "Under Review",
                 status_approved: "Approved",
@@ -1155,27 +1173,15 @@
                 weight_ph: "e.g. 65 kg",
                 objective_ph: "Brief career objective summary...",
                 website_ph: "https://example.com",
-                skills_ph: "e.g. MS Office, Graphic Design, Web Development",
-                languages_ph: "e.g. Bangla, English",
-                experience_ph: "Company Name, Role, Duration...",
-                block_title_ph: "e.g. Language Skills",
-                block_desc_ph: "Enter detailed information...",
                 toast_login_success: "Logged in successfully!",
                 toast_signup_success: "Sign up successful! Please verify your email.",
                 toast_logout_success: "Logged out successfully.",
                 toast_app_submitted: "Application submitted successfully!",
                 toast_app_updated: "Application updated successfully!",
-                toast_app_deleted: "Application deleted.",
                 toast_status_updated: "Status updated successfully.",
                 toast_profile_updated: "Profile updated.",
-                toast_password_updated: "Password updated.",
                 toast_error: "An error occurred. Please try again.",
-                toast_no_permission: "You do not have permission.",
-                toast_download_denied: "Download available only after approval.",
-                error_auth: "Invalid email or password.",
-                error_session: "Session expired. Please login again.",
-                error_network: "Network error. Check your connection.",
-                result_count: "results found"
+                error_auth: "Invalid email or password."
             }
         };
 
@@ -1190,13 +1196,6 @@
                 this.currentLang = this.currentLang === 'bn' ? 'en' : 'bn';
                 localStorage.setItem('app_lang', this.currentLang);
                 this.applyLanguage();
-                // Re-render current view if needed
-                if (!document.getElementById('view-admin-dashboard').classList.contains('hidden')) {
-                    admin.loadDashboard();
-                }
-                if (!document.getElementById('view-user-dashboard').classList.contains('hidden')) {
-                    dashboard.loadUserDashboard();
-                }
             },
             applyLanguage: function() {
                 document.getElementById('lang-btn-text').innerText = this.currentLang === 'bn' ? 'English' : 'বাংলা';
@@ -1221,14 +1220,11 @@
                 const map = {
                     'pending': 'status_pending',
                     'under_review': 'status_under_review',
+                    'need_correction': 'status_correction',
                     'approved': 'status_approved',
                     'rejected': 'status_rejected',
                     'cancelled': 'status_cancelled',
-                    'completed': 'status_completed',
-                    'Need Correction': 'status_correction',
-                    'Pending': 'status_pending',
-                    'Approved': 'status_approved',
-                    'Rejected': 'status_rejected'
+                    'completed': 'status_completed'
                 };
                 return this.t(map[status] || 'status_pending');
             },
@@ -1236,27 +1232,20 @@
                 const map = {
                     'pending': 'badge-pending',
                     'under_review': 'badge-under-review',
+                    'need_correction': 'badge-correction',
                     'approved': 'badge-approved',
                     'rejected': 'badge-rejected',
                     'cancelled': 'badge-cancelled',
-                    'completed': 'badge-completed',
-                    'Need Correction': 'badge-correction',
-                    'Pending': 'badge-pending',
-                    'Approved': 'badge-approved',
-                    'Rejected': 'badge-rejected'
+                    'completed': 'badge-completed'
                 };
                 return map[status] || 'badge-pending';
             }
         };
 
-        // ==================== UI HELPERS ====================
+        // UI HELPERS
         const ui = {
-            showLoading: function() {
-                document.getElementById('loading-overlay').classList.remove('hidden');
-            },
-            hideLoading: function() {
-                document.getElementById('loading-overlay').classList.add('hidden');
-            },
+            showLoading: function() { document.getElementById('loading-overlay').classList.remove('hidden'); },
+            hideLoading: function() { document.getElementById('loading-overlay').classList.add('hidden'); },
             toast: function(message, type = 'info', duration = 4000) {
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
@@ -1302,7 +1291,6 @@
                 let html = '';
                 if (isAdmin) {
                     html += `<div class="drawer-item" onclick="ui.closeDrawer(); app.navigateTo('admin-dashboard')"><i class="fa-solid fa-gauge-high"></i> ${i18n.t('overview')}</div>`;
-                    html += `<div class="drawer-item" onclick="ui.closeDrawer(); admin.loadDashboard();"><i class="fa-solid fa-list-check"></i> ${i18n.t('all_applications')}</div>`;
                 } else {
                     html += `<div class="drawer-item" onclick="ui.closeDrawer(); app.navigateTo('user-dashboard')"><i class="fa-solid fa-house"></i> ${i18n.t('welcome_title')}</div>`;
                     html += `<div class="drawer-item" onclick="ui.closeDrawer(); app.navigateTo('user-profile')"><i class="fa-solid fa-user"></i> ${i18n.t('my_profile')}</div>`;
@@ -1312,8 +1300,93 @@
             }
         };
 
+        // NAVIGATION & ROUTING
+        const app = {
+            init: function() {
+                i18n.init();
+                auth.checkUserAndRedirect();
+                cvForm.init();
+                cvDraft.setupListeners();
+                this.checkVerificationRoute();
+            },
+            navigateTo: function(viewId) {
+                document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+                const target = document.getElementById(`view-${viewId}`);
+                if (target) target.classList.remove('hidden');
 
-        // ==================== AUTH ====================
+                if (viewId === 'cv-form') {
+                    cvDraft.checkAndNotify();
+                }
+            },
+            openServiceForm: function(code) {
+                if (code === 'CV_BIODATA') {
+                    cvForm.resetForm();
+                    app.navigateTo('cv-form');
+                }
+            },
+            checkVerificationRoute: function() {
+                const params = new URLSearchParams(window.location.search);
+                const appNo = params.get('id');
+                const token = params.get('token');
+                if (appNo && token) {
+                    this.renderVerificationPage(appNo, token);
+                }
+            },
+            renderVerificationPage: async function(appId, token) {
+                app.navigateTo('verification');
+                const box = document.getElementById('verification-result-box');
+                box.innerHTML = `<div style="text-align:center; padding:20px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p>Verifying document...</p></div>`;
+
+                try {
+                    const { data: record, error } = await _supabase
+                        .from('applications')
+                        .select('id, status, created_at, approved_at, form_data')
+                        .eq('id', appId)
+                        .maybeSingle();
+
+                    if (error || !record || record.verification_token !== token) {
+                        box.innerHTML = `
+                            <div style="background:#FEE2E2; border:1px solid #EF4444; color:#991B1B; padding:16px; border-radius:6px; text-align:center;">
+                                <i class="fa-solid fa-triangle-exclamation" style="font-size:2rem; margin-bottom:8px;"></i>
+                                <h3>UNVERIFIED DOCUMENT</h3>
+                                <p style="font-size:0.85rem; margin-top:4px;">Invalid verification code or document not found.</p>
+                            </div>`;
+                        return;
+                    }
+
+                    const name = record.form_data?.personal_info?.full_name || 'Applicant';
+                    const isApproved = record.status === 'approved' || record.status === 'completed';
+
+                    if (isApproved) {
+                        box.innerHTML = `
+                            <div style="background:#D1FAE5; border:1px solid #10B981; color:#065F46; padding:16px; border-radius:6px; text-align:center;">
+                                <i class="fa-solid fa-circle-check" style="font-size:2.5rem; margin-bottom:8px;"></i>
+                                <h3>DIGITALLY VERIFIED</h3>
+                                <p style="font-size:0.85rem; margin-top:4px;">This document is authentic and issued by Salman Smart Service.</p>
+                                <hr style="margin:12px 0; border-color:#A7F3D0;">
+                                <div style="text-align:left; font-size:0.85rem; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <div><strong>App ID:</strong> ${utils.generateAppNo(record.id)}</div>
+                                    <div><strong>Applicant:</strong> ${utils.escapeHTML(name.substring(0, 3))}***</div>
+                                    <div><strong>Status:</strong> Approved</div>
+                                    <div><strong>Approved Date:</strong> ${utils.formatDate(record.approved_at)}</div>
+                                </div>
+                            </div>`;
+                    } else {
+                        box.innerHTML = `
+                            <div style="background:#FEF3C7; border:1px solid #F59E0B; color:#92400E; padding:16px; border-radius:6px; text-align:center;">
+                                <i class="fa-solid fa-circle-info" style="font-size:2rem; margin-bottom:8px;"></i>
+                                <h3>PENDING / NOT APPROVED</h3>
+                                <p style="font-size:0.85rem; margin-top:4px;">This document is currently in state: <strong>${record.status.toUpperCase()}</strong></p>
+                            </div>`;
+                    }
+                } catch (e) {
+                    console.error('Verification error:', e);
+                    box.innerHTML = `<div style="color:red; text-align:center;">Error verifying document.</div>`;
+                }
+            }
+        };
+
+        // AUTH SYSTEM
         const auth = {
             isSignUp: false,
             currentUser: null,
@@ -1348,6 +1421,7 @@
                         await this.checkUserAndRedirect();
                     }
                 } catch (err) {
+                    console.error('Auth error:', err);
                     ui.toast(err.message || i18n.t('error_auth'), 'error');
                 } finally {
                     ui.hideLoading();
@@ -1367,7 +1441,6 @@
                 document.getElementById('user-nav-actions').classList.remove('hidden');
                 document.getElementById('nav-user-email').innerText = utils.escapeHTML(session.user.email);
 
-                // Ensure profile exists
                 try {
                     const { data: existing } = await _supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
                     if (!existing) {
@@ -1378,10 +1451,8 @@
                             full_name: '',
                             phone: ''
                         }]);
-                    } else if (this.isAdminUser && existing.role !== 'admin') {
-                        await _supabase.from('profiles').update({ role: 'admin' }).eq('id', session.user.id);
                     }
-                } catch (e) { console.log('Profile check error:', e); }
+                } catch (e) { console.error('Profile init error:', e); }
 
                 if (this.isAdminUser) {
                     app.navigateTo('admin-dashboard');
@@ -1404,7 +1475,7 @@
             }
         };
 
-        // ==================== PROFILE ====================
+        // PROFILE SYSTEM
         const profile = {
             loadProfile: async function() {
                 if (!auth.currentUser) return;
@@ -1417,6 +1488,7 @@
                         document.getElementById('profile-phone').value = data.phone || '';
                     }
                 } catch (err) {
+                    console.error('Profile load error:', err);
                     ui.toast(i18n.t('toast_error'), 'error');
                 } finally {
                     ui.hideLoading();
@@ -1431,6 +1503,7 @@
                     await _supabase.from('profiles').update({ full_name: fullName, phone: phone }).eq('id', auth.currentUser.id);
                     ui.toast(i18n.t('toast_profile_updated'), 'success');
                 } catch (err) {
+                    console.error('Profile save error:', err);
                     ui.toast(i18n.t('toast_error'), 'error');
                 } finally {
                     ui.hideLoading();
@@ -1439,7 +1512,7 @@
             changePassword: async function() {
                 const newPass = document.getElementById('profile-new-password').value;
                 if (!newPass || newPass.length < 6) {
-                    ui.toast(i18n.currentLang === 'bn' ? 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে' : 'Password must be at least 6 characters', 'warning');
+                    ui.toast('Password must be at least 6 characters', 'warning');
                     return;
                 }
                 ui.showLoading();
@@ -1447,8 +1520,9 @@
                     const { error } = await _supabase.auth.updateUser({ password: newPass });
                     if (error) throw error;
                     document.getElementById('profile-new-password').value = '';
-                    ui.toast(i18n.t('toast_password_updated'), 'success');
+                    ui.toast('Password updated successfully', 'success');
                 } catch (err) {
+                    console.error('Password error:', err);
                     ui.toast(err.message || i18n.t('toast_error'), 'error');
                 } finally {
                     ui.hideLoading();
@@ -1456,8 +1530,7 @@
             }
         };
 
-
-        // ==================== SERVICES ====================
+        // SERVICES LISTING
         const services = {
             loadActiveServices: async function() {
                 const container = document.getElementById('services-list');
@@ -1483,16 +1556,66 @@
                         container.appendChild(card);
                     });
                 } catch (err) {
+                    console.error('Services error:', err);
                     container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>${i18n.t('toast_error')}</p></div>`;
                 }
             }
         };
 
-        // ==================== CV FORM ====================
+        // CV FORM AUTO-SAVE / DRAFT SYSTEM
+        const cvDraft = {
+            getStorageKey: function() {
+                return auth.currentUser ? `cv_draft_${auth.currentUser.id}` : 'cv_draft_guest';
+            },
+            save: function() {
+                if (cvForm.editMode) return; // Edit mode state should not overwrite new application draft
+                const data = cvForm.collectFormData();
+                localStorage.setItem(this.getStorageKey(), JSON.stringify(data));
+            },
+            restore: function() {
+                const raw = localStorage.getItem(this.getStorageKey());
+                if (!raw) return;
+                try {
+                    const draft = JSON.parse(raw);
+                    cvForm.populateFormData(draft);
+                    document.getElementById('draft-notice').classList.add('hidden');
+                    ui.toast('Draft restored successfully!', 'success');
+                } catch (e) { console.error('Restore draft error:', e); }
+            },
+            clear: function() {
+                localStorage.removeItem(this.getStorageKey());
+                document.getElementById('draft-notice').classList.add('hidden');
+            },
+            checkAndNotify: function() {
+                if (cvForm.editMode) return;
+                const raw = localStorage.getItem(this.getStorageKey());
+                if (raw) {
+                    document.getElementById('draft-notice').classList.remove('hidden');
+                } else {
+                    document.getElementById('draft-notice').classList.add('hidden');
+                }
+            },
+            setupListeners: function() {
+                const form = document.getElementById('cv-application-form');
+                const debouncedSave = utils.debounce(() => this.save(), 1000);
+                form.addEventListener('input', debouncedSave);
+                form.addEventListener('change', debouncedSave);
+
+                // Navigation protection
+                window.addEventListener('beforeunload', (e) => {
+                    const raw = localStorage.getItem(this.getStorageKey());
+                    if (raw && !cvForm.editMode) {
+                        e.preventDefault();
+                        e.returnValue = '';
+                    }
+                });
+            }
+        };
+
+        // CV FORM MANAGEMENT
         const cvForm = {
             editMode: false,
             editAppId: null,
-            infoBlocks: [],
             init: function() {
                 this.addEducationRow();
                 this.setupAddressSync();
@@ -1533,7 +1656,7 @@
                         <div class="form-group"><label>${i18n.t('gpa')}</label><input type="text" class="edu-result" value="${data ? utils.escapeHTML(data.result_gpa) : ''}"></div>
                     </div>
                     <div style="text-align:right; margin-top:8px;">
-                        <button type="button" class="btn-danger btn-xs" onclick="this.closest('.edu-row').remove()">
+                        <button type="button" class="btn-danger btn-xs" onclick="this.closest('.edu-row').remove(); cvDraft.save();">
                             <i class="fa-solid fa-trash"></i> ${i18n.t('delete')}
                         </button>
                     </div>
@@ -1557,12 +1680,12 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>${i18n.t('block_title')}</label>
-                            <input type="text" class="block-title-input" data-i18n-ph="block_title_ph" placeholder="${i18n.t('block_title_ph')}" value="${data ? utils.escapeHTML(data.title) : ''}">
+                            <input type="text" class="block-title-input" placeholder="e.g. Skills / Language" value="${data ? utils.escapeHTML(data.title) : ''}">
                         </div>
                     </div>
                     <div class="form-group" style="margin-top:8px;">
                         <label>${i18n.t('block_description')}</label>
-                        <textarea class="block-desc-input" rows="3" data-i18n-ph="block_desc_ph" placeholder="${i18n.t('block_desc_ph')}">${data ? utils.escapeHTML(data.description) : ''}</textarea>
+                        <textarea class="block-desc-input" rows="3" placeholder="Enter details...">${data ? utils.escapeHTML(data.description) : ''}</textarea>
                     </div>
                 `;
                 container.appendChild(block);
@@ -1574,6 +1697,106 @@
                 if (container.children.length === 0) {
                     document.getElementById('additional-info-empty').classList.remove('hidden');
                 }
+                cvDraft.save();
+            },
+            collectFormData: function() {
+                const eduList = [];
+                document.querySelectorAll('.edu-row').forEach(row => {
+                    const exam = row.querySelector('.edu-exam').value.trim();
+                    if (exam) {
+                        eduList.push({
+                            exam_name: exam,
+                            passing_year: row.querySelector('.edu-year').value.trim(),
+                            institute_name: row.querySelector('.edu-institute').value.trim(),
+                            result_gpa: row.querySelector('.edu-result').value.trim()
+                        });
+                    }
+                });
+
+                const infoList = [];
+                document.querySelectorAll('.info-block').forEach(block => {
+                    const title = block.querySelector('.block-title-input').value.trim();
+                    const desc = block.querySelector('.block-desc-input').value.trim();
+                    if (title || desc) {
+                        infoList.push({ title: title, description: desc });
+                    }
+                });
+
+                return {
+                    preferred_template: document.getElementById('cv-preferred-template').value,
+                    personal_info: {
+                        full_name: document.getElementById('cv-full-name').value.trim(),
+                        mobile: document.getElementById('cv-mobile').value.trim(),
+                        father_name: document.getElementById('cv-father-name').value.trim(),
+                        mother_name: document.getElementById('cv-mother-name').value.trim(),
+                        dob: document.getElementById('cv-dob').value,
+                        nationality: document.getElementById('cv-nationality').value.trim(),
+                        gender: document.getElementById('cv-gender').value,
+                        marital_status: document.getElementById('cv-marital-status').value,
+                        height: document.getElementById('cv-height').value.trim(),
+                        weight: document.getElementById('cv-weight').value.trim(),
+                        email: document.getElementById('cv-email').value.trim(),
+                        website: document.getElementById('cv-website').value.trim(),
+                        objective: document.getElementById('cv-objective').value.trim()
+                    },
+                    present_address: {
+                        village: document.getElementById('cv-pres-village').value.trim(),
+                        po: document.getElementById('cv-pres-po').value.trim(),
+                        thana: document.getElementById('cv-pres-thana').value.trim(),
+                        district: document.getElementById('cv-pres-district').value.trim()
+                    },
+                    permanent_address: {
+                        village: document.getElementById('cv-perm-village').value.trim(),
+                        po: document.getElementById('cv-perm-po').value.trim(),
+                        thana: document.getElementById('cv-perm-thana').value.trim(),
+                        district: document.getElementById('cv-perm-district').value.trim()
+                    },
+                    education: eduList,
+                    additional_info: infoList
+                };
+            },
+            populateFormData: function(fd) {
+                if (!fd) return;
+                if (fd.preferred_template) document.getElementById('cv-preferred-template').value = fd.preferred_template;
+
+                const p = fd.personal_info || {};
+                document.getElementById('cv-full-name').value = p.full_name || '';
+                document.getElementById('cv-mobile').value = p.mobile || '';
+                document.getElementById('cv-father-name').value = p.father_name || '';
+                document.getElementById('cv-mother-name').value = p.mother_name || '';
+                document.getElementById('cv-dob').value = p.dob || '';
+                document.getElementById('cv-nationality').value = p.nationality || 'Bangladeshi';
+                document.getElementById('cv-gender').value = p.gender || '';
+                document.getElementById('cv-marital-status').value = p.marital_status || '';
+                document.getElementById('cv-height').value = p.height || '';
+                document.getElementById('cv-weight').value = p.weight || '';
+                document.getElementById('cv-email').value = p.email || '';
+                document.getElementById('cv-website').value = p.website || '';
+                document.getElementById('cv-objective').value = p.objective || '';
+
+                const pres = fd.present_address || {};
+                document.getElementById('cv-pres-village').value = pres.village || '';
+                document.getElementById('cv-pres-po').value = pres.po || '';
+                document.getElementById('cv-pres-thana').value = pres.thana || '';
+                document.getElementById('cv-pres-district').value = pres.district || '';
+
+                const perm = fd.permanent_address || {};
+                document.getElementById('cv-perm-village').value = perm.village || '';
+                document.getElementById('cv-perm-po').value = perm.po || '';
+                document.getElementById('cv-perm-thana').value = perm.thana || '';
+                document.getElementById('cv-perm-district').value = perm.district || '';
+
+                document.getElementById('education-entries-container').innerHTML = '';
+                const edu = fd.education || [];
+                if (edu.length > 0) {
+                    edu.forEach(e => this.addEducationRow(e));
+                } else {
+                    this.addEducationRow();
+                }
+
+                document.getElementById('additional-info-container').innerHTML = '';
+                const addInfo = fd.additional_info || [];
+                addInfo.forEach(b => this.addInfoBlock(b));
             },
             resetForm: function() {
                 document.getElementById('cv-application-form').reset();
@@ -1596,85 +1819,25 @@
             loadForEdit: async function(appId) {
                 ui.showLoading();
                 try {
-                    const { data: app, error } = await _supabase.from('applications').select('*').eq('id', appId).single();
-                    if (error || !app) throw new Error('Application not found');
+                    const { data: appRec, error } = await _supabase.from('applications').select('*').eq('id', appId).single();
+                    if (error || !appRec) throw new Error('Application not found');
 
-                    // Security check
-                    if (app.user_id !== auth.currentUser.id && !auth.isAdminUser) {
-                        ui.toast(i18n.t('toast_no_permission'), 'error');
+                    if (appRec.user_id !== auth.currentUser.id && !auth.isAdminUser) {
+                        ui.toast('Permission denied', 'error');
                         ui.hideLoading();
                         return;
                     }
 
                     this.editMode = true;
                     this.editAppId = appId;
-                    const fd = app.form_data || {};
-                    const p = fd.personal_info || {};
-
-                    // Populate fields
-                    document.getElementById('cv-full-name').value = p.full_name || '';
-                    document.getElementById('cv-mobile').value = p.mobile || '';
-                    document.getElementById('cv-father-name').value = p.father_name || '';
-                    document.getElementById('cv-mother-name').value = p.mother_name || '';
-                    document.getElementById('cv-dob').value = p.dob || '';
-                    document.getElementById('cv-nationality').value = p.nationality || 'Bangladeshi';
-                    document.getElementById('cv-gender').value = p.gender || '';
-                    document.getElementById('cv-marital-status').value = p.marital_status || '';
-                    document.getElementById('cv-height').value = p.height || '';
-                    document.getElementById('cv-weight').value = p.weight || '';
-                    document.getElementById('cv-email').value = p.email || '';
-                    document.getElementById('cv-website').value = p.website || '';
-                    document.getElementById('cv-objective').value = p.objective || '';
-
-                    // Address
-                    const pres = fd.present_address || {};
-                    document.getElementById('cv-pres-village').value = pres.village || '';
-                    document.getElementById('cv-pres-po').value = pres.po || '';
-                    document.getElementById('cv-pres-thana').value = pres.thana || '';
-                    document.getElementById('cv-pres-district').value = pres.district || '';
-
-                    const perm = fd.permanent_address || {};
-                    document.getElementById('cv-perm-village').value = perm.village || '';
-                    document.getElementById('cv-perm-po').value = perm.po || '';
-                    document.getElementById('cv-perm-thana').value = perm.thana || '';
-                    document.getElementById('cv-perm-district').value = perm.district || '';
-
-                    // Check if same address
-                    const sameAddr = pres.village === perm.village && pres.po === perm.po && 
-                                     pres.thana === perm.thana && pres.district === perm.district &&
-                                     pres.village !== '';
-                    document.getElementById('addr-same-checkbox').checked = sameAddr;
-                    this.toggleAddressSync();
-
-                    // Education
-                    document.getElementById('education-entries-container').innerHTML = '';
-                    const edu = fd.education || [];
-                    if (edu.length > 0) {
-                        edu.forEach(e => this.addEducationRow(e));
-                    } else {
-                        this.addEducationRow();
-                    }
-
-                    // Additional Info
-                    document.getElementById('additional-info-container').innerHTML = '';
-                    const addInfo = fd.additional_info || [];
-                    // Migrate old skills/languages/experience to blocks if no additional_info
-                    if (addInfo.length === 0 && (fd.skills || fd.languages || fd.experience)) {
-                        if (fd.skills) this.addInfoBlock({ title: i18n.currentLang === 'bn' ? 'দক্ষতাসমূহ' : 'Skills', description: fd.skills });
-                        if (fd.languages) this.addInfoBlock({ title: i18n.currentLang === 'bn' ? 'ভাষার দক্ষতা' : 'Language Proficiency', description: fd.languages });
-                        if (fd.experience) this.addInfoBlock({ title: i18n.currentLang === 'bn' ? 'কর্মঅভিজ্ঞতা' : 'Work Experience', description: fd.experience });
-                    } else {
-                        addInfo.forEach(b => this.addInfoBlock(b));
-                    }
-                    if (document.getElementById('additional-info-container').children.length > 0) {
-                        document.getElementById('additional-info-empty').classList.add('hidden');
-                    }
+                    this.populateFormData(appRec.form_data);
 
                     document.getElementById('cv-edit-id').value = appId;
                     document.getElementById('cv-form-title').innerText = i18n.t('cv_form_edit_title');
                     document.getElementById('cv-submit-text').innerText = i18n.t('btn_update_app');
                     app.navigateTo('cv-form');
                 } catch (err) {
+                    console.error('Edit error:', err);
                     ui.toast(err.message || i18n.t('toast_error'), 'error');
                 } finally {
                     ui.hideLoading();
@@ -1687,438 +1850,307 @@
                 ui.showLoading();
 
                 try {
-                    const { data: { session } } = await _supabase.auth.getSession();
-                    if (!session) throw new Error(i18n.t('error_session'));
-                    const userId = session.user.id;
+                    const session = auth.currentUser;
+                    if (!session) throw new Error('User session not found. Please log in again.');
 
-                    // Get service
                     const { data: srv } = await _supabase.from('services').select('id').eq('code', 'CV_BIODATA').maybeSingle();
+                    const formData = this.collectFormData();
 
-                    // Collect education
-                    const eduList = [];
-                    document.querySelectorAll('.edu-row').forEach(row => {
-                        const exam = row.querySelector('.edu-exam').value.trim();
-                        if (exam) {
-                            eduList.push({
-                                exam_name: exam,
-                                passing_year: row.querySelector('.edu-year').value.trim(),
-                                institute_name: row.querySelector('.edu-institute').value.trim(),
-                                result_gpa: row.querySelector('.edu-result').value.trim()
-                            });
+                    // Handle photo upload
+                    let photoUrl = null;
+                    const photoFile = document.getElementById('cv-photo').files[0];
+                    if (photoFile) {
+                        const path = `photos/${session.id}/${utils.getSafeFilename(photoFile.name)}`;
+                        const { error: uploadErr } = await _supabase.storage.from('app_documents').upload(path, photoFile);
+                        if (!uploadErr) {
+                            const { data: publicUrlData } = _supabase.storage.from('app_documents').getPublicUrl(path);
+                            photoUrl = publicUrlData?.publicUrl || null;
                         }
-                    });
+                    }
 
-                    // Collect additional info
-                    const addInfoList = [];
-                    document.querySelectorAll('.info-block').forEach(block => {
-                        const title = block.querySelector('.block-title-input').value.trim();
-                        const desc = block.querySelector('.block-desc-input').value.trim();
-                        if (title || desc) {
-                            addInfoList.push({ title, description: desc });
+                    // Handle doc uploads
+                    const docFiles = document.getElementById('cv-documents').files;
+                    const documentUrls = [];
+                    for (let i = 0; i < docFiles.length; i++) {
+                        const file = docFiles[i];
+                        const path = `docs/${session.id}/${utils.getSafeFilename(file.name)}`;
+                        const { error: docErr } = await _supabase.storage.from('app_documents').upload(path, file);
+                        if (!docErr) {
+                            const { data: docUrl } = _supabase.storage.from('app_documents').getPublicUrl(path);
+                            documentUrls.push({ name: file.name, url: docUrl?.publicUrl });
                         }
-                    });
+                    }
 
-                    const formData = {
-                        personal_info: {
-                            full_name: document.getElementById('cv-full-name').value.trim(),
-                            mobile: document.getElementById('cv-mobile').value.trim(),
-                            father_name: document.getElementById('cv-father-name').value.trim(),
-                            mother_name: document.getElementById('cv-mother-name').value.trim(),
-                            dob: document.getElementById('cv-dob').value,
-                            nationality: document.getElementById('cv-nationality').value.trim(),
-                            gender: document.getElementById('cv-gender').value,
-                            marital_status: document.getElementById('cv-marital-status').value,
-                            height: document.getElementById('cv-height').value.trim(),
-                            weight: document.getElementById('cv-weight').value.trim(),
-                            email: document.getElementById('cv-email').value.trim(),
-                            website: document.getElementById('cv-website').value.trim(),
-                            objective: document.getElementById('cv-objective').value.trim()
-                        },
-                        present_address: {
-                            village: document.getElementById('cv-pres-village').value.trim(),
-                            po: document.getElementById('cv-pres-po').value.trim(),
-                            thana: document.getElementById('cv-pres-thana').value.trim(),
-                            district: document.getElementById('cv-pres-district').value.trim()
-                        },
-                        permanent_address: {
-                            village: document.getElementById('cv-perm-village').value.trim(),
-                            po: document.getElementById('cv-perm-po').value.trim(),
-                            thana: document.getElementById('cv-perm-thana').value.trim(),
-                            district: document.getElementById('cv-perm-district').value.trim()
-                        },
-                        education: eduList,
-                        additional_info: addInfoList
-                    };
+                    formData.photo_url = photoUrl || (this.editMode ? (await this.getExistingPhoto(this.editAppId)) : null);
+                    formData.documents = documentUrls;
 
-                    let appId = this.editAppId;
+                    const token = utils.generateToken();
 
-                    if (this.editMode && appId) {
-                        // Update existing
+                    if (this.editMode && this.editAppId) {
+                        const { data: oldRec } = await _supabase.from('applications').select('status_history, status').eq('id', this.editAppId).single();
+                        const history = oldRec?.status_history || [];
+                        history.push({
+                            old_status: oldRec?.status || 'need_correction',
+                            new_status: 'pending',
+                            changed_by: session.id,
+                            changed_at: new Date().toISOString(),
+                            note: 'User resubmitted application after correction'
+                        });
+
                         const { error } = await _supabase.from('applications').update({
-                            service_id: srv ? srv.id : null,
                             form_data: formData,
-                            updated_at: new Date().toISOString()
-                        }).eq('id', appId);
+                            status: 'pending',
+                            cv_template: formData.preferred_template,
+                            status_history: history
+                        }).eq('id', this.editAppId);
+
                         if (error) throw error;
                         ui.toast(i18n.t('toast_app_updated'), 'success');
                     } else {
-                        // Create new
-                        const { data: newApp, error: appErr } = await _supabase.from('applications').insert([{
-                            user_id: userId,
-                            service_id: srv ? srv.id : null,
+                        const { error } = await _supabase.from('applications').insert([{
+                            user_id: session.id,
+                            service_id: srv?.id || null,
                             status: 'pending',
                             form_data: formData,
-                            download_allowed: false
-                        }]).select().single();
-                        if (appErr) throw appErr;
-                        appId = newApp.id;
+                            cv_template: formData.preferred_template,
+                            verification_token: token,
+                            download_allowed: false,
+                            status_history: [{
+                                old_status: 'none',
+                                new_status: 'pending',
+                                changed_by: session.id,
+                                changed_at: new Date().toISOString(),
+                                note: 'Application submitted by user'
+                            }]
+                        }]);
+
+                        if (error) throw error;
                         ui.toast(i18n.t('toast_app_submitted'), 'success');
                     }
 
-                    // Handle photo upload
-                    const photoFile = document.getElementById('cv-photo').files[0];
-                    if (photoFile) {
-                        const safePhotoName = utils.getSafeFilename(photoFile.name);
-                        const pPath = `${userId}/${safePhotoName}`;
-                        const { error: photoErr } = await _supabase.storage.from('profile-avatars').upload(pPath, photoFile, { upsert: true });
-                        if (!photoErr) {
-                            formData.personal_info.photo_path = pPath;
-                            await _supabase.from('applications').update({ form_data: formData }).eq('id', appId);
-                        }
-                    }
-
-                    // Handle documents upload
-                    const docFiles = document.getElementById('cv-documents').files;
-                    const docPaths = [];
-                    for (let i = 0; i < docFiles.length; i++) {
-                        const dFile = docFiles[i];
-                        const safeDocName = utils.getSafeFilename(dFile.name);
-                        const dPath = `${appId}/${safeDocName}`;
-                        const { error: dErr } = await _supabase.storage.from('application-documents').upload(dPath, dFile, { upsert: true });
-                        if (!dErr) docPaths.push({ name: dFile.name, path: dPath });
-                    }
-                    if (docPaths.length > 0) {
-                        const current = (await _supabase.from('applications').select('form_data').eq('id', appId).single()).data;
-                        const updatedForm = current.form_data || {};
-                        updatedForm.documents = [...(updatedForm.documents || []), ...docPaths];
-                        await _supabase.from('applications').update({ form_data: updatedForm }).eq('id', appId);
-                    }
-
+                    cvDraft.clear();
                     this.resetForm();
-                    app.navigateTo('dashboard');
-                    if (auth.isAdminUser) {
-                        admin.loadDashboard();
-                    } else {
-                        dashboard.loadUserDashboard();
-                    }
+                    app.navigateTo('user-dashboard');
+                    dashboard.loadUserDashboard();
                 } catch (err) {
+                    console.error('Submit error:', err);
                     ui.toast(err.message || i18n.t('toast_error'), 'error');
                 } finally {
                     submitBtn.disabled = false;
                     ui.hideLoading();
                 }
+            },
+            getExistingPhoto: async function(appId) {
+                const { data } = await _supabase.from('applications').select('form_data').eq('id', appId).single();
+                return data?.form_data?.photo_url || null;
             }
         };
 
-
-        // ==================== USER DASHBOARD ====================
+        // USER DASHBOARD & APPLICATION DETAILS
         const dashboard = {
             currentApp: null,
             loadUserDashboard: async function() {
                 if (!auth.currentUser) return;
                 ui.showLoading();
                 try {
-                    const { data: apps, error } = await _supabase.from('applications')
-                        .select('*')
+                    const { data: apps, error } = await _supabase
+                        .from('applications')
+                        .select('*, services(name, code)')
                         .eq('user_id', auth.currentUser.id)
                         .order('created_at', { ascending: false });
 
                     if (error) throw error;
 
-                    // Update stats
-                    const total = apps ? apps.length : 0;
-                    const pending = apps ? apps.filter(a => (a.status || '').toLowerCase() === 'pending').length : 0;
-                    const approved = apps ? apps.filter(a => ['approved', 'completed'].includes((a.status || '').toLowerCase())).length : 0;
-                    const rejected = apps ? apps.filter(a => ['rejected', 'cancelled'].includes((a.status || '').toLowerCase())).length : 0;
+                    // Stats calculation
+                    let pending = 0, approved = 0, rejected = 0;
+                    (apps || []).forEach(a => {
+                        if (a.status === 'pending' || a.status === 'under_review' || a.status === 'need_correction') pending++;
+                        else if (a.status === 'approved' || a.status === 'completed') approved++;
+                        else if (a.status === 'rejected' || a.status === 'cancelled') rejected++;
+                    });
 
-                    document.getElementById('user-stat-total').innerText = total;
+                    document.getElementById('user-stat-total').innerText = apps?.length || 0;
                     document.getElementById('user-stat-pending').innerText = pending;
                     document.getElementById('user-stat-approved').innerText = approved;
                     document.getElementById('user-stat-rejected').innerText = rejected;
 
                     const tbody = document.getElementById('user-applications-list');
-                    const emptyState = document.getElementById('user-apps-empty');
-
                     if (!apps || apps.length === 0) {
                         tbody.innerHTML = '';
-                        emptyState.classList.remove('hidden');
-                        ui.hideLoading();
+                        document.getElementById('user-apps-empty').classList.remove('hidden');
                         return;
                     }
-                    emptyState.classList.add('hidden');
-                    tbody.innerHTML = "";
-                    apps.forEach(a => {
-                        const name = a.form_data?.personal_info?.full_name || 'N/A';
-                        const statusClass = i18n.getStatusBadgeClass(a.status);
-                        const statusLabel = i18n.getStatusLabel(a.status);
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td><strong>${utils.generateAppNo(a.id)}</strong></td>
-                            <td>CV & Biodata</td>
-                            <td>${utils.formatDate(a.created_at)}</td>
-                            <td><span class="badge ${statusClass}">${statusLabel}</span></td>
+
+                    document.getElementById('user-apps-empty').classList.add('hidden');
+                    tbody.innerHTML = apps.map(appRec => `
+                        <tr>
+                            <td><strong>${utils.generateAppNo(appRec.id)}</strong></td>
+                            <td>${utils.escapeHTML(appRec.services?.name || 'CV & Biodata')}</td>
+                            <td>${utils.formatDate(appRec.created_at)}</td>
+                            <td><span class="badge ${i18n.getStatusBadgeClass(appRec.status)}">${i18n.getStatusLabel(appRec.status)}</span></td>
                             <td>
-                                <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                                    <button class="btn-primary btn-xs" onclick="dashboard.viewAppDetails('${a.id}')">
-                                        <i class="fa-solid fa-eye"></i> ${i18n.t('view')}
-                                    </button>
-                                    <button class="btn-info btn-xs" onclick="cvForm.loadForEdit('${a.id}')">
-                                        <i class="fa-solid fa-pen"></i> ${i18n.t('edit')}
-                                    </button>
-                                    <button class="btn-danger btn-xs" onclick="dashboard.deleteApplication('${a.id}')">
-                                        <i class="fa-solid fa-trash"></i> ${i18n.t('delete')}
-                                    </button>
-                                </div>
+                                <button class="btn-primary btn-xs" onclick="dashboard.viewDetails('${appRec.id}')">
+                                    <i class="fa-solid fa-eye"></i> ${i18n.t('view')}
+                                </button>
                             </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
+                        </tr>
+                    `).join('');
                 } catch (err) {
+                    console.error('User Dashboard error:', err);
                     ui.toast(i18n.t('toast_error'), 'error');
                 } finally {
                     ui.hideLoading();
                 }
             },
-            deleteApplication: function(appId) {
-                ui.showConfirm(
-                    i18n.t('confirm_delete_title'),
-                    i18n.t('confirm_delete_msg'),
-                    i18n.t('delete'),
-                    'btn-danger',
-                    async () => {
-                        ui.showLoading();
-                        try {
-                            const { error } = await _supabase.from('applications').delete().eq('id', appId).eq('user_id', auth.currentUser.id);
-                            if (error) throw error;
-                            ui.toast(i18n.t('toast_app_deleted'), 'success');
-                            dashboard.loadUserDashboard();
-                        } catch (err) {
-                            ui.toast(err.message || i18n.t('toast_error'), 'error');
-                        } finally {
-                            ui.hideLoading();
-                        }
-                    }
-                );
-            },
-            viewAppDetails: async function(appId, isAdmin = false) {
-                app.navigateTo('app-details');
+            viewDetails: async function(appId) {
                 ui.showLoading();
                 try {
-                    const { data: a, error } = await _supabase.from('applications').select('*').eq('id', appId).single();
-                    if (error || !a) throw new Error('Not found');
-                    this.currentApp = a;
+                    const { data: appRec, error } = await _supabase
+                        .from('applications')
+                        .select('*, services(name)')
+                        .eq('id', appId)
+                        .single();
 
-                    document.getElementById('det-app-no').innerText = utils.generateAppNo(a.id);
+                    if (error || !appRec) throw new Error('Application details not found');
+                    this.currentApp = appRec;
+
+                    document.getElementById('det-app-no').innerText = utils.generateAppNo(appRec.id);
                     const badge = document.getElementById('det-status-badge');
-                    badge.className = 'badge ' + i18n.getStatusBadgeClass(a.status);
-                    badge.innerText = i18n.getStatusLabel(a.status);
+                    badge.className = `badge ${i18n.getStatusBadgeClass(appRec.status)}`;
+                    badge.innerText = i18n.getStatusLabel(appRec.status);
 
-                    // Download section logic
-                    const dlSection = document.getElementById('download-section');
-                    const dlDenied = document.getElementById('download-denied-section');
-                    const adminFileBtn = document.getElementById('download-admin-file-btn');
-                    const statusLower = (a.status || '').toLowerCase();
-                    const canDownload = ['approved', 'completed'].includes(statusLower) || a.download_allowed === true;
+                    // Timeline render
+                    this.renderTimeline(appRec);
+
+                    // Admin Action Visibility
+                    if (auth.isAdminUser) {
+                        document.getElementById('admin-action-section').classList.remove('hidden');
+                        document.getElementById('admin-status-select').value = appRec.status || 'pending';
+                        document.getElementById('admin-template-select').value = appRec.cv_template || 'professional';
+                        document.getElementById('admin-note-input').value = appRec.admin_note || '';
+                    } else {
+                        document.getElementById('admin-action-section').classList.add('hidden');
+                    }
+
+                    // Download / Verification Section setup
+                    const canDownload = appRec.download_allowed && (appRec.status === 'approved' || appRec.status === 'completed');
 
                     if (canDownload) {
-                        dlSection.classList.remove('hidden');
-                        dlDenied.classList.add('hidden');
-                        if (a.generated_file_path) {
-                            adminFileBtn.classList.remove('hidden');
-                            adminFileBtn.onclick = async () => {
-                                const { data } = await _supabase.storage.from('generated-files').createSignedUrl(a.generated_file_path, 300);
-                                if (data) window.open(data.signedUrl, '_blank');
-                            };
-                        } else {
-                            adminFileBtn.classList.add('hidden');
+                        document.getElementById('download-section').classList.remove('hidden');
+                        document.getElementById('download-denied-section').classList.add('hidden');
+                        
+                        const verifyUrl = `${window.location.origin}${window.location.pathname}?id=${appRec.id}&token=${appRec.verification_token}`;
+                        document.getElementById('qr-verify-link').href = verifyUrl;
+
+                        if (appRec.final_file_url) {
+                            const btn = document.getElementById('download-admin-file-btn');
+                            btn.classList.remove('hidden');
+                            btn.onclick = () => window.open(appRec.final_file_url, '_blank');
                         }
                     } else {
-                        dlSection.classList.add('hidden');
-                        dlDenied.classList.remove('hidden');
+                        document.getElementById('download-section').classList.add('hidden');
+                        document.getElementById('download-denied-section').classList.remove('hidden');
+
+                        if (appRec.status === 'need_correction') {
+                            const editContainer = document.getElementById('need-correction-action');
+                            editContainer.classList.remove('hidden');
+                            document.getElementById('user-edit-app-btn').onclick = () => cvForm.loadForEdit(appRec.id);
+                        } else {
+                            document.getElementById('need-correction-action').classList.add('hidden');
+                        }
                     }
 
-                    // Admin action section
-                    const adminSec = document.getElementById('admin-action-section');
-                    if (isAdmin || auth.isAdminUser) {
-                        adminSec.classList.remove('hidden');
-                        document.getElementById('admin-status-select').value = statusLower;
-                        document.getElementById('admin-note-input').value = a.admin_note || '';
-                    } else {
-                        adminSec.classList.add('hidden');
-                    }
-
-                    // Build detail content
-                    this.renderDetailBody(a);
-                    this.renderStatusTimeline(a);
+                    // Content Body Render
+                    this.renderDetailsBody(appRec);
+                    app.navigateTo('app-details');
                 } catch (err) {
-                    ui.toast(i18n.t('toast_error'), 'error');
-                } finally {
-                    ui.hideLoading();
-                }
-            },
-            renderDetailBody: function(a) {
-                const fd = a.form_data || {};
-                const p = fd.personal_info || {};
-                const pres = fd.present_address || {};
-                const perm = fd.permanent_address || {};
-                const edu = fd.education || [];
-                const addInfo = fd.additional_info || [];
-
-                let html = '<div class="detail-grid">';
-
-                // Personal Info
-                html += '<div class="detail-section">';
-                html += `<h4><i class="fa-solid fa-user"></i> ${i18n.t('sec_personal_info')}</h4>`;
-                if (p.full_name) html += `<p><strong>${i18n.t('full_name')}:</strong> ${utils.escapeHTML(p.full_name)}</p>`;
-                if (p.mobile) html += `<p><strong>${i18n.t('mobile')}:</strong> ${utils.escapeHTML(p.mobile)}</p>`;
-                if (p.email) html += `<p><strong>${i18n.t('email')}:</strong> ${utils.escapeHTML(p.email)}</p>`;
-                if (p.website) html += `<p><strong>${i18n.t('website')}:</strong> <a href="${utils.escapeHTML(p.website)}" target="_blank" style="color:var(--accent-sky);">${utils.escapeHTML(p.website)}</a></p>`;
-                if (p.father_name) html += `<p><strong>${i18n.t('father_name')}:</strong> ${utils.escapeHTML(p.father_name)}</p>`;
-                if (p.mother_name) html += `<p><strong>${i18n.t('mother_name')}:</strong> ${utils.escapeHTML(p.mother_name)}</p>`;
-                if (p.dob) html += `<p><strong>${i18n.t('dob')}:</strong> ${utils.escapeHTML(p.dob)}</p>`;
-                if (p.nationality) html += `<p><strong>${i18n.t('nationality')}:</strong> ${utils.escapeHTML(p.nationality)}</p>`;
-                if (p.gender) html += `<p><strong>${i18n.t('gender')}:</strong> ${utils.escapeHTML(p.gender)}</p>`;
-                if (p.marital_status) html += `<p><strong>${i18n.t('marital_status')}:</strong> ${utils.escapeHTML(p.marital_status)}</p>`;
-                if (p.height) html += `<p><strong>${i18n.t('height')}:</strong> ${utils.escapeHTML(p.height)}</p>`;
-                if (p.weight) html += `<p><strong>${i18n.t('weight')}:</strong> ${utils.escapeHTML(p.weight)}</p>`;
-                if (p.objective) html += `<p><strong>${i18n.t('career_objective')}:</strong> ${utils.escapeHTML(p.objective)}</p>`;
-                html += '</div>';
-
-                // Address
-                const presStr = [pres.village, pres.po, pres.thana, pres.district].filter(Boolean).join(', ');
-                const permStr = [perm.village, perm.po, perm.thana, perm.district].filter(Boolean).join(', ');
-                if (presStr || permStr) {
-                    html += '<div class="detail-section">';
-                    html += `<h4><i class="fa-solid fa-location-dot"></i> ${i18n.t('sec_present_addr')} / ${i18n.t('sec_permanent_addr')}</h4>`;
-                    if (presStr) html += `<p><strong>${i18n.t('sec_present_addr')}:</strong> ${utils.escapeHTML(presStr)}</p>`;
-                    if (permStr) html += `<p><strong>${i18n.t('sec_permanent_addr')}:</strong> ${utils.escapeHTML(permStr)}</p>`;
-                    html += '</div>';
-                }
-
-                // Education
-                if (edu.length > 0) {
-                    html += '<div class="detail-section" style="grid-column:1/-1;">';
-                    html += `<h4><i class="fa-solid fa-graduation-cap"></i> ${i18n.t('sec_education')}</h4>`;
-                    html += '<div class="table-responsive"><table class="data-table" style="margin-top:8px;"><thead><tr>';
-                    html += `<th>${i18n.t('exam_name')}</th><th>${i18n.t('institute')}</th><th>${i18n.t('passing_year')}</th><th>${i18n.t('gpa')}</th>`;
-                    html += '</tr></thead><tbody>';
-                    edu.forEach(e => {
-                        html += `<tr><td>${utils.escapeHTML(e.exam_name)}</td><td>${utils.escapeHTML(e.institute_name)}</td><td>${utils.escapeHTML(e.passing_year)}</td><td>${utils.escapeHTML(e.result_gpa)}</td></tr>`;
-                    });
-                    html += '</tbody></table></div>';
-                    html += '</div>';
-                }
-
-                // Additional Info
-                if (addInfo.length > 0) {
-                    addInfo.forEach(block => {
-                        if (!block.title && !block.description) return;
-                        html += '<div class="detail-section">';
-                        html += `<h4>${utils.escapeHTML(block.title || 'Info')}</h4>`;
-                        html += `<p style="white-space:pre-line;">${utils.escapeHTML(block.description || '')}</p>`;
-                        html += '</div>';
-                    });
-                }
-
-                // Documents
-                const docs = fd.documents || [];
-                if (docs.length > 0) {
-                    html += '<div class="detail-section" style="grid-column:1/-1;">';
-                    html += `<h4><i class="fa-solid fa-paperclip"></i> ${i18n.t('sec_documents')}</h4>`;
-                    docs.forEach((doc, idx) => {
-                        html += `<p><i class="fa-solid fa-file"></i> ${utils.escapeHTML(doc.name || 'Document ' + (idx+1))}</p>`;
-                    });
-                    html += '</div>';
-                }
-
-                // Admin note
-                if (a.admin_note) {
-                    html += '<div class="detail-section" style="grid-column:1/-1; background:#FEFCE8; border-color:#FEF08A;">';
-                    html += `<h4><i class="fa-solid fa-user-shield"></i> ${i18n.t('admin_note')}</h4>`;
-                    html += `<p>${utils.escapeHTML(a.admin_note)}</p>`;
-                    html += '</div>';
-                }
-
-                html += '</div>';
-                document.getElementById('det-content-body').innerHTML = html;
-            },
-            renderStatusTimeline: function(a) {
-                const container = document.getElementById('status-timeline-container');
-                const statuses = [
-                    { key: 'pending', label: i18n.t('status_pending'), time: a.created_at },
-                    { key: 'under_review', label: i18n.t('status_under_review'), time: a.status === 'under_review' || ['approved', 'rejected', 'cancelled'].includes(a.status) ? a.updated_at : null },
-                    { key: 'approved', label: i18n.t('status_approved'), time: a.status === 'approved' || a.status === 'completed' ? a.approved_at || a.updated_at : null }
-                ];
-
-                let html = '<div class="status-timeline">';
-                statuses.forEach((s, idx) => {
-                    const isActive = s.time !== null;
-                    const isCurrent = (a.status || '').toLowerCase() === s.key || (s.key === 'approved' && (a.status || '').toLowerCase() === 'completed');
-                    html += `<div class="timeline-item ${isActive ? 'active' : ''} ${isCurrent ? 'current' : ''}">`;
-                    html += `<div class="timeline-content">`;
-                    html += `<h4>${s.label} ${isCurrent ? '<span style="color:var(--accent-sky); font-size:0.75rem;">(Current)</span>' : ''}</h4>`;
-                    if (s.time) html += `<p>${utils.formatDateTime(s.time)}</p>`;
-                    html += `</div></div>`;
-                });
-                html += '</div>';
-                container.innerHTML = html;
-            },
-            saveAdminAction: async function() {
-                if (!this.currentApp || !auth.isAdminUser) return;
-                const newStatus = document.getElementById('admin-status-select').value;
-                const note = document.getElementById('admin-note-input').value;
-                const genFile = document.getElementById('admin-gen-file-input').files[0];
-                ui.showLoading();
-                try {
-                    let genFilePath = this.currentApp.generated_file_path || "";
-                    if (genFile) {
-                        const safeName = utils.getSafeFilename(genFile.name);
-                        const gPath = `${this.currentApp.id}/${safeName}`;
-                        const { error } = await _supabase.storage.from('generated-files').upload(gPath, genFile, { upsert: true });
-                        if (!error) genFilePath = gPath;
-                    }
-
-                    const updateData = {
-                        status: newStatus,
-                        admin_note: note,
-                        generated_file_path: genFilePath,
-                        updated_at: new Date().toISOString()
-                    };
-                    if (newStatus === 'approved' || newStatus === 'completed') {
-                        updateData.download_allowed = true;
-                        updateData.approved_at = new Date().toISOString();
-                        updateData.approved_by = auth.currentUser.id;
-                    } else {
-                        updateData.download_allowed = false;
-                    }
-
-                    await _supabase.from('applications').update(updateData).eq('id', this.currentApp.id);
-                    ui.toast(i18n.t('toast_status_updated'), 'success');
-                    this.viewAppDetails(this.currentApp.id, true);
-                    admin.loadDashboard();
-                } catch (err) {
+                    console.error('Details error:', err);
                     ui.toast(err.message || i18n.t('toast_error'), 'error');
                 } finally {
                     ui.hideLoading();
                 }
             },
-            quickApprove: async function() {
-                document.getElementById('admin-status-select').value = 'approved';
-                await this.saveAdminAction();
+            renderTimeline: function(appRec) {
+                const history = appRec.status_history || [];
+                const container = document.getElementById('status-timeline-container');
+                if (history.length === 0) {
+                    container.innerHTML = '';
+                    return;
+                }
+
+                container.innerHTML = `
+                    <h4 style="font-size:0.9rem; color:var(--primary-navy); margin-bottom:8px;"><i class="fa-solid fa-clock-rotate-left"></i> Status History</h4>
+                    <div class="status-timeline">
+                        ${history.map((h, i) => `
+                            <div class="timeline-item ${i === history.length - 1 ? 'active' : ''}">
+                                <div class="timeline-content">
+                                    <h4>${i18n.getStatusLabel(h.new_status)}</h4>
+                                    <p>${utils.formatDateTime(h.changed_at)} ${h.note ? `- ${utils.escapeHTML(h.note)}` : ''}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>`;
             },
-            quickReject: async function() {
-                document.getElementById('admin-status-select').value = 'rejected';
-                await this.saveAdminAction();
+            renderDetailsBody: function(appRec) {
+                const fd = appRec.form_data || {};
+                const p = fd.personal_info || {};
+                const pres = fd.present_address || {};
+                const perm = fd.permanent_address || {};
+                const edu = fd.education || [];
+                const addInfo = fd.additional_info || [];
+                const docs = fd.documents || [];
+
+                document.getElementById('det-content-body').innerHTML = `
+                    <div class="detail-grid">
+                        <div class="detail-section">
+                            <h4><i class="fa-solid fa-user"></i> Personal Information</h4>
+                            ${p.full_name ? `<p><strong>Name:</strong> ${utils.escapeHTML(p.full_name)}</p>` : ''}
+                            ${p.mobile ? `<p><strong>Mobile:</strong> ${utils.escapeHTML(p.mobile)}</p>` : ''}
+                            ${p.email ? `<p><strong>Email:</strong> ${utils.escapeHTML(p.email)}</p>` : ''}
+                            ${p.father_name ? `<p><strong>Father's Name:</strong> ${utils.escapeHTML(p.father_name)}</p>` : ''}
+                            ${p.mother_name ? `<p><strong>Mother's Name:</strong> ${utils.escapeHTML(p.mother_name)}</p>` : ''}
+                            ${p.dob ? `<p><strong>Date of Birth:</strong> ${utils.formatDate(p.dob)}</p>` : ''}
+                            ${p.gender ? `<p><strong>Gender:</strong> ${utils.escapeHTML(p.gender)}</p>` : ''}
+                            ${p.marital_status ? `<p><strong>Marital Status:</strong> ${utils.escapeHTML(p.marital_status)}</p>` : ''}
+                        </div>
+
+                        <div class="detail-section">
+                            <h4><i class="fa-solid fa-location-dot"></i> Address Info</h4>
+                            <p><strong>Present:</strong> ${[pres.village, pres.po, pres.thana, pres.district].filter(Boolean).map(utils.escapeHTML).join(', ') || 'N/A'}</p>
+                            <p><strong>Permanent:</strong> ${[perm.village, perm.po, perm.thana, perm.district].filter(Boolean).map(utils.escapeHTML).join(', ') || 'N/A'}</p>
+                        </div>
+                    </div>
+
+                    ${appRec.admin_note ? `
+                        <div style="margin-top:15px; padding:12px; background:#FFEDD5; border-left:4px solid #F59E0B; border-radius:4px;">
+                            <strong><i class="fa-solid fa-note-sticky"></i> Admin Note:</strong> ${utils.escapeHTML(appRec.admin_note)}
+                        </div>` : ''}
+
+                    ${edu.length > 0 ? `
+                        <div class="detail-section" style="margin-top:20px;">
+                            <h4><i class="fa-solid fa-graduation-cap"></i> Education</h4>
+                            <table class="pdf-table">
+                                <thead><tr><th>Exam</th><th>Year</th><th>Institute</th><th>GPA</th></tr></thead>
+                                <tbody>
+                                    ${edu.map(e => `<tr><td>${utils.escapeHTML(e.exam_name)}</td><td>${utils.escapeHTML(e.passing_year)}</td><td>${utils.escapeHTML(e.institute_name)}</td><td>${utils.escapeHTML(e.result_gpa)}</td></tr>`).join('')}
+                                </tbody>
+                            </table>
+                        </div>` : ''}
+
+                    ${addInfo.length > 0 ? `
+                        <div class="detail-section" style="margin-top:20px;">
+                            <h4><i class="fa-solid fa-layer-group"></i> Additional Details</h4>
+                            ${addInfo.map(b => `<div style="margin-bottom:8px;"><strong>${utils.escapeHTML(b.title)}:</strong> <p style="display:inline;">${utils.escapeHTML(b.description)}</p></div>`).join('')}
+                        </div>` : ''}
+
+                    ${docs.length > 0 ? `
+                        <div class="detail-section" style="margin-top:20px;">
+                            <h4><i class="fa-solid fa-paperclip"></i> Attached Documents</h4>
+                            <ul>
+                                ${docs.map(d => `<li><a href="${d.url}" target="_blank">${utils.escapeHTML(d.name || 'Document')}</a></li>`).join('')}
+                            </ul>
+                        </div>` : ''}
+                `;
             },
             backToDashboard: function() {
                 if (auth.isAdminUser) {
@@ -2126,62 +2158,171 @@
                 } else {
                     app.navigateTo('user-dashboard');
                 }
-            }
-        };
-
-
-        // ==================== ADMIN DASHBOARD ====================
-        const admin = {
-            applications: [],
-            filteredApps: [],
-            loadDashboard: async function() {
-                if (!auth.isAdminUser) {
-                    ui.toast(i18n.t('toast_no_permission'), 'error');
-                    app.navigateTo('dashboard');
-                    return;
-                }
+            },
+            saveAdminAction: async function() {
+                if (!this.currentApp || !auth.isAdminUser) return;
                 ui.showLoading();
+
                 try {
-                    const { data: apps, error } = await _supabase.from('applications')
-                        .select('*')
-                        .order('created_at', { ascending: false });
+                    const newStatus = document.getElementById('admin-status-select').value;
+                    const template = document.getElementById('admin-template-select').value;
+                    const note = document.getElementById('admin-note-input').value.trim();
+                    const fileInput = document.getElementById('admin-gen-file-input').files[0];
+
+                    let uploadedFileUrl = this.currentApp.final_file_url;
+                    if (fileInput) {
+                        const path = `final_cvs/${this.currentApp.id}/${utils.getSafeFilename(fileInput.name)}`;
+                        const { error: upErr } = await _supabase.storage.from('app_documents').upload(path, fileInput);
+                        if (!upErr) {
+                            const { data: pubData } = _supabase.storage.from('app_documents').getPublicUrl(path);
+                            uploadedFileUrl = pubData?.publicUrl;
+                        }
+                    }
+
+                    const history = this.currentApp.status_history || [];
+                    if (newStatus !== this.currentApp.status) {
+                        history.push({
+                            old_status: this.currentApp.status,
+                            new_status: newStatus,
+                            changed_by: auth.currentUser.id,
+                            changed_at: new Date().toISOString(),
+                            note: note || `Status updated to ${newStatus}`
+                        });
+                    }
+
+                    const isApproved = newStatus === 'approved' || newStatus === 'completed';
+
+                    const { error } = await _supabase.from('applications').update({
+                        status: newStatus,
+                        cv_template: template,
+                        admin_note: note,
+                        download_allowed: isApproved,
+                        final_file_url: uploadedFileUrl,
+                        status_history: history,
+                        approved_at: isApproved ? new Date().toISOString() : this.currentApp.approved_at,
+                        approved_by: isApproved ? auth.currentUser.id : this.currentApp.approved_by
+                    }).eq('id', this.currentApp.id);
+
                     if (error) throw error;
-                    this.applications = apps || [];
-                    this.filteredApps = [...this.applications];
-                    this.renderStats();
-                    this.renderTable();
-                } catch (err) {
-                    ui.toast(err.message || i18n.t('toast_error'), 'error');
+                    ui.toast(i18n.t('toast_status_updated'), 'success');
+                    this.viewDetails(this.currentApp.id);
+                } catch (e) {
+                    console.error('Admin Save Error:', e);
+                    ui.toast(e.message || i18n.t('toast_error'), 'error');
                 } finally {
                     ui.hideLoading();
                 }
             },
-            renderStats: function() {
-                const apps = this.applications;
-                const getCount = (statuses) => apps.filter(a => statuses.includes((a.status || '').toLowerCase())).length;
-                document.getElementById('stat-total').innerText = apps.length;
-                document.getElementById('stat-pending').innerText = getCount(['pending']);
-                document.getElementById('stat-review').innerText = getCount(['under_review', 'need correction']);
-                document.getElementById('stat-approved').innerText = getCount(['approved', 'completed']);
-                document.getElementById('stat-rejected').innerText = getCount(['rejected']);
-                document.getElementById('stat-cancelled').innerText = getCount(['cancelled']);
+            approveAndGenerate: async function() {
+                if (!this.currentApp || !auth.isAdminUser) return;
+                ui.showLoading();
+                try {
+                    const template = document.getElementById('admin-template-select').value;
+                    const note = document.getElementById('admin-note-input').value.trim();
+
+                    // Validation check
+                    if (!this.currentApp.form_data?.personal_info?.full_name) {
+                        throw new Error('Applicant full name is missing. Cannot approve incomplete application.');
+                    }
+
+                    const history = this.currentApp.status_history || [];
+                    history.push({
+                        old_status: this.currentApp.status,
+                        new_status: 'approved',
+                        changed_by: auth.currentUser.id,
+                        changed_at: new Date().toISOString(),
+                        note: note || 'Approved and CV generated by admin'
+                    });
+
+                    const token = this.currentApp.verification_token || utils.generateToken();
+
+                    const { error } = await _supabase.from('applications').update({
+                        status: 'approved',
+                        cv_template: template,
+                        verification_token: token,
+                        admin_note: note,
+                        download_allowed: true,
+                        approved_at: new Date().toISOString(),
+                        approved_by: auth.currentUser.id,
+                        status_history: history
+                    }).eq('id', this.currentApp.id);
+
+                    if (error) throw error;
+                    ui.toast('Application Approved and CV Generated Successfully!', 'success');
+                    this.viewDetails(this.currentApp.id);
+                } catch (e) {
+                    console.error('Approve and Generate error:', e);
+                    ui.toast(e.message || i18n.t('toast_error'), 'error');
+                } finally {
+                    ui.hideLoading();
+                }
+            },
+            quickReject: function() {
+                document.getElementById('admin-status-select').value = 'rejected';
+                this.saveAdminAction();
+            }
+        };
+
+        // ADMIN PANEL MANAGEMENT
+        const admin = {
+            applications: [],
+            filtered: [],
+            loadDashboard: async function() {
+                if (!auth.isAdminUser) return;
+                ui.showLoading();
+                try {
+                    const { data: list, error } = await _supabase
+                        .from('applications')
+                        .select('*, profiles(full_name, email), services(name)')
+                        .order('created_at', { ascending: false });
+
+                    if (error) throw error;
+                    this.applications = list || [];
+                    this.updateStats();
+                    this.filterApps();
+                } catch (err) {
+                    console.error('Admin dashboard error:', err);
+                    ui.toast(i18n.t('toast_error'), 'error');
+                } finally {
+                    ui.hideLoading();
+                }
+            },
+            updateStats: function() {
+                let pending = 0, review = 0, approved = 0, rejected = 0, cancelled = 0;
+                this.applications.forEach(a => {
+                    if (a.status === 'pending') pending++;
+                    else if (a.status === 'under_review') review++;
+                    else if (a.status === 'approved' || a.status === 'completed') approved++;
+                    else if (a.status === 'rejected') rejected++;
+                    else if (a.status === 'cancelled') cancelled++;
+                });
+
+                document.getElementById('stat-total').innerText = this.applications.length;
+                document.getElementById('stat-pending').innerText = pending;
+                document.getElementById('stat-review').innerText = review;
+                document.getElementById('stat-approved').innerText = approved;
+                document.getElementById('stat-rejected').innerText = rejected;
+                document.getElementById('stat-cancelled').innerText = cancelled;
             },
             filterApps: function() {
-                const search = document.getElementById('admin-search').value.toLowerCase().trim();
+                const query = document.getElementById('admin-search').value.toLowerCase().trim();
                 const statusFilter = document.getElementById('admin-status-filter').value;
                 const dateFrom = document.getElementById('admin-date-from').value;
                 const dateTo = document.getElementById('admin-date-to').value;
 
-                this.filteredApps = this.applications.filter(a => {
-                    const name = (a.form_data?.personal_info?.full_name || '').toLowerCase();
+                this.filtered = this.applications.filter(a => {
                     const appNo = utils.generateAppNo(a.id).toLowerCase();
-                    const matchesSearch = !search || name.includes(search) || appNo.includes(search);
-                    const matchesStatus = !statusFilter || (a.status || '').toLowerCase() === statusFilter;
-                    const created = new Date(a.created_at);
-                    const matchesDateFrom = !dateFrom || created >= new Date(dateFrom);
-                    const matchesDateTo = !dateTo || created <= new Date(dateTo + 'T23:59:59');
-                    return matchesSearch && matchesStatus && matchesDateFrom && matchesDateTo;
+                    const name = (a.form_data?.personal_info?.full_name || a.profiles?.full_name || '').toLowerCase();
+                    const matchesQuery = !query || appNo.includes(query) || name.includes(query);
+                    const matchesStatus = !statusFilter || a.status === statusFilter;
+
+                    let matchesDate = true;
+                    if (dateFrom) matchesDate = matchesDate && new Date(a.created_at) >= new Date(dateFrom);
+                    if (dateTo) matchesDate = matchesDate && new Date(a.created_at) <= new Date(dateTo + 'T23:59:59');
+
+                    return matchesQuery && matchesStatus && matchesDate;
                 });
+
                 this.renderTable();
             },
             clearFilters: function() {
@@ -2189,361 +2330,191 @@
                 document.getElementById('admin-status-filter').value = '';
                 document.getElementById('admin-date-from').value = '';
                 document.getElementById('admin-date-to').value = '';
-                this.filteredApps = [...this.applications];
-                this.renderTable();
+                this.filterApps();
             },
             renderTable: function() {
                 const tbody = document.getElementById('admin-applications-list');
-                const emptyState = document.getElementById('admin-apps-empty');
-                const countLabel = document.getElementById('admin-result-count');
+                document.getElementById('admin-result-count').innerText = `${this.filtered.length} ${i18n.t('result_count')}`;
 
-                countLabel.innerText = `${this.filteredApps.length} ${i18n.t('result_count')}`;
-
-                if (this.filteredApps.length === 0) {
+                if (this.filtered.length === 0) {
                     tbody.innerHTML = '';
-                    emptyState.classList.remove('hidden');
+                    document.getElementById('admin-apps-empty').classList.remove('hidden');
                     return;
                 }
-                emptyState.classList.add('hidden');
-                tbody.innerHTML = "";
-                this.filteredApps.forEach(a => {
-                    const name = a.form_data?.personal_info?.full_name || 'N/A';
-                    const statusClass = i18n.getStatusBadgeClass(a.status);
-                    const statusLabel = i18n.getStatusLabel(a.status);
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
+
+                document.getElementById('admin-apps-empty').classList.add('hidden');
+                tbody.innerHTML = this.filtered.map(a => `
+                    <tr>
                         <td><strong>${utils.generateAppNo(a.id)}</strong></td>
-                        <td>${utils.escapeHTML(name)}</td>
+                        <td>${utils.escapeHTML(a.form_data?.personal_info?.full_name || a.profiles?.full_name || 'N/A')}</td>
                         <td>${utils.formatDate(a.created_at)}</td>
-                        <td><span class="badge ${statusClass}">${statusLabel}</span></td>
+                        <td><span class="badge ${i18n.getStatusBadgeClass(a.status)}">${i18n.getStatusLabel(a.status)}</span></td>
                         <td>
-                            <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                                <button class="btn-primary btn-xs" onclick="dashboard.viewAppDetails('${a.id}', true)">
-                                    <i class="fa-solid fa-eye"></i> ${i18n.t('view')}
-                                </button>
-                                <button class="btn-info btn-xs" onclick="cvForm.loadForEdit('${a.id}')">
-                                    <i class="fa-solid fa-pen"></i> ${i18n.t('edit')}
-                                </button>
-                                <button class="btn-success btn-xs" onclick="admin.quickAction('${a.id}', 'approved')">
-                                    <i class="fa-solid fa-check"></i>
-                                </button>
-                                <button class="btn-danger btn-xs" onclick="admin.quickAction('${a.id}', 'rejected')">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
-                                <button class="btn-danger btn-xs" style="background:#7F1D1D;" onclick="admin.deleteApp('${a.id}')">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
+                            <button class="btn-primary btn-xs" onclick="dashboard.viewDetails('${a.id}')">
+                                <i class="fa-solid fa-sliders"></i> ${i18n.t('manage')}
+                            </button>
                         </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                    </tr>
+                `).join('');
             },
-            quickAction: async function(appId, status) {
-                ui.showLoading();
-                try {
-                    const updateData = {
-                        status: status,
-                        updated_at: new Date().toISOString()
-                    };
-                    if (status === 'approved') {
-                        updateData.download_allowed = true;
-                        updateData.approved_at = new Date().toISOString();
-                        updateData.approved_by = auth.currentUser.id;
-                    } else {
-                        updateData.download_allowed = false;
-                    }
-                    await _supabase.from('applications').update(updateData).eq('id', appId);
-                    ui.toast(i18n.t('toast_status_updated'), 'success');
-                    this.loadDashboard();
-                } catch (err) {
-                    ui.toast(err.message || i18n.t('toast_error'), 'error');
-                } finally {
-                    ui.hideLoading();
-                }
-            },
-            deleteApp: function(appId) {
-                ui.showConfirm(
-                    i18n.t('confirm_delete_title'),
-                    i18n.t('confirm_delete_msg'),
-                    i18n.t('delete'),
-                    'btn-danger',
-                    async () => {
-                        ui.showLoading();
-                        try {
-                            await _supabase.from('applications').delete().eq('id', appId);
-                            ui.toast(i18n.t('toast_app_deleted'), 'success');
-                            this.loadDashboard();
-                        } catch (err) {
-                            ui.toast(err.message || i18n.t('toast_error'), 'error');
-                        } finally {
-                            ui.hideLoading();
-                        }
-                    }
-                );
-            },
-            showSection: function(section) {
-                // For future use if we add more admin sections
-                if (section === 'overview' || section === 'applications') {
-                    this.loadDashboard();
-                }
+            showSection: function(sec) {
+                this.loadDashboard();
             }
         };
 
-
-        // ==================== PDF GENERATOR ====================
+        // PDF & 3 TEMPLATES GENERATOR WITH QR CODE
         const cvPdf = {
-            buildHtmlContent: async function() {
-                const appData = dashboard.currentApp;
-                if (!appData) return '';
+            renderTemplateHTML: function(appRec) {
+                const fd = appRec.form_data || {};
+                const p = fd.personal_info || {};
+                const pres = fd.present_address || {};
+                const perm = fd.permanent_address || {};
+                const edu = fd.education || [];
+                const addInfo = fd.additional_info || [];
+                const template = appRec.cv_template || 'professional';
 
-                const info = appData.form_data?.personal_info || {};
-                const pres = appData.form_data?.present_address || {};
-                const perm = appData.form_data?.permanent_address || {};
-                const edu = appData.form_data?.education || [];
-                const addInfo = appData.form_data?.additional_info || [];
+                let templateClass = 'tpl-prof';
+                if (template === 'standard') templateClass = 'tpl-std';
+                if (template === 'biodata') templateClass = 'tpl-bio';
 
-                // Security check - only allow download if approved
-                const statusLower = (appData.status || '').toLowerCase();
-                if (!['approved', 'completed'].includes(statusLower) && !auth.isAdminUser) {
-                    ui.toast(i18n.t('toast_download_denied'), 'error');
-                    return '';
-                }
-
-                let photoUrl = '';
-                if (info.photo_path) {
-                    try {
-                        const { data } = await _supabase.storage.from('profile-avatars').createSignedUrl(info.photo_path, 300);
-                        if (data) photoUrl = data.signedUrl;
-                    } catch (e) { console.log('Photo load error', e); }
-                }
-
-                const presentAddrStr = [pres.village, pres.po, pres.thana, pres.district].filter(Boolean).join(', ');
-                const permAddrStr = [perm.village, perm.po, perm.thana, perm.district].filter(Boolean).join(', ');
-
-                // Build contact lines
-                let contactHtml = '';
-                if (info.mobile) contactHtml += `<span>📱 ${utils.escapeHTML(info.mobile)}</span>`;
-                if (info.email) contactHtml += `<span>✉️ ${utils.escapeHTML(info.email)}</span>`;
-                if (info.website) contactHtml += `<span>🌐 <a href="${utils.escapeHTML(info.website)}" style="color:var(--accent-sky); text-decoration:none;">${utils.escapeHTML(info.website)}</a></span>`;
-
-                let html = `
-                    <div class="pdf-header">
-                        <div class="pdf-header-text">
-                            <h1>${utils.escapeHTML(info.full_name || 'CURRICULUM VITAE')}</h1>
-                            <div class="pdf-contact">${contactHtml}</div>
-                        </div>
-                        ${photoUrl ? `<img src="${photoUrl}" class="pdf-photo" alt="Photo" onerror="this.style.display='none'" />` : ''}
-                    </div>
-                `;
-
-                if (info.objective) {
-                    html += `
-                        <div class="pdf-section">
-                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'ক্যারিয়ার উদ্দেশ্য' : 'CAREER OBJECTIVE'}</div>
-                            <p style="font-size:9pt; color:#334155; line-height:1.5;">${utils.escapeHTML(info.objective)}</p>
-                        </div>
-                    `;
-                }
-
-                html += `
-                    <div class="pdf-section">
-                        <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'ব্যক্তিগত তথ্য' : 'PERSONAL DETAILS'}</div>
-                        <div class="pdf-grid">
-                            ${info.father_name ? `<div class="pdf-grid-item"><strong>${i18n.t('father_name')}:</strong> ${utils.escapeHTML(info.father_name)}</div>` : ''}
-                            ${info.mother_name ? `<div class="pdf-grid-item"><strong>${i18n.t('mother_name')}:</strong> ${utils.escapeHTML(info.mother_name)}</div>` : ''}
-                            ${info.dob ? `<div class="pdf-grid-item"><strong>${i18n.t('dob')}:</strong> ${utils.escapeHTML(info.dob)}</div>` : ''}
-                            ${info.nationality ? `<div class="pdf-grid-item"><strong>${i18n.t('nationality')}:</strong> ${utils.escapeHTML(info.nationality)}</div>` : ''}
-                            ${info.gender ? `<div class="pdf-grid-item"><strong>${i18n.t('gender')}:</strong> ${utils.escapeHTML(info.gender)}</div>` : ''}
-                            ${info.marital_status ? `<div class="pdf-grid-item"><strong>${i18n.t('marital_status')}:</strong> ${utils.escapeHTML(info.marital_status)}</div>` : ''}
-                            ${info.height ? `<div class="pdf-grid-item"><strong>${i18n.t('height')}:</strong> ${utils.escapeHTML(info.height)}</div>` : ''}
-                            ${info.weight ? `<div class="pdf-grid-item"><strong>${i18n.t('weight')}:</strong> ${utils.escapeHTML(info.weight)}</div>` : ''}
-                        </div>
-                    </div>
-                `;
-
-                if (presentAddrStr || permAddrStr) {
-                    html += `
-                        <div class="pdf-section">
-                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'ঠিকানা' : 'ADDRESS DETAILS'}</div>
-                            <div class="pdf-grid">
-                                ${presentAddrStr ? `<div><strong>${i18n.t('sec_present_addr')}:</strong><br>${utils.escapeHTML(presentAddrStr)}</div>` : ''}
-                                ${permAddrStr ? `<div><strong>${i18n.t('sec_permanent_addr')}:</strong><br>${utils.escapeHTML(permAddrStr)}</div>` : ''}
+                return `
+                    <div class="${templateClass}">
+                        <!-- Header -->
+                        <div class="pdf-header">
+                            <div class="pdf-header-text">
+                                <h1>${utils.escapeHTML(p.full_name || 'CURRICULUM VITAE')}</h1>
+                                <div class="pdf-contact">
+                                    <span>${p.mobile ? `<i class="fa-solid fa-phone"></i> ${utils.escapeHTML(p.mobile)}` : ''} ${p.email ? ` | <i class="fa-solid fa-envelope"></i> ${utils.escapeHTML(p.email)}` : ''}</span>
+                                    <span>${[pres.village, pres.po, pres.thana, pres.district].filter(Boolean).map(utils.escapeHTML).join(', ')}</span>
+                                </div>
                             </div>
+                            ${p.photo_url ? `<img src="${p.photo_url}" class="pdf-photo" alt="Photo">` : ''}
                         </div>
-                    `;
-                }
 
-                if (edu.length > 0) {
-                    html += `
-                        <div class="pdf-section">
-                            <div class="pdf-section-title">${i18n.t('sec_education')}</div>
-                            <table class="pdf-table">
-                                <thead>
-                                    <tr>
-                                        <th>${i18n.t('exam_name')}</th>
-                                        <th>${i18n.t('institute')}</th>
-                                        <th>${i18n.t('passing_year')}</th>
-                                        <th>${i18n.t('gpa')}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${edu.map(e => `
-                                        <tr>
-                                            <td>${utils.escapeHTML(e.exam_name)}</td>
-                                            <td>${utils.escapeHTML(e.institute_name)}</td>
-                                            <td>${utils.escapeHTML(e.passing_year)}</td>
-                                            <td>${utils.escapeHTML(e.result_gpa)}</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    `;
-                }
-
-                // Additional Info Blocks
-                if (addInfo.length > 0) {
-                    addInfo.forEach(block => {
-                        if (!block.title && !block.description) return;
-                        html += `
+                        ${p.objective ? `
                             <div class="pdf-section">
-                                <div class="pdf-section-title">${utils.escapeHTML(block.title || 'INFO')}</div>
-                                <p style="font-size:9pt; white-space:pre-line; color:#334155; line-height:1.5;">${utils.escapeHTML(block.description || '')}</p>
+                                <div class="pdf-section-title">Objective / Career Summary</div>
+                                <p style="font-size:9pt; line-height:1.4; color:#334155;">${utils.escapeHTML(p.objective)}</p>
+                            </div>` : ''}
+
+                        <!-- Personal Details -->
+                        <div class="pdf-section">
+                            <div class="pdf-section-title">Personal Information</div>
+                            <div class="pdf-grid">
+                                ${p.father_name ? `<div class="pdf-grid-item"><strong>Father's Name:</strong> ${utils.escapeHTML(p.father_name)}</div>` : ''}
+                                ${p.mother_name ? `<div class="pdf-grid-item"><strong>Mother's Name:</strong> ${utils.escapeHTML(p.mother_name)}</div>` : ''}
+                                ${p.dob ? `<div class="pdf-grid-item"><strong>Date of Birth:</strong> ${utils.formatDate(p.dob)}</div>` : ''}
+                                ${p.gender ? `<div class="pdf-grid-item"><strong>Gender:</strong> ${utils.escapeHTML(p.gender)}</div>` : ''}
+                                ${p.marital_status ? `<div class="pdf-grid-item"><strong>Marital Status:</strong> ${utils.escapeHTML(p.marital_status)}</div>` : ''}
+                                ${p.nationality ? `<div class="pdf-grid-item"><strong>Nationality:</strong> ${utils.escapeHTML(p.nationality)}</div>` : ''}
                             </div>
-                        `;
+                        </div>
+
+                        <!-- Education -->
+                        ${edu.length > 0 ? `
+                            <div class="pdf-section">
+                                <div class="pdf-section-title">Educational Qualifications</div>
+                                <table class="pdf-table">
+                                    <thead><tr><th>Exam Title</th><th>Passing Year</th><th>Institution</th><th>Result</th></tr></thead>
+                                    <tbody>
+                                        ${edu.map(e => `<tr><td>${utils.escapeHTML(e.exam_name)}</td><td>${utils.escapeHTML(e.passing_year)}</td><td>${utils.escapeHTML(e.institute_name)}</td><td>${utils.escapeHTML(e.result_gpa)}</td></tr>`).join('')}
+                                    </tbody>
+                                </table>
+                            </div>` : ''}
+
+                        <!-- Dynamic Additional Blocks -->
+                        ${addInfo.map(b => `
+                            <div class="pdf-section">
+                                <div class="pdf-section-title">${utils.escapeHTML(b.title)}</div>
+                                <p style="font-size:9pt; line-height:1.4;">${utils.escapeHTML(b.description)}</p>
+                            </div>
+                        `).join('')}
+
+                        <!-- Address -->
+                        <div class="pdf-section">
+                            <div class="pdf-section-title">Address Information</div>
+                            <div class="pdf-grid">
+                                <div class="pdf-grid-item"><strong>Present Address:</strong> ${[pres.village, pres.po, pres.thana, pres.district].filter(Boolean).map(utils.escapeHTML).join(', ')}</div>
+                                <div class="pdf-grid-item"><strong>Permanent Address:</strong> ${[perm.village, perm.po, perm.thana, perm.district].filter(Boolean).map(utils.escapeHTML).join(', ')}</div>
+                            </div>
+                        </div>
+
+                        <!-- Verification QR Code Footer -->
+                        <div class="pdf-footer">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                                <div class="qr-container">
+                                    <div id="pdf-qrcode-slot"></div>
+                                    <div style="text-align:left; font-size:7.5pt; color:#475569;">
+                                        <strong>Scan to Verify</strong><br>
+                                        Salman Smart Service<br>
+                                        App ID: ${utils.generateAppNo(appRec.id)}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="pdf-signature-line"></div>
+                                    <p>Applicant Signature</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            },
+            openPreviewModal: function() {
+                const appRec = dashboard.currentApp;
+                if (!appRec) return;
+                const container = document.getElementById('modal-a4-content');
+                container.innerHTML = this.renderTemplateHTML(appRec);
+
+                // Generate QR in slot
+                const verifyUrl = `${window.location.origin}${window.location.pathname}?id=${appRec.id}&token=${appRec.verification_token}`;
+                const slot = document.getElementById('pdf-qrcode-slot');
+                if (slot) {
+                    slot.innerHTML = '';
+                    new QRCode(slot, {
+                        text: verifyUrl,
+                        width: 60,
+                        height: 60,
+                        correctLevel: QRCode.CorrectLevel.M
                     });
                 }
 
-                // Backward compatibility: old skills/languages/experience
-                const oldSkills = appData.form_data?.skills;
-                const oldLangs = appData.form_data?.languages;
-                const oldExp = appData.form_data?.experience;
-                if (oldSkills || oldLangs || oldExp) {
-                    html += `
-                        <div class="pdf-section">
-                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'দক্ষতা ও অভিজ্ঞতা' : 'SKILLS & EXPERIENCE'}</div>
-                            ${oldSkills ? `<p style="font-size:9pt; margin-bottom:6px;"><strong>${i18n.t('skills')}:</strong> ${utils.escapeHTML(oldSkills)}</p>` : ''}
-                            ${oldLangs ? `<p style="font-size:9pt; margin-bottom:6px;"><strong>${i18n.t('languages')}:</strong> ${utils.escapeHTML(oldLangs)}</p>` : ''}
-                            ${oldExp ? `<p style="font-size:9pt; white-space:pre-line;"><strong>${i18n.currentLang === 'bn' ? 'কর্মঅভিজ্ঞতা' : 'Experience'}:</strong><br>${utils.escapeHTML(oldExp)}</p>` : ''}
-                        </div>
-                    `;
-                }
-
-                html += `
-                    <div class="pdf-footer">
-                        <div class="pdf-signature-line"></div>
-                        <p>${utils.escapeHTML(info.full_name || 'Applicant Signature')}</p>
-                    </div>
-                `;
-                return html;
-            },
-            openPreviewModal: async function() {
-                const modal = document.getElementById('preview-modal');
-                const contentContainer = document.getElementById('modal-a4-content');
-                contentContainer.innerHTML = `<p style="padding:40px;">${i18n.t('loading')}</p>`;
-                modal.classList.remove('hidden');
-                const html = await this.buildHtmlContent();
-                if (html) contentContainer.innerHTML = html;
+                document.getElementById('preview-modal').classList.remove('hidden');
             },
             closePreviewModal: function() {
                 document.getElementById('preview-modal').classList.add('hidden');
             },
-            generateAndDownload: async function() {
-                const appData = dashboard.currentApp;
-                if (!appData) return;
+            generateAndDownload: function() {
+                const appRec = dashboard.currentApp;
+                if (!appRec) return;
 
-                // Security check
-                const statusLower = (appData.status || '').toLowerCase();
-                if (!['approved', 'completed'].includes(statusLower) && !auth.isAdminUser) {
-                    ui.toast(i18n.t('toast_download_denied'), 'error');
-                    return;
-                }
-
+                this.openPreviewModal();
                 ui.showLoading();
-                const tempDiv = document.createElement('div');
-                tempDiv.className = 'a4-paper';
-                tempDiv.style.position = 'fixed';
-                tempDiv.style.left = '0';
-                tempDiv.style.top = '0';
-                tempDiv.style.zIndex = '-9999';
-                tempDiv.style.background = '#FFFFFF';
-                const html = await this.buildHtmlContent();
-                if (!html) { ui.hideLoading(); return; }
-                tempDiv.innerHTML = html;
-                document.body.appendChild(tempDiv);
 
-                const info = appData.form_data?.personal_info || {};
-                const cleanName = (info.full_name || 'Applicant').replace(/[^a-zA-Z0-9]/g, "_");
-                const fileName = `${cleanName}_CV.pdf`;
+                setTimeout(() => {
+                    const element = document.getElementById('modal-a4-content');
+                    const opt = {
+                        margin: 0,
+                        filename: `CV_${utils.escapeHTML(appRec.form_data?.personal_info?.full_name || 'Document')}.pdf`,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
 
-                const opt = {
-                    margin: [10, 10, 10, 10],
-                    filename: fileName,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, logging: false },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-                };
-
-                try {
-                    await html2pdf().set(opt).from(tempDiv).save();
-                } catch (err) {
-                    ui.toast("PDF Generation Error: " + err.message, 'error');
-                } finally {
-                    document.body.removeChild(tempDiv);
-                    ui.hideLoading();
-                }
+                    html2pdf().set(opt).from(element).save().then(() => {
+                        ui.hideLoading();
+                        ui.toast('PDF Downloaded successfully!', 'success');
+                    }).catch(err => {
+                        console.error('PDF error:', err);
+                        ui.hideLoading();
+                        ui.toast('PDF generation error', 'error');
+                    });
+                }, 500);
             }
         };
 
-        // ==================== APP ROUTER ====================
-        const app = {
-            init: function() {
-                i18n.init();
-                cvForm.init();
-                // Listen for auth state changes
-                _supabase.auth.onAuthStateChange((event, session) => {
-                    if (event === 'SIGNED_OUT') {
-                        auth.currentUser = null;
-                        auth.isAdminUser = false;
-                        document.getElementById('user-nav-actions').classList.add('hidden');
-                        app.navigateTo('auth');
-                    } else if (event === 'SIGNED_IN' && session) {
-                        auth.checkUserAndRedirect();
-                    }
-                });
-                auth.checkUserAndRedirect();
-            },
-            navigateTo: function(viewName) {
-                document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
-                if (viewName === 'auth') document.getElementById('view-auth').classList.remove('hidden');
-                else if (viewName === 'user-dashboard') {
-                    document.getElementById('view-user-dashboard').classList.remove('hidden');
-                    dashboard.loadUserDashboard();
-                }
-                else if (viewName === 'user-profile') {
-                    document.getElementById('view-user-profile').classList.remove('hidden');
-                    profile.loadProfile();
-                }
-                else if (viewName === 'admin-dashboard') {
-                    document.getElementById('view-admin-dashboard').classList.remove('hidden');
-                    admin.loadDashboard();
-                }
-                else if (viewName === 'cv-form') document.getElementById('view-cv-form').classList.remove('hidden');
-                else if (viewName === 'app-details') document.getElementById('view-app-details').classList.remove('hidden');
-                else if (viewName === 'dashboard') auth.checkUserAndRedirect();
-                window.scrollTo(0, 0);
-            },
-            openServiceForm: function(code) {
-                if (code === 'CV_BIODATA') {
-                    cvForm.resetForm();
-                    this.navigateTo('cv-form');
-                }
-            }
-        };
-
-        window.onload = () => app.init();
+        // INITIALIZE ON LOAD
+        window.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
     </script>
 </body>
 </html>

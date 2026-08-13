@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salman Smart Service - Professional Portal</title>
-    
+
     <!-- Icons & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Kalpurush&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+
     <!-- HTML2PDF Library for Production Ready A4 CV Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -27,134 +27,302 @@
             --text-muted: #64748B;
             --border-color: #E2E8F0;
             --radius: 8px;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #0284C7;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', 'Kalpurush', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-dark); display: flex; flex-direction: column; min-height: 100vh; }
 
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-navy); }
+
         .bismillah-bar { text-align: center; background: var(--primary-navy); color: var(--accent-gold); padding: 6px 0; font-size: 0.95rem; border-bottom: 1px solid rgba(212, 175, 55, 0.3); }
-        .main-header { background-color: var(--navy-light); color: #FFFFFF; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .main-header { background-color: var(--navy-light); color: #FFFFFF; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
         .header-container { max-width: 1200px; margin: 0 auto; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
         .logo-area { display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .logo-icon { font-size: 2.2rem; color: var(--accent-gold); }
         .logo-text h1 { font-size: 1.25rem; color: #FFFFFF; font-weight: 600; }
         .logo-text span { font-size: 0.75rem; color: var(--accent-sky); }
         .header-actions { display: flex; align-items: center; gap: 12px; }
+        .nav-email { color: var(--accent-gold); font-size: 0.85rem; font-weight: 500; margin-right: 8px; display: none; }
+        @media(min-width: 600px) { .nav-email { display: inline; } }
 
-        .btn-primary { background: var(--primary-navy); color: #FFF; border: none; padding: 10px 20px; border-radius: var(--radius); cursor: pointer; font-weight: 500; transition: all 0.3s ease; }
+        .btn-primary { background: var(--primary-navy); color: #FFF; border: none; padding: 10px 20px; border-radius: var(--radius); cursor: pointer; font-weight: 500; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 6px; }
         .btn-primary:hover { background: var(--accent-sky); color: var(--primary-navy); }
-        .btn-secondary { background: #E2E8F0; color: var(--text-dark); border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
-        .btn-success { background: #10B981; color: white; border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-secondary { background: #E2E8F0; color: var(--text-dark); border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-secondary:hover { background: #CBD5E1; }
+        .btn-success { background: var(--success); color: white; border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
         .btn-success:hover { background: #059669; }
-        .btn-danger { background: #EF4444; color: white; border: none; padding: 8px 14px; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
+        .btn-danger { background: var(--danger); color: white; border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
         .btn-danger:hover { background: #DC2626; }
-        .btn-info { background: #0284C7; color: white; border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; }
+        .btn-warning { background: var(--warning); color: white; border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-info { background: var(--info); color: white; border: none; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
         .btn-info:hover { background: #0369A1; }
         .btn-lang, .btn-logout { background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
-        .btn-logout { border-color: #EF4444; color: #EF4444; }
-        .btn-block { width: 100%; }
+        .btn-logout { border-color: var(--danger); color: var(--danger); }
+        .btn-block { width: 100%; justify-content: center; }
         .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+        .btn-xs { padding: 4px 8px; font-size: 0.75rem; }
 
         .main-container { max-width: 1200px; margin: 25px auto; padding: 0 15px; flex: 1; width: 100%; }
         .hidden { display: none !important; }
 
-        .auth-card, .dash-card, .form-container, .details-card { background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border-color); }
-        .auth-card { max-width: 420px; margin: 30px auto; }
+        /* Toast Notifications */
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 10001; display: flex; flex-direction: column; gap: 10px; max-width: 380px; }
+        .toast { background: white; padding: 14px 18px; border-radius: var(--radius); box-shadow: 0 6px 20px rgba(0,0,0,0.12); display: flex; align-items: center; gap: 10px; animation: slideInRight 0.35s ease; border-left: 4px solid var(--accent-sky); font-size: 0.9rem; }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast i { font-size: 1.1rem; }
+        .toast.success i { color: var(--success); }
+        .toast.error i { color: var(--danger); }
+        .toast.warning i { color: var(--warning); }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        /* Loading Overlay */
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.85); display: flex; justify-content: center; align-items: center; z-index: 9998; backdrop-filter: blur(2px); }
+        .spinner { width: 50px; height: 50px; border: 4px solid var(--border-color); border-top-color: var(--accent-sky); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Cards */
+        .auth-card, .dash-card, .form-container, .details-card, .profile-card { background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--border-color); }
+        .auth-card { max-width: 440px; margin: 30px auto; }
         .auth-header h2 { color: var(--primary-navy); margin-bottom: 5px; }
         .auth-header p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
         .auth-footer { margin-top: 20px; text-align: center; font-size: 0.85rem; }
-        .auth-footer a { color: var(--accent-sky); text-decoration: none; font-weight: 600; }
+        .auth-footer a { color: var(--accent-sky); text-decoration: none; font-weight: 600; cursor: pointer; }
 
-        .welcome-banner { background: linear-gradient(135deg, var(--primary-navy), var(--navy-light)); color: white; padding: 20px; border-radius: var(--radius); margin-bottom: 20px; border-left: 5px solid var(--accent-gold); }
+        .welcome-banner { background: linear-gradient(135deg, var(--primary-navy), var(--navy-light)); color: white; padding: 22px; border-radius: var(--radius); margin-bottom: 20px; border-left: 5px solid var(--accent-gold); }
+        .welcome-banner h2 { font-size: 1.4rem; margin-bottom: 4px; }
+        .welcome-banner p { font-size: 0.9rem; opacity: 0.9; }
+
         .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        @media (min-width: 900px) { .dashboard-grid { grid-template-columns: 1fr 2fr; } }
+        @media (min-width: 900px) { .dashboard-grid { grid-template-columns: 1fr 2.5fr; } }
 
         .card-title { font-size: 1.1rem; font-weight: 600; color: var(--primary-navy); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         .services-list-container { display: flex; flex-direction: column; gap: 12px; }
-        .service-card { border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius); border-left: 4px solid var(--accent-sky); background: #FAF5FF; }
-        .service-card h4 { color: var(--primary-navy); font-size: 1rem; }
-        .service-card p { font-size: 0.8rem; color: var(--text-muted); margin: 5px 0 10px 0; }
+        .service-card { border: 1px solid var(--border-color); padding: 18px; border-radius: var(--radius); border-left: 4px solid var(--accent-sky); background: #FAF5FF; transition: transform 0.2s, box-shadow 0.2s; }
+        .service-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+        .service-card h4 { color: var(--primary-navy); font-size: 1rem; margin-bottom: 6px; }
+        .service-card p { font-size: 0.82rem; color: var(--text-muted); margin: 0 0 12px 0; line-height: 1.4; }
 
-        .form-header-bar { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); }
-        .form-note { font-size: 0.85rem; color: #DC2626; }
-        .form-section { margin-bottom: 25px; padding: 15px; background: #F8FAFC; border-radius: var(--radius); border: 1px solid var(--border-color); }
-        .form-section h3 { font-size: 1rem; color: var(--primary-navy); margin-bottom: 15px; }
+        .user-stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        @media(min-width: 600px) { .user-stats-grid { grid-template-columns: repeat(4, 1fr); } }
+        .user-stat-card { background: white; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color); text-align: center; }
+        .user-stat-card h4 { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+        .user-stat-card p { font-size: 1.4rem; font-weight: 700; color: var(--primary-navy); }
+
+        .form-header-bar { margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .form-note { font-size: 0.85rem; color: var(--text-muted); }
+        .form-section { margin-bottom: 25px; padding: 18px; background: #F8FAFC; border-radius: var(--radius); border: 1px solid var(--border-color); }
+        .form-section h3 { font-size: 1rem; color: var(--primary-navy); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
         .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-group label { font-size: 0.85rem; font-weight: 500; color: var(--text-dark); }
-        .form-group input, .form-group select, .form-group textarea { padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.9rem; }
-        .form-group textarea { resize: vertical; min-height: 70px; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent-sky); }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.9rem; transition: border-color 0.2s; background: white; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent-sky); box-shadow: 0 0 0 3px rgba(0,188,212,0.1); }
+        .form-group input:disabled, .form-group select:disabled, .form-group textarea:disabled { background: #F1F5F9; cursor: not-allowed; }
 
-        .dynamic-item-card { background: #FFFFFF; border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; margin-bottom: 10px; position: relative; }
-        .dynamic-item-card .remove-btn { position: absolute; top: 10px; right: 10px; }
-
-        .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; user-select: none; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; margin: 10px 0; font-size: 0.9rem; cursor: pointer; }
+        .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary-navy); cursor: pointer; }
 
         .table-responsive { overflow-x: auto; }
         .data-table { width: 100%; border-collapse: collapse; }
         .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.88rem; }
-        .data-table th { background: #F1F5F9; color: var(--primary-navy); font-weight: 600; }
+        .data-table th { background: #F1F5F9; color: var(--primary-navy); font-weight: 600; white-space: nowrap; }
+        .data-table tbody tr:hover { background: #F8FAFC; }
+        .data-table td { vertical-align: middle; }
 
-        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; display: inline-block; white-space: nowrap; }
         .badge-pending { background: #FEF3C7; color: #92400E; }
-        .badge-correction { background: #FFEDD5; color: #C2410C; }
+        .badge-under-review { background: #E0E7FF; color: #3730A3; }
         .badge-approved { background: #D1FAE5; color: #065F46; }
         .badge-rejected { background: #FEE2E2; color: #991B1B; }
-        .badge-completed { background: #E0E7FF; color: #3730A3; }
+        .badge-cancelled { background: #F3F4F6; color: #4B5563; }
+        .badge-completed { background: #DBEAFE; color: #1E40AF; }
+        .badge-correction { background: #FFEDD5; color: #C2410C; }
 
-        .admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 18px; border-radius: var(--radius); border-left: 4px solid var(--primary-navy); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .stat-card h3 { font-size: 0.85rem; color: var(--text-muted); }
-        .stat-card p { font-size: 1.6rem; font-weight: 700; color: var(--primary-navy); margin-top: 5px; }
+        .admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 24px; }
+        .stat-card { background: white; padding: 20px; border-radius: var(--radius); border-left: 4px solid var(--primary-navy); box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-card h3 { font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card p { font-size: 1.7rem; font-weight: 700; color: var(--primary-navy); margin-top: 6px; }
+        .stat-card.total { border-left-color: var(--primary-navy); }
+        .stat-card.pending { border-left-color: var(--warning); }
+        .stat-card.review { border-left-color: var(--info); }
+        .stat-card.approved { border-left-color: var(--success); }
+        .stat-card.rejected { border-left-color: var(--danger); }
+        .stat-card.cancelled { border-left-color: var(--text-muted); }
 
         .admin-panel-card { background: #FEFCE8; border: 1px solid #FEF08A; padding: 20px; border-radius: var(--radius); margin-bottom: 20px; }
         .generated-file-card { background: #EFF6FF; border: 1px solid #BFDBFE; padding: 20px; border-radius: var(--radius); margin-bottom: 20px; }
         .main-footer { text-align: center; padding: 18px; background: var(--primary-navy); color: var(--accent-gold); font-size: 0.85rem; margin-top: auto; }
 
-        /* Modal Preview Window Styles */
+        /* Admin Layout */
+        .admin-layout { display: grid; grid-template-columns: 260px 1fr; gap: 24px; }
+        @media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } }
+        .admin-sidebar { background: white; border-radius: var(--radius); padding: 20px; border: 1px solid var(--border-color); height: fit-content; position: sticky; top: 80px; }
+        @media (max-width: 900px) { .admin-sidebar { display: none; } }
+        .admin-sidebar h3 { font-size: 1rem; color: var(--primary-navy); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); }
+        .admin-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; color: var(--text-dark); font-size: 0.9rem; margin-bottom: 4px; }
+        .admin-nav-item:hover, .admin-nav-item.active { background: #F1F5F9; color: var(--primary-navy); }
+        .admin-nav-item i { width: 20px; text-align: center; color: var(--text-muted); }
+        .admin-nav-item.active i, .admin-nav-item:hover i { color: var(--accent-sky); }
+
+        .admin-toolbar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: end; }
+        .admin-toolbar .form-group { margin: 0; min-width: 160px; flex: 1; }
+        .admin-toolbar input, .admin-toolbar select { width: 100%; }
+
+        /* Mobile Drawer */
+        .mobile-drawer { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: white; z-index: 200; box-shadow: 4px 0 20px rgba(0,0,0,0.15); transform: translateX(0); transition: transform 0.3s ease; }
+        .mobile-drawer.hidden { transform: translateX(-100%); display: block !important; }
+        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 199; }
+        .drawer-header { padding: 16px; background: var(--primary-navy); color: white; display: flex; justify-content: space-between; align-items: center; }
+        .drawer-content { padding: 16px; }
+        .drawer-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 6px; cursor: pointer; color: var(--text-dark); }
+        .drawer-item:hover { background: #F1F5F9; color: var(--primary-navy); }
+        .menu-toggle { display: none; background: transparent; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 1.1rem; }
+        @media(max-width: 900px) { .menu-toggle { display: inline-flex; } }
+
+        /* Modal */
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display:flex; justify-content:center; align-items:center; z-index:9999; padding: 20px; }
         .modal-container { background: #FFF; width: 100%; max-width: 900px; max-height: 90vh; border-radius: var(--radius); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-        .modal-header { background: var(--primary-navy); color: #FFF; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header { background: var(--primary-navy); color: #FFF; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { flex: 1; overflow-y: auto; padding: 20px; background: #E2E8F0; display: flex; justify-content: center; }
-        .modal-footer { padding: 12px 20px; background: #F1F5F9; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-color); }
+        .modal-footer { padding: 14px 20px; background: #F1F5F9; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-color); flex-wrap: wrap; }
 
-        /* Strict A4 CV Paper Styles */
+        /* A4 CV Paper */
         .a4-paper { width: 210mm; min-height: 297mm; padding: 20mm; background: #FFFFFF; color: #1E293B; box-shadow: 0 0 10px rgba(0,0,0,0.1); box-sizing: border-box; }
         .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-navy); padding-bottom: 12px; margin-bottom: 15px; }
         .pdf-header-text h1 { font-size: 20pt; color: var(--primary-navy); text-transform: uppercase; margin-bottom: 4px; }
-        .pdf-header-text p { font-size: 9.5pt; color: #475569; font-weight: 500; margin-bottom: 2px; }
+        .pdf-header-text .pdf-contact { font-size: 9.5pt; color: var(--accent-sky); font-weight: 600; display: flex; flex-direction: column; gap: 2px; }
         .pdf-photo { width: 35mm; height: 45mm; object-fit: cover; border: 1px solid #CBD5E1; border-radius: 4px; }
-        
         .pdf-section { margin-bottom: 16px; page-break-inside: avoid; }
         .pdf-section-title { font-size: 11pt; font-weight: 700; color: var(--primary-navy); background: #F1F5F9; padding: 4px 8px; border-left: 4px solid var(--accent-gold); margin-bottom: 8px; text-transform: uppercase; }
-        
         .pdf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 9pt; }
         .pdf-grid-item { display: flex; }
-        .pdf-grid-item strong { width: 120px; color: #475569; flex-shrink: 0; }
-
+        .pdf-grid-item strong { width: 130px; color: #475569; flex-shrink: 0; }
         .pdf-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 8.5pt; }
         .pdf-table th, .pdf-table td { border: 1px solid #CBD5E1; padding: 6px 8px; text-align: left; }
         .pdf-table th { background: #E2E8F0; color: var(--primary-navy); font-weight: 600; }
-
         .pdf-footer { margin-top: 30px; text-align: right; font-size: 8.5pt; page-break-inside: avoid; }
         .pdf-signature-line { width: 160px; border-top: 1px solid #475569; margin-left: auto; margin-top: 35px; margin-bottom: 4px; }
+
+        /* Additional Info Blocks */
+        .info-block { background: white; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; margin-bottom: 12px; position: relative; }
+        .info-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .info-block-title { font-weight: 600; color: var(--primary-navy); font-size: 0.9rem; }
+        .info-block-remove { background: transparent; border: none; color: var(--danger); cursor: pointer; font-size: 1rem; padding: 4px; }
+        .info-block-remove:hover { color: #DC2626; }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 3rem; margin-bottom: 12px; color: #CBD5E1; }
+        .empty-state p { font-size: 0.95rem; }
+
+        /* Status Timeline */
+        .status-timeline { display: flex; flex-direction: column; gap: 0; margin: 16px 0; }
+        .timeline-item { display: flex; gap: 12px; padding: 10px 0; border-left: 2px solid var(--border-color); padding-left: 16px; position: relative; }
+        .timeline-item::before { content: ''; position: absolute; left: -6px; top: 14px; width: 10px; height: 10px; border-radius: 50%; background: var(--border-color); border: 2px solid white; }
+        .timeline-item.active::before { background: var(--accent-sky); }
+        .timeline-item.active { border-left-color: var(--accent-sky); }
+        .timeline-content h4 { font-size: 0.85rem; color: var(--text-dark); margin-bottom: 2px; }
+        .timeline-content p { font-size: 0.78rem; color: var(--text-muted); }
+
+        /* Detail View */
+        .detail-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media(min-width: 768px) { .detail-grid { grid-template-columns: 1fr 1fr; } }
+        .detail-section { background: #F8FAFC; padding: 16px; border-radius: 6px; border: 1px solid var(--border-color); }
+        .detail-section h4 { font-size: 0.9rem; color: var(--primary-navy); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); }
+        .detail-section p { font-size: 0.85rem; margin-bottom: 6px; color: var(--text-dark); }
+        .detail-section p strong { color: var(--text-muted); font-weight: 500; display: inline-block; min-width: 120px; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header-container { padding: 10px 12px; }
+            .logo-text h1 { font-size: 1rem; }
+            .logo-icon { font-size: 1.6rem; }
+            .main-container { padding: 0 10px; margin: 15px auto; }
+            .form-grid { grid-template-columns: 1fr; }
+            .pdf-header { flex-direction: column; text-align: center; gap: 12px; }
+            .pdf-grid { grid-template-columns: 1fr; }
+            .admin-stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .modal-container { max-height: 95vh; }
+            .a4-paper { padding: 12mm; width: 100%; min-height: auto; }
+        }
+        @media print { .a4-paper { box-shadow: none; } }
     </style>
+<base target="_blank">
 </head>
+
 <body>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal-overlay hidden">
+        <div class="modal-container" style="max-width: 420px;">
+            <div class="modal-header">
+                <h3 id="confirm-title"><i class="fa-solid fa-circle-question"></i> <span>Confirm</span></h3>
+                <button class="btn-secondary btn-sm" onclick="ui.closeConfirm()" style="background:transparent; border:none; color:white; font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" style="padding: 24px; background: white; display: block;">
+                <p id="confirm-message" style="font-size: 0.95rem; color: var(--text-dark); line-height: 1.5;">Are you sure?</p>
+            </div>
+            <div class="modal-footer" style="justify-content: flex-end;">
+                <button class="btn-secondary" onclick="ui.closeConfirm()" data-i18n="btn_cancel">বাতিল করুন</button>
+                <button class="btn-danger" id="confirm-action-btn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Drawer Overlay -->
+    <div id="drawer-overlay" class="drawer-overlay hidden" onclick="ui.closeDrawer()"></div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-drawer" class="mobile-drawer hidden">
+        <div class="drawer-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-graduation-cap" style="font-size:1.5rem; color:var(--accent-gold);"></i>
+                <span style="font-weight:600;">Salman Smart Service</span>
+            </div>
+            <button onclick="ui.closeDrawer()" style="background:transparent; border:none; color:white; font-size:1.2rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="drawer-content" id="drawer-nav-content">
+            <!-- Populated by JS -->
+        </div>
+    </div>
 
     <div class="bismillah-bar" data-i18n="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
 
     <header class="main-header">
         <div class="header-container">
-            <div class="logo-area" onclick="app.navigateTo('dashboard')">
-                <i class="fa-solid fa-graduation-cap logo-icon"></i>
-                <div class="logo-text">
-                    <h1>Salman Smart Service</h1>
-                    <span data-i18n="tagline">Professional Smart Solutions</span>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="menu-toggle" onclick="ui.openDrawer()" id="menu-toggle-btn"><i class="fa-solid fa-bars"></i></button>
+                <div class="logo-area" onclick="app.navigateTo('dashboard')">
+                    <i class="fa-solid fa-graduation-cap logo-icon"></i>
+                    <div class="logo-text">
+                        <h1>Salman Smart Service</h1>
+                        <span data-i18n="tagline">Professional Smart Solutions</span>
+                    </div>
                 </div>
             </div>
-            
+
             <div class="header-actions">
                 <button id="lang-toggle-btn" class="btn-lang" onclick="i18n.toggleLanguage()">
                     <i class="fa-solid fa-globe"></i> <span id="lang-btn-text">English</span>
@@ -172,40 +340,54 @@
 
     <main class="main-container">
 
-        <!-- Login / Signup Section -->
+
+        <!-- ==================== AUTH VIEW ==================== -->
         <section id="view-auth" class="view-section">
             <div class="auth-card">
                 <div class="auth-header">
                     <h2 id="auth-title" data-i18n="login_title">অ্যাকাউন্টে প্রবেশ করুন</h2>
                     <p id="auth-subtitle" data-i18n="login_subtitle">স্মার্ট সেবাসমূহ ব্যবহার করতে আপনার ইমেইল ও পাসওয়ার্ড দিন</p>
                 </div>
-                
+
                 <form id="auth-form" onsubmit="auth.handleAuth(event)">
                     <div class="form-group">
                         <label data-i18n="email_label">ইমেইল ঠিকানা</label>
                         <input type="email" id="auth-email" required data-i18n-ph="email_ph" placeholder="example@gmail.com">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="margin-top:12px;">
                         <label data-i18n="password_label">পাসওয়ার্ড</label>
-                        <input type="password" id="auth-password" required data-i18n-ph="password_ph" placeholder="••••••••">
+                        <input type="password" id="auth-password" required data-i18n-ph="password_ph" placeholder="••••••••" minlength="6">
                     </div>
-                    <button type="submit" class="btn-primary btn-block" id="auth-submit-btn" data-i18n="login_btn">লগইন করুন</button>
+                    <button type="submit" class="btn-primary btn-block" style="margin-top:16px;" id="auth-submit-btn" data-i18n="login_btn">লগইন করুন</button>
                 </form>
 
                 <div class="auth-footer">
                     <span id="auth-switch-text" data-i18n="no_account">অ্যাকাউন্ট নেই?</span>
-                    <a href="javascript:void(0)" onclick="auth.toggleAuthMode()" id="auth-switch-link" data-i18n="signup_link">নতুন অ্যাকাউন্ট খুলুন</a>
+                    <a onclick="auth.toggleAuthMode()" id="auth-switch-link" data-i18n="signup_link">নতুন অ্যাকাউন্ট খুলুন</a>
                 </div>
             </div>
         </section>
 
-        <!-- User Dashboard Section -->
+        <!-- ==================== USER DASHBOARD ==================== -->
         <section id="view-user-dashboard" class="view-section hidden">
             <div class="welcome-banner">
-                <div>
-                    <h2 id="user-welcome-title" data-i18n="welcome_title">স্বাগতম!</h2>
-                    <p data-i18n="dash_subtitle">আপনার সেবা নির্বাচন করুন অথবা পূর্বের আবেদনের স্ট্যাটাস দেখুন।</p>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <h2 id="user-welcome-title" data-i18n="welcome_title">স্বাগতম!</h2>
+                        <p data-i18n="dash_subtitle">আপনার সেবা নির্বাচন করুন অথবা পূর্বের আবেদনের স্ট্যাটাস দেখুন।</p>
+                    </div>
+                    <button class="btn-secondary btn-sm" onclick="app.navigateTo('user-profile')" style="background:rgba(255,255,255,0.15); color:white; border:none;">
+                        <i class="fa-solid fa-user"></i> <span data-i18n="my_profile">প্রোফাইল</span>
+                    </button>
                 </div>
+            </div>
+
+            <!-- User Stats -->
+            <div class="user-stats-grid" id="user-stats-grid">
+                <div class="user-stat-card"><h4 data-i18n="stat_total">মোট আবেদন</h4><p id="user-stat-total">0</p></div>
+                <div class="user-stat-card"><h4 data-i18n="stat_pending">পেন্ডিং</h4><p id="user-stat-pending">0</p></div>
+                <div class="user-stat-card"><h4 data-i18n="stat_approved">অনুমোদিত</h4><p id="user-stat-approved">0</p></div>
+                <div class="user-stat-card"><h4 data-i18n="stat_rejected">বাতিল</h4><p id="user-stat-rejected">0</p></div>
             </div>
 
             <div class="dashboard-grid">
@@ -213,12 +395,17 @@
                     <div class="card-title">
                         <i class="fa-solid fa-cubes"></i> <span data-i18n="available_services">উপলব্ধ সেবাসমূহ</span>
                     </div>
-                    <div id="services-list" class="services-list-container"></div>
+                    <div id="services-list" class="services-list-container">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            <p data-i18n="loading">লোড হচ্ছে...</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="dash-card">
-                    <div class="card-title">
-                        <i class="fa-solid fa-file-lines"></i> <span data-i18n="my_applications">আমার আবেদনসমূহ</span>
+                    <div class="card-title" style="justify-content:space-between;">
+                        <span><i class="fa-solid fa-file-lines"></i> <span data-i18n="my_applications">আমার আবেদনসমূহ</span></span>
                     </div>
                     <div class="table-responsive">
                         <table class="data-table">
@@ -231,29 +418,80 @@
                                     <th data-i18n="action">অ্যাকশন</th>
                                 </tr>
                             </thead>
-                            <tbody id="user-applications-list"></tbody>
+                            <tbody id="user-applications-list">
+                                <tr><td colspan="5" style="text-align:center; padding: 30px;"><i class="fa-solid fa-spinner fa-spin"></i> <span data-i18n="loading">লোড হচ্ছে...</span></td></tr>
+                            </tbody>
                         </table>
+                    </div>
+                    <div id="user-apps-empty" class="empty-state hidden">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <p data-i18n="no_applications">আপনার কোনো আবেদন নেই।</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Dynamic Form (CV & Biodata) -->
+        <!-- ==================== USER PROFILE ==================== -->
+        <section id="view-user-profile" class="view-section hidden">
+            <div class="profile-card" style="max-width: 600px; margin: 0 auto;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h2 style="color:var(--primary-navy);"><i class="fa-solid fa-id-card"></i> <span data-i18n="my_profile">আমার প্রোফাইল</span></h2>
+                    <button class="btn-secondary btn-sm" onclick="app.navigateTo('dashboard')">
+                        <i class="fa-solid fa-arrow-left"></i> <span data-i18n="btn_back">ব্যাক</span>
+                    </button>
+                </div>
+                <div id="profile-content">
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label data-i18n="email_label">ইমেইল</label>
+                        <input type="email" id="profile-email" disabled style="background:#F1F5F9;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label data-i18n="profile_name">পূর্ণ নাম</label>
+                        <input type="text" id="profile-full-name" data-i18n-ph="full_name_ph">
+                    </div>
+                    <div class="form-group" style="margin-bottom:20px;">
+                        <label data-i18n="profile_phone">ফোন নম্বর</label>
+                        <input type="tel" id="profile-phone" data-i18n-ph="mobile_ph">
+                    </div>
+                    <button class="btn-primary" onclick="profile.saveProfile()" id="profile-save-btn">
+                        <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn_save">সেভ করুন</span>
+                    </button>
+                </div>
+                <div style="margin-top:30px; padding-top:20px; border-top:1px solid var(--border-color);">
+                    <h3 style="font-size:1rem; color:var(--primary-navy); margin-bottom:12px;" data-i18n="change_password">পাসওয়ার্ড পরিবর্তন</h3>
+                    <div class="form-group" style="margin-bottom:12px;">
+                        <label data-i18n="new_password">নতুন পাসওয়ার্ড</label>
+                        <input type="password" id="profile-new-password" minlength="6">
+                    </div>
+                    <button class="btn-secondary" onclick="profile.changePassword()">
+                        <i class="fa-solid fa-key"></i> <span data-i18n="btn_update_password">পাসওয়ার্ড আপডেট করুন</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== CV APPLICATION FORM ==================== -->
         <section id="view-cv-form" class="view-section hidden">
             <div class="form-container">
                 <div class="form-header-bar">
-                    <h2><i class="fa-solid fa-file-signature"></i> <span data-i18n="cv_form_title">CV & Biodata Application Form</span></h2>
-                    <p class="form-note" data-i18n="required_note">(* চিহ্নিত ফিল্ডগুলো পূরণ করা আবশ্যক।)</p>
+                    <div>
+                        <h2><i class="fa-solid fa-file-signature"></i> <span id="cv-form-title" data-i18n="cv_form_title">CV & Biodata Application Form</span></h2>
+                        <p class="form-note" data-i18n="optional_note">সকল ফিল্ড অপশনাল। আপনি যে তথ্য দেবেন না, সেটি ফলাফলে দেখা যাবে না।</p>
+                    </div>
+                    <button class="btn-secondary btn-sm" onclick="cvForm.cancelForm()">
+                        <i class="fa-solid fa-xmark"></i> <span data-i18n="btn_cancel">বাতিল করুন</span>
+                    </button>
                 </div>
 
                 <form id="cv-application-form" onsubmit="cvForm.submitApplication(event)">
+                    <input type="hidden" id="cv-edit-id" value="">
+
                     <!-- Personal Information -->
                     <div class="form-section">
                         <h3><i class="fa-solid fa-user"></i> <span data-i18n="sec_personal_info">১. ব্যক্তিগত তথ্য</span></h3>
                         <div class="form-grid">
-                            <div class="form-group"><label data-i18n="full_name">পূর্ণ নাম *</label><input type="text" id="cv-full-name" required data-i18n-ph="full_name_ph"></div>
-                            <div class="form-group"><label data-i18n="mobile">মোবাইল নম্বর *</label><input type="tel" id="cv-mobile" required data-i18n-ph="mobile_ph"></div>
-                            <div class="form-group"><label data-i18n="website">ওয়েবসাইট (অপশনাল)</label><input type="url" id="cv-website" placeholder="https://yourwebsite.com"></div>
+                            <div class="form-group"><label data-i18n="full_name">পূর্ণ নাম</label><input type="text" id="cv-full-name" data-i18n-ph="full_name_ph"></div>
+                            <div class="form-group"><label data-i18n="mobile">মোবাইল নম্বর</label><input type="tel" id="cv-mobile" data-i18n-ph="mobile_ph"></div>
                             <div class="form-group"><label data-i18n="father_name">পিতার নাম</label><input type="text" id="cv-father-name" data-i18n-ph="father_name_ph"></div>
                             <div class="form-group"><label data-i18n="mother_name">মাতার নাম</label><input type="text" id="cv-mother-name" data-i18n-ph="mother_name_ph"></div>
                             <div class="form-group"><label data-i18n="dob">জন্ম তারিখ</label><input type="date" id="cv-dob"></div>
@@ -274,14 +512,15 @@
                                     <option value="Married" data-i18n="married">বিবাহিত</option>
                                 </select>
                             </div>
-                            <div class="form-group"><label data-i18n="height">উচ্চতা</label><input type="text" id="cv-height" data-i18n-ph="height_ph" placeholder="e.g. 5' 8&quot;"></div>
-                            <div class="form-group"><label data-i18n="weight">ওজন</label><input type="text" id="cv-weight" data-i18n-ph="weight_ph" placeholder="e.g. 65 kg"></div>
+                            <div class="form-group"><label data-i18n="height">উচ্চতা</label><input type="text" id="cv-height" data-i18n-ph="height_ph"></div>
+                            <div class="form-group"><label data-i18n="weight">ওজন</label><input type="text" id="cv-weight" data-i18n-ph="weight_ph"></div>
                             <div class="form-group"><label data-i18n="email">ইমেইল</label><input type="email" id="cv-email" data-i18n-ph="email_ph"></div>
+                            <div class="form-group"><label data-i18n="website">ওয়েবসাইট</label><input type="url" id="cv-website" data-i18n-ph="website_ph" placeholder="https://example.com"></div>
                             <div class="form-group"><label data-i18n="photo_upload">ছবি আপলোড (Passport Photo)</label><input type="file" id="cv-photo" accept="image/*"></div>
                         </div>
                         <div class="form-group" style="margin-top: 12px;">
                             <label data-i18n="career_objective">ক্যারিয়ার উদ্দেশ্য (Objective / Summary)</label>
-                            <textarea id="cv-objective" data-i18n-ph="objective_ph" placeholder="Brief statement about your professional goal..."></textarea>
+                            <textarea id="cv-objective" data-i18n-ph="objective_ph"></textarea>
                         </div>
                     </div>
 
@@ -289,22 +528,20 @@
                     <div class="form-section">
                         <h3><i class="fa-solid fa-location-dot"></i> <span data-i18n="sec_present_addr">২. বর্তমান ঠিকানা</span></h3>
                         <div class="form-grid">
-                            <div class="form-group"><label data-i18n="village">গ্রাম/মহল্লা</label><input type="text" id="cv-pres-village" oninput="cvForm.syncAddress()"></div>
-                            <div class="form-group"><label data-i18n="post_office">ডাকঘর</label><input type="text" id="cv-pres-po" oninput="cvForm.syncAddress()"></div>
-                            <div class="form-group"><label data-i18n="thana">থানা/উপজেলা</label><input type="text" id="cv-pres-thana" oninput="cvForm.syncAddress()"></div>
-                            <div class="form-group"><label data-i18n="district">জেলা</label><input type="text" id="cv-pres-district" oninput="cvForm.syncAddress()"></div>
+                            <div class="form-group"><label data-i18n="village">গ্রাম/মহল্লা</label><input type="text" id="cv-pres-village"></div>
+                            <div class="form-group"><label data-i18n="post_office">ডাকঘর</label><input type="text" id="cv-pres-po"></div>
+                            <div class="form-group"><label data-i18n="thana">থানা/উপজেলা</label><input type="text" id="cv-pres-thana"></div>
+                            <div class="form-group"><label data-i18n="district">জেলা</label><input type="text" id="cv-pres-district"></div>
                         </div>
+                        <label class="checkbox-group" style="margin-top:12px;">
+                            <input type="checkbox" id="addr-same-checkbox" onchange="cvForm.toggleAddressSync()">
+                            <span data-i18n="same_address">বর্তমান ঠিকানাই স্থায়ী ঠিকানা</span>
+                        </label>
                     </div>
 
                     <!-- Permanent Address -->
                     <div class="form-section">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                            <h3><i class="fa-solid fa-house"></i> <span data-i18n="sec_permanent_addr">৩. স্থায়ী ঠিকানা</span></h3>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="same-as-present-chk" onchange="cvForm.toggleSameAddress(this)">
-                                <span data-i18n="same_as_present">বর্তমান ঠিকানাই স্থায়ী ঠিকানা</span>
-                            </label>
-                        </div>
+                        <h3><i class="fa-solid fa-house"></i> <span data-i18n="sec_permanent_addr">৩. স্থায়ী ঠিকানা</span></h3>
                         <div class="form-grid">
                             <div class="form-group"><label data-i18n="village">গ্রাম/মহল্লা</label><input type="text" id="cv-perm-village"></div>
                             <div class="form-group"><label data-i18n="post_office">ডাকঘর</label><input type="text" id="cv-perm-po"></div>
@@ -317,87 +554,95 @@
                     <div class="form-section">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                             <h3><i class="fa-solid fa-graduation-cap"></i> <span data-i18n="sec_education">৪. শিক্ষাগত যোগ্যতা</span></h3>
-                            <button type="button" class="btn-secondary btn-sm" onclick="cvForm.addEducationRow()"><i class="fa-solid fa-plus"></i> <span data-i18n="add_more">যোগ করুন</span></button>
+                            <button type="button" class="btn-secondary btn-sm" onclick="cvForm.addEducationRow()">
+                                <i class="fa-solid fa-plus"></i> <span data-i18n="add_more">যোগ করুন</span>
+                            </button>
                         </div>
                         <div id="education-entries-container"></div>
                     </div>
 
-                    <!-- Skills -->
-                    <div class="form-section">
-                        <h3><i class="fa-solid fa-lightbulb"></i> <span data-i18n="skills">দক্ষতাসমূহ</span></h3>
-                        <div class="form-group">
-                            <input type="text" id="cv-skills" data-i18n-ph="skills_ph" placeholder="যেমন: MS Office, Graphic Design, Web Development (কমা দিয়ে লিখুন)">
-                        </div>
-                    </div>
-
-                    <!-- Languages -->
+                    <!-- Additional Information (Flexible) -->
                     <div class="form-section">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                            <h3><i class="fa-solid fa-language"></i> <span data-i18n="languages">ভাষা দক্ষতা</span></h3>
-                            <button type="button" class="btn-secondary btn-sm" onclick="cvForm.addLanguageRow()"><i class="fa-solid fa-plus"></i> <span data-i18n="add_more">যোগ করুন</span></button>
+                            <h3><i class="fa-solid fa-circle-plus"></i> <span data-i18n="sec_additional_info">৫. অতিরিক্ত তথ্য</span></h3>
+                            <button type="button" class="btn-secondary btn-sm" onclick="cvForm.addInfoBlock()">
+                                <i class="fa-solid fa-plus"></i> <span data-i18n="add_block">ব্লক যোগ করুন</span>
+                            </button>
                         </div>
-                        <div id="language-entries-container"></div>
-                    </div>
-
-                    <!-- Experience -->
-                    <div class="form-section">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                            <h3><i class="fa-solid fa-briefcase"></i> <span data-i18n="sec_experience">কর্মঅভিজ্ঞতা (Optional)</span></h3>
-                            <button type="button" class="btn-secondary btn-sm" onclick="cvForm.addExperienceRow()"><i class="fa-solid fa-plus"></i> <span data-i18n="add_more">যোগ করুন</span></button>
+                        <div id="additional-info-container"></div>
+                        <div id="additional-info-empty" class="empty-state" style="padding:20px;">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <p data-i18n="no_additional_info">কোনো অতিরিক্ত তথ্য যোগ করা হয়নি।</p>
                         </div>
-                        <div id="experience-entries-container"></div>
                     </div>
 
                     <!-- Documents -->
                     <div class="form-section">
-                        <h3><i class="fa-solid fa-paperclip"></i> <span data-i18n="sec_documents">৭. সাপোর্ট ফাইল/কাগজপত্র</span></h3>
+                        <h3><i class="fa-solid fa-paperclip"></i> <span data-i18n="sec_documents">৬. সাপোর্ট ফাইল/কাগজপত্র</span></h3>
                         <div class="form-group"><input type="file" id="cv-documents" multiple></div>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;" data-i18n="doc_note">প্রয়োজনীয় কাগজপত্র আপলোড করুন (একাধিক ফাইল নির্বাচন করা যাবে)।</p>
                     </div>
 
-                    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
-                        <button type="button" class="btn-secondary" onclick="app.navigateTo('user-dashboard')" data-i18n="btn_cancel">বাতিল করুন</button>
-                        <button type="submit" class="btn-primary" id="cv-submit-btn"><i class="fa-solid fa-paper-plane"></i> <span data-i18n="btn_submit_app">আবেদন জমা দিন</span></button>
+                    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; flex-wrap:wrap;">
+                        <button type="button" class="btn-secondary" onclick="cvForm.cancelForm()">
+                            <i class="fa-solid fa-xmark"></i> <span data-i18n="btn_cancel">বাতিল করুন</span>
+                        </button>
+                        <button type="submit" class="btn-primary" id="cv-submit-btn">
+                            <i class="fa-solid fa-paper-plane"></i> <span id="cv-submit-text" data-i18n="btn_submit_app">আবেদন জমা দিন</span>
+                        </button>
                     </div>
                 </form>
             </div>
         </section>
 
-        <!-- Application Details Section -->
+        <!-- ==================== APPLICATION DETAILS ==================== -->
         <section id="view-app-details" class="view-section hidden">
             <div class="details-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <button class="btn-secondary btn-sm" onclick="dashboard.backToDashboard()"><i class="fa-solid fa-arrow-left"></i> <span data-i18n="btn_back">ব্যাক</span></button>
-                    <h2><span data-i18n="app_no">আবেদন নং</span>: <span id="det-app-no">---</span></h2>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                    <button class="btn-secondary btn-sm" onclick="dashboard.backToDashboard()">
+                        <i class="fa-solid fa-arrow-left"></i> <span data-i18n="btn_back">ব্যাক</span>
+                    </button>
+                    <h2 style="font-size:1.1rem;"><span data-i18n="app_no">আবেদন নং</span>: <span id="det-app-no">---</span></h2>
                     <span id="det-status-badge" class="badge">---</span>
                 </div>
 
-                <!-- Live A4 CV Action Bar -->
-                <div class="generated-file-card" style="background:#F0FDF4; border-color:#BBF7D0;">
-                    <h3 style="color:#166534;"><i class="fa-solid fa-file-pdf"></i> <span data-i18n="pdf_download_heading">A4 CV Preview & Instant Download</span></h3>
-                    <p style="font-size:0.85rem; color:#15803D; margin:5px 0 12px 0;" data-i18n="pdf_download_sub">স্বয়ংক্রিয়ভাবে প্রফেশনাল A4 ফরম্যাটে সিভি দেখুন অথবা সরাসরি ডাউনলোড করুন।</p>
+                <!-- Status Timeline -->
+                <div id="status-timeline-container" style="margin-bottom:20px;"></div>
+
+                <!-- Download Section (Conditional) -->
+                <div id="download-section" class="generated-file-card hidden">
+                    <h3 style="color:#166534; margin-bottom:8px;"><i class="fa-solid fa-file-pdf"></i> <span data-i18n="download_section_title">আপনার অনুমোদিত ডকুমেন্ট</span></h3>
+                    <p style="font-size:0.85rem; color:#15803D; margin-bottom:12px;" data-i18n="download_section_sub">আপনার আবেদন অনুমোদিত হয়েছে। নিচের বাটনে ক্লিক করে ডকুমেন্ট ডাউনলোড করুন।</p>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <button class="btn-info btn-sm" onclick="cvPdf.openPreviewModal()"><i class="fa-solid fa-eye"></i> <span data-i18n="preview">Preview A4 CV</span></button>
-                        <button class="btn-success btn-sm" onclick="cvPdf.generateAndDownload()"><i class="fa-solid fa-download"></i> <span data-i18n="download">Download A4 CV PDF</span></button>
+                        <button class="btn-info btn-sm" onclick="cvPdf.openPreviewModal()">
+                            <i class="fa-solid fa-eye"></i> <span data-i18n="preview">প্রিভিউ CV</span>
+                        </button>
+                        <button class="btn-success btn-sm" onclick="cvPdf.generateAndDownload()">
+                            <i class="fa-solid fa-download"></i> <span data-i18n="download">ডাউনলোড PDF</span>
+                        </button>
+                        <button class="btn-primary btn-sm hidden" id="download-admin-file-btn">
+                            <i class="fa-solid fa-file-circle-check"></i> <span data-i18n="download_admin_file">অ্যাডমিন ফাইল ডাউনলোড</span>
+                        </button>
                     </div>
                 </div>
 
-                <div id="generated-file-container" class="generated-file-card hidden">
-                    <h3><i class="fa-solid fa-file-circle-check"></i> <span data-i18n="admin_file_title">অ্যাডমিন কর্তৃক অনুমোদিত ফাইল</span></h3>
-                    <button id="download-gen-file-btn" class="btn-primary btn-sm" style="margin-top:10px;"><i class="fa-solid fa-download"></i> <span data-i18n="btn_download_file">ফাইল দেখুন/ডাউনলোড করুন</span></button>
+                <div id="download-denied-section" class="admin-panel-card hidden" style="background:#FEF2F2; border-color:#FECACA;">
+                    <h3 style="color:#991B1B;"><i class="fa-solid fa-lock"></i> <span data-i18n="download_denied_title">ডাউনলোড সীমাবদ্ধ</span></h3>
+                    <p style="font-size:0.85rem; color:#B91C1C; margin-top:6px;" data-i18n="download_denied_sub">আপনার আবেদন এখনো অনুমোদিত হয়নি। অনুমোদনের পর ডাউনলোড সুবিধা পাবেন।</p>
                 </div>
 
                 <!-- Admin Action Panel -->
                 <div id="admin-action-section" class="admin-panel-card hidden">
                     <h3><i class="fa-solid fa-user-shield"></i> <span data-i18n="admin_action_heading">অ্যাডমিন অ্যাকশন</span></h3>
-                    <div class="form-grid">
+                    <div class="form-grid" style="margin-top:12px;">
                         <div class="form-group">
-                            <label data-i18n="status">স্ট্যাটাস</label>
+                            <label data-i18n="status">স্ট্যাটাস পরিবর্তন করুন</label>
                             <select id="admin-status-select">
-                                <option value="Pending">Pending</option>
-                                <option value="Need Correction">Need Correction</option>
-                                <option value="Approved">Approved</option>
-                                <option value="Rejected">Rejected</option>
-                                <option value="Completed">Completed</option>
+                                <option value="pending">Pending</option>
+                                <option value="under_review">Under Review</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                                <option value="cancelled">Cancelled</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -409,84 +654,194 @@
                         <label data-i18n="upload_generated_file">Generated Final File Upload</label>
                         <input type="file" id="admin-gen-file-input">
                     </div>
-                    <button class="btn-primary btn-sm" style="margin-top:15px;" onclick="dashboard.saveAdminAction()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn_save">সেভ করুন</span></button>
+                    <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
+                        <button class="btn-primary btn-sm" onclick="dashboard.saveAdminAction()">
+                            <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn_save">সেভ করুন</span>
+                        </button>
+                        <button class="btn-success btn-sm" onclick="dashboard.quickApprove()">
+                            <i class="fa-solid fa-check"></i> <span data-i18n="btn_approve">অনুমোদন করুন</span>
+                        </button>
+                        <button class="btn-danger btn-sm" onclick="dashboard.quickReject()">
+                            <i class="fa-solid fa-xmark"></i> <span data-i18n="btn_reject">বাতিল করুন</span>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Structured View Body -->
+                <!-- Detail Content -->
                 <div id="det-content-body"></div>
             </div>
         </section>
 
-        <!-- Admin Dashboard Section -->
+        <!-- ==================== ADMIN DASHBOARD ==================== -->
         <section id="view-admin-dashboard" class="view-section hidden">
-            <div class="admin-stats-grid">
-                <div class="stat-card"><h3 data-i18n="stat_total">মোট আবেদন</h3><p id="stat-total">0</p></div>
-                <div class="stat-card"><h3 data-i18n="stat_pending">পেন্ডিং</h3><p id="stat-pending">0</p></div>
-                <div class="stat-card"><h3 data-i18n="stat_correction">সংশোধন প্রয়োজন</h3><p id="stat-correction">0</p></div>
-                <div class="stat-card"><h3 data-i18n="stat_completed">সম্পন্ন</h3><p id="stat-approved">0</p></div>
-            </div>
+            <div class="admin-layout">
+                <!-- Sidebar -->
+                <aside class="admin-sidebar">
+                    <h3><i class="fa-solid fa-gauge-high"></i> <span data-i18n="admin_menu">অ্যাডমিন মেনু</span></h3>
+                    <div class="admin-nav-item active" onclick="admin.showSection('overview')">
+                        <i class="fa-solid fa-chart-pie"></i> <span data-i18n="overview">ওভারভিউ</span>
+                    </div>
+                    <div class="admin-nav-item" onclick="admin.showSection('applications')">
+                        <i class="fa-solid fa-list-check"></i> <span data-i18n="all_applications">সকল আবেদন</span>
+                    </div>
+                    <div class="admin-nav-item" onclick="auth.logout()">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="logout">লগআউট</span>
+                    </div>
+                </aside>
 
-            <div class="dash-card">
-                <h3><i class="fa-solid fa-list-check"></i> <span data-i18n="all_applications">সকল আবেদন</span></h3>
-                <div class="table-responsive" style="margin-top:15px;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th data-i18n="app_no">আবেদন নং</th>
-                                <th data-i18n="applicant_name">আবেদনকারীর নাম</th>
-                                <th data-i18n="date">তারিখ</th>
-                                <th data-i18n="status">স্ট্যাটাস</th>
-                                <th data-i18n="action">অ্যাকশন</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-applications-list"></tbody>
-                    </table>
+                <!-- Main Content -->
+                <div>
+                    <!-- Stats -->
+                    <div class="admin-stats-grid">
+                        <div class="stat-card total"><h3 data-i18n="stat_total">মোট আবেদন</h3><p id="stat-total">0</p></div>
+                        <div class="stat-card pending"><h3 data-i18n="stat_pending">পেন্ডিং</h3><p id="stat-pending">0</p></div>
+                        <div class="stat-card review"><h3 data-i18n="stat_review">রিভিউতে আছে</h3><p id="stat-review">0</p></div>
+                        <div class="stat-card approved"><h3 data-i18n="stat_approved">অনুমোদিত</h3><p id="stat-approved">0</p></div>
+                        <div class="stat-card rejected"><h3 data-i18n="stat_rejected">বাতিল</h3><p id="stat-rejected">0</p></div>
+                        <div class="stat-card cancelled"><h3 data-i18n="stat_cancelled">বাতিলকৃত</h3><p id="stat-cancelled">0</p></div>
+                    </div>
+
+                    <!-- Toolbar -->
+                    <div class="dash-card" style="margin-bottom:20px;">
+                        <div class="admin-toolbar">
+                            <div class="form-group">
+                                <label data-i18n="search">অনুসন্ধান</label>
+                                <input type="text" id="admin-search" oninput="admin.filterApps()" data-i18n-ph="search_ph" placeholder="নাম বা আবেদন নং...">
+                            </div>
+                            <div class="form-group">
+                                <label data-i18n="status_filter">স্ট্যাটাস ফিল্টার</label>
+                                <select id="admin-status-filter" onchange="admin.filterApps()">
+                                    <option value="" data-i18n="all_status">সকল স্ট্যাটাস</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="under_review">Under Review</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label data-i18n="date_from">তারিখ (হতে)</label>
+                                <input type="date" id="admin-date-from" onchange="admin.filterApps()">
+                            </div>
+                            <div class="form-group">
+                                <label data-i18n="date_to">তারিখ (পর্যন্ত)</label>
+                                <input type="date" id="admin-date-to" onchange="admin.filterApps()">
+                            </div>
+                            <div class="form-group" style="display:flex; align-items:end;">
+                                <button class="btn-secondary btn-sm" onclick="admin.clearFilters()">
+                                    <i class="fa-solid fa-rotate-left"></i> <span data-i18n="clear_filters">ফিল্টার মুছুন</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Applications Table -->
+                    <div class="dash-card">
+                        <div class="card-title" style="justify-content:space-between;">
+                            <span><i class="fa-solid fa-list-check"></i> <span data-i18n="all_applications">সকল আবেদন</span></span>
+                            <span id="admin-result-count" style="font-size:0.8rem; color:var(--text-muted);"></span>
+                        </div>
+                        <div class="table-responsive" style="margin-top:15px;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="app_no">আবেদন নং</th>
+                                        <th data-i18n="applicant_name">আবেদনকারীর নাম</th>
+                                        <th data-i18n="date">তারিখ</th>
+                                        <th data-i18n="status">স্ট্যাটাস</th>
+                                        <th data-i18n="action">অ্যাকশন</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-applications-list">
+                                    <tr><td colspan="5" style="text-align:center; padding:30px;"><i class="fa-solid fa-spinner fa-spin"></i> <span data-i18n="loading">লোড হচ্ছে...</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="admin-apps-empty" class="empty-state hidden">
+                            <i class="fa-solid fa-folder-open"></i>
+                            <p data-i18n="no_applications_filter">কোনো আবেদন পাওয়া যায়নি।</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- Modal for A4 CV Preview -->
+    <!-- ==================== PREVIEW MODAL ==================== -->
     <div id="preview-modal" class="modal-overlay hidden">
         <div class="modal-container">
             <div class="modal-header">
                 <h3><i class="fa-solid fa-file-pdf"></i> <span data-i18n="preview">A4 CV Preview</span></h3>
-                <button class="btn-secondary btn-sm" onclick="cvPdf.closePreviewModal()" style="color:#FFF; background:transparent; font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+                <button class="btn-secondary btn-sm" onclick="cvPdf.closePreviewModal()" style="background:transparent; border:none; color:white; font-size:1.2rem; cursor:pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
             <div class="modal-body">
                 <div id="modal-a4-content" class="a4-paper"></div>
             </div>
             <div class="modal-footer">
-                <button class="btn-secondary" onclick="cvPdf.closePreviewModal()" data-i18n="close">Close</button>
-                <button class="btn-success" onclick="cvPdf.generateAndDownload()"><i class="fa-solid fa-download"></i> <span data-i18n="download">Download PDF</span></button>
+                <button class="btn-secondary" onclick="cvPdf.closePreviewModal()" data-i18n="close">বন্ধ করুন</button>
+                <button class="btn-success" onclick="cvPdf.generateAndDownload()">
+                    <i class="fa-solid fa-download"></i> <span data-i18n="download">ডাউনলোড PDF</span>
+                </button>
             </div>
         </div>
     </div>
 
     <footer class="main-footer">
-        <p>Salman Farshi © 2026 | All Rights Reserved</p>
+        <p>Salman Farshi &copy; 2026 | All Rights Reserved</p>
     </footer>
 
+
     <script>
-        // Supabase Client Initialization
+        // ==================== CONFIG ====================
         const SUPABASE_URL = "https://rlusmawepwqtqigihyvw.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_lszQoOpRAP9oDy7SJZ6Y1g_FOYOpTgv";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const ADMIN_EMAIL = "salmanfarshi1630@gmail.com";
 
-        function escapeHTML(str) {
-            if (str === null || str === undefined) return '';
-            return String(str).replace(/[&<>"']/g, function(m) {
-                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
-            });
-        }
+        // ==================== UTILITIES ====================
+        const utils = {
+            escapeHTML: function(str) {
+                if (str === null || str === undefined) return '';
+                return String(str).replace(/[&<>"']/g, function(m) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+                });
+            },
+            getSafeFilename: function(originalName) {
+                if (!originalName) return 'file_' + Date.now();
+                const ext = originalName.includes('.') ? originalName.split('.').pop() : '';
+                const cleanName = originalName.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 50);
+                return `${Date.now()}_${cleanName}${ext ? '.' + ext : ''}`;
+            },
+            formatDate: function(dateStr) {
+                if (!dateStr) return '-';
+                const d = new Date(dateStr);
+                return d.toLocaleDateString(i18n.currentLang === 'bn' ? 'bn-BD' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            },
+            formatDateTime: function(dateStr) {
+                if (!dateStr) return '-';
+                const d = new Date(dateStr);
+                return d.toLocaleString(i18n.currentLang === 'bn' ? 'bn-BD' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            },
+            generateAppNo: function(id) {
+                if (!id) return '---';
+                return id.substring(0, 8).toUpperCase();
+            },
+            isAdmin: function(email) {
+                return email === ADMIN_EMAIL;
+            },
+            debounce: function(func, wait) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+        };
 
-        function getSafeFilename(originalName) {
-            const ext = originalName.split('.').pop();
-            const cleanName = originalName.replace(/[^a-zA-Z0-9]/g, "_");
-            return `${Date.now()}_${cleanName}.${ext}`;
-        }
-
+        // ==================== I18N ====================
         const translations = {
             bn: {
                 bismillah: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
@@ -516,11 +871,11 @@
                 applicant_name: "আবেদনকারীর নাম",
                 all_applications: "সকল আবেদন",
                 cv_form_title: "CV & Biodata Application Form",
-                required_note: "(* চিহ্নিত ফিল্ডগুলো পূরণ করা আবশ্যক।)",
+                cv_form_edit_title: "আবেদন সম্পাদনা করুন",
+                optional_note: "সকল ফিল্ড অপশনাল। আপনি যে তথ্য দেবেন না, সেটি ফলাফলে দেখা যাবে না।",
                 sec_personal_info: "১. ব্যক্তিগত তথ্য",
-                full_name: "পূর্ণ নাম *",
-                mobile: "মোবাইল নম্বর *",
-                website: "ওয়েবসাইট (অপশনাল)",
+                full_name: "পূর্ণ নাম",
+                mobile: "মোবাইল নম্বর",
                 father_name: "পিতার নাম",
                 mother_name: "মাতার নাম",
                 dob: "জন্ম তারিখ",
@@ -535,61 +890,94 @@
                 height: "উচ্চতা",
                 weight: "ওজন",
                 email: "ইমেইল",
+                website: "ওয়েবসাইট",
                 photo_upload: "ছবি আপলোড (Passport Photo)",
                 career_objective: "ক্যারিয়ার উদ্দেশ্য (Objective / Summary)",
                 sec_present_addr: "২. বর্তমান ঠিকানা",
                 sec_permanent_addr: "৩. স্থায়ী ঠিকানা",
-                same_as_present: "বর্তমান ঠিকানাই স্থায়ী ঠিকানা",
                 village: "গ্রাম/মহল্লা",
                 post_office: "ডাকঘর",
                 thana: "থানা/উপজেলা",
                 district: "জেলা",
+                same_address: "বর্তমান ঠিকানাই স্থায়ী ঠিকানা",
                 sec_education: "৪. শিক্ষাগত যোগ্যতা",
                 add_more: "যোগ করুন",
-                remove: "মুছুন",
                 exam_name: "পরীক্ষার নাম",
-                passing_year: " পাশের সাল",
+                passing_year: "পাশের সাল",
                 institute: "ইনস্টিটিউট",
                 gpa: "জিপিএ/ফলাফল",
-                skills: "দক্ষতাসমূহ",
-                languages: "ভাষার দক্ষতা",
-                lang_name: "ভাষার নাম",
-                proficiency: "দক্ষতার মাত্রা",
-                sec_experience: "কর্মঅভিজ্ঞতা (Optional)",
-                company_name: "প্রতিষ্ঠানের নাম",
-                designation: "পদবী",
-                duration: "সময়কাল",
-                exp_desc: "দায়িত্ব/বিবরণ",
-                sec_documents: "৭. সাপোর্ট ফাইল/কাগজপত্র",
+                sec_additional_info: "৫. অতিরিক্ত তথ্য",
+                add_block: "ব্লক যোগ করুন",
+                no_additional_info: "কোনো অতিরিক্ত তথ্য যোগ করা হয়নি।",
+                block_title: "শিরোনাম",
+                block_description: "বিস্তারিত তথ্য",
+                sec_documents: "৬. সাপোর্ট ফাইল/কাগজপত্র",
+                doc_note: "প্রয়োজনীয় কাগজপত্র আপলোড করুন (একাধিক ফাইল নির্বাচন করা যাবে)।",
                 btn_cancel: "বাতিল করুন",
                 btn_submit_app: "আবেদন জমা দিন",
+                btn_update_app: "আবেদন আপডেট করুন",
                 btn_back: "ব্যাক",
-                pdf_download_heading: "A4 CV Preview & Instant Download",
-                pdf_download_sub: "স্বয়ংক্রিয়ভাবে প্রফেশনাল A4 ফরম্যাটে সিভি দেখুন অথবা সরাসরি ডাউনলোড করুন।",
+                preview: "প্রিভিউ CV",
+                download: "ডাউনলোড PDF",
+                close: "বন্ধ করুন",
                 admin_file_title: "অ্যাডমিন কর্তৃক অনুমোদিত ফাইল",
                 btn_download_file: "ফাইল দেখুন/ডাউনলোড করুন",
                 admin_action_heading: "অ্যাডমিন অ্যাকশন",
                 admin_note: "নোট/পরামর্শ",
                 upload_generated_file: "Generated Final File Upload",
                 btn_save: "সেভ করুন",
+                btn_approve: "অনুমোদন করুন",
+                btn_reject: "বাতিল করুন",
                 stat_total: "মোট আবেদন",
                 stat_pending: "পেন্ডিং",
+                stat_review: "রিভিউতে আছে",
+                stat_approved: "অনুমোদিত",
+                stat_rejected: "বাতিল",
+                stat_cancelled: "বাতিলকৃত",
                 stat_correction: "সংশোধন প্রয়োজন",
-                stat_completed: "সম্পন্ন",
                 loading: "লোড হচ্ছে...",
                 no_data: "কোনো তথ্য পাওয়া যায়নি।",
+                no_applications: "আপনার কোনো আবেদন নেই।",
+                no_applications_filter: "কোনো আবেদন পাওয়া যায়নি।",
                 view: "দেখুন",
                 manage: "ম্যানেজ",
+                edit: "সম্পাদনা",
+                delete: "মুছুন",
                 apply_now: "আবেদন করুন",
-                download: "ডাউনলোড PDF",
-                preview: "প্রিভিউ CV",
-                close: "বন্ধ করুন",
-                status_pending: "পেন্ডিং (Pending)",
-                status_correction: "সংশোধন প্রয়োজন (Need Correction)",
-                status_approved: "অনুমোদিত (Approved)",
-                status_rejected: "বাতিল (Rejected)",
-                status_completed: "সম্পন্ন (Completed)",
-                
+                my_profile: "প্রোফাইল",
+                profile_name: "পূর্ণ নাম",
+                profile_phone: "ফোন নম্বর",
+                change_password: "পাসওয়ার্ড পরিবর্তন",
+                new_password: "নতুন পাসওয়ার্ড",
+                btn_update_password: "পাসওয়ার্ড আপডেট করুন",
+                search: "অনুসন্ধান",
+                search_ph: "নাম বা আবেদন নং...",
+                status_filter: "স্ট্যাটাস ফিল্টার",
+                all_status: "সকল স্ট্যাটাস",
+                date_from: "তারিখ (হতে)",
+                date_to: "তারিখ (পর্যন্ত)",
+                clear_filters: "ফিল্টার মুছুন",
+                admin_menu: "অ্যাডমিন মেনু",
+                overview: "ওভারভিউ",
+                download_section_title: "আপনার অনুমোদিত ডকুমেন্ট",
+                download_section_sub: "আপনার আবেদন অনুমোদিত হয়েছে। নিচের বাটনে ক্লিক করে ডকুমেন্ট ডাউনলোড করুন।",
+                download_denied_title: "ডাউনলোড সীমাবদ্ধ",
+                download_denied_sub: "আপনার আবেদন এখনো অনুমোদিত হয়নি। অনুমোদনের পর ডাউনলোড সুবিধা পাবেন।",
+                download_admin_file: "অ্যাডমিন ফাইল ডাউনলোড",
+                confirm_delete_title: "আবেদন মুছে ফেলুন",
+                confirm_delete_msg: "আপনি কি নিশ্চিত যে এই আবেদনটি মুছে ফেলতে চান? এই কাজটি অপ্রত্যরণযোগ্য।",
+                confirm_reject_title: "আবেদন বাতিল করুন",
+                confirm_reject_msg: "আপনি কি নিশ্চিত যে এই আবেদনটি বাতিল করতে চান?",
+                confirm_cancel_title: "আবেদন বাতিল করুন",
+                confirm_cancel_msg: "আপনি কি নিশ্চিত যে এই আবেদনটি বাতিল করতে চান?",
+                confirm_common_title: "নিশ্চিত করুন",
+                status_pending: "পেন্ডিং",
+                status_under_review: "রিভিউতে আছে",
+                status_approved: "অনুমোদিত",
+                status_rejected: "বাতিল",
+                status_cancelled: "বাতিলকৃত",
+                status_completed: "সম্পন্ন",
+                status_correction: "সংশোধন প্রয়োজন",
                 email_ph: "example@gmail.com",
                 password_ph: "••••••••",
                 full_name_ph: "আপনার নাম লিখুন",
@@ -599,7 +987,28 @@
                 height_ph: "যেমন: 5 feet 8 inch",
                 weight_ph: "যেমন: 65 kg",
                 objective_ph: "সংক্ষেপে ক্যারিয়ার উদ্দেশ্য বা জীবনবৃত্তান্তের সারসংক্ষেপ...",
-                skills_ph: "যেমন: MS Office, Graphic Design, Web Development (কমা দিয়ে লিখুন)"
+                website_ph: "https://example.com",
+                skills_ph: "যেমন: MS Office, Graphic Design, Web Development",
+                languages_ph: "যেমন: Bangla, English",
+                experience_ph: "প্রতিষ্ঠানের নাম, পদবী, সময়কাল...",
+                block_title_ph: "যেমন: ভাষাগত দক্ষতা",
+                block_desc_ph: "বিস্তারিত তথ্য লিখুন...",
+                toast_login_success: "সফলভাবে লগইন হয়েছে!",
+                toast_signup_success: "সাইন আপ সফল! ইমেইল ভেরিফাই করুন।",
+                toast_logout_success: "লগআউট সফল।",
+                toast_app_submitted: "আবেদন সফলভাবে জমা হয়েছে!",
+                toast_app_updated: "আবেদন সফলভাবে আপডেট হয়েছে!",
+                toast_app_deleted: "আবেদন মুছে ফেলা হয়েছে।",
+                toast_status_updated: "স্ট্যাটাস আপডেট হয়েছে।",
+                toast_profile_updated: "প্রোফাইল আপডেট হয়েছে।",
+                toast_password_updated: "পাসওয়ার্ড আপডেট হয়েছে।",
+                toast_error: "একটি ত্রুটি হয়েছে। আবার চেষ্টা করুন।",
+                toast_no_permission: "আপনার এই কাজের অনুমতি নেই।",
+                toast_download_denied: "অনুমোদনের পর ডাউনলোড করতে পারবেন।",
+                error_auth: "ইমেইল বা পাসওয়ার্ড ভুল।",
+                error_session: "সেশন মেয়াদ শেষ। আবার লগইন করুন।",
+                error_network: "নেটওয়ার্ক ত্রুটি। ইন্টারনেট সংযোগ চেক করুন।",
+                result_count: "টি ফলাফল"
             },
             en: {
                 bismillah: "In the name of Allah, the Most Gracious, the Most Merciful",
@@ -629,11 +1038,11 @@
                 applicant_name: "Applicant Name",
                 all_applications: "All Applications",
                 cv_form_title: "CV & Biodata Application Form",
-                required_note: "(* Marked fields are required.)",
+                cv_form_edit_title: "Edit Application",
+                optional_note: "All fields are optional. Empty fields will not appear in the result.",
                 sec_personal_info: "1. Personal Information",
-                full_name: "Full Name *",
-                mobile: "Mobile Number *",
-                website: "Website (Optional)",
+                full_name: "Full Name",
+                mobile: "Mobile Number",
                 father_name: "Father's Name",
                 mother_name: "Mother's Name",
                 dob: "Date of Birth",
@@ -648,61 +1057,94 @@
                 height: "Height",
                 weight: "Weight",
                 email: "Email Address",
+                website: "Website",
                 photo_upload: "Upload Photo (Passport Size)",
                 career_objective: "Career Objective / Summary",
                 sec_present_addr: "2. Present Address",
                 sec_permanent_addr: "3. Permanent Address",
-                same_as_present: "Same as Present Address",
                 village: "Village/Street",
                 post_office: "Post Office",
                 thana: "Thana/Upazila",
                 district: "District",
+                same_address: "Present address is same as permanent",
                 sec_education: "4. Educational Qualifications",
                 add_more: "Add More",
-                remove: "Remove",
                 exam_name: "Exam Title",
                 passing_year: "Passing Year",
                 institute: "Institution",
                 gpa: "GPA / Result",
-                skills: "Skills",
-                languages: "Language Proficiency",
-                lang_name: "Language",
-                proficiency: "Proficiency Level",
-                sec_experience: "Work Experience (Optional)",
-                company_name: "Company Name",
-                designation: "Designation",
-                duration: "Duration",
-                exp_desc: "Key Responsibilities",
-                sec_documents: "7. Supporting Documents",
+                sec_additional_info: "5. Additional Information",
+                add_block: "Add Block",
+                no_additional_info: "No additional information added yet.",
+                block_title: "Title",
+                block_description: "Description",
+                sec_documents: "6. Supporting Documents",
+                doc_note: "Upload required documents (multiple files allowed).",
                 btn_cancel: "Cancel",
                 btn_submit_app: "Submit Application",
+                btn_update_app: "Update Application",
                 btn_back: "Back",
-                pdf_download_heading: "A4 CV Preview & Instant Download",
-                pdf_download_sub: "Instantly view or download professional A4 formatted CV.",
+                preview: "Preview CV",
+                download: "Download PDF",
+                close: "Close",
                 admin_file_title: "Admin Approved Final File",
                 btn_download_file: "View / Download File",
                 admin_action_heading: "Admin Action Panel",
                 admin_note: "Note / Instructions",
                 upload_generated_file: "Upload Generated Final File",
                 btn_save: "Save Changes",
+                btn_approve: "Approve",
+                btn_reject: "Reject",
                 stat_total: "Total Applications",
                 stat_pending: "Pending",
+                stat_review: "Under Review",
+                stat_approved: "Approved",
+                stat_rejected: "Rejected",
+                stat_cancelled: "Cancelled",
                 stat_correction: "Need Correction",
-                stat_completed: "Completed",
                 loading: "Loading...",
                 no_data: "No data found.",
+                no_applications: "You have no applications yet.",
+                no_applications_filter: "No applications found.",
                 view: "View",
                 manage: "Manage",
+                edit: "Edit",
+                delete: "Delete",
                 apply_now: "Apply Now",
-                download: "Download PDF",
-                preview: "Preview CV",
-                close: "Close",
+                my_profile: "Profile",
+                profile_name: "Full Name",
+                profile_phone: "Phone Number",
+                change_password: "Change Password",
+                new_password: "New Password",
+                btn_update_password: "Update Password",
+                search: "Search",
+                search_ph: "Name or Application No...",
+                status_filter: "Status Filter",
+                all_status: "All Statuses",
+                date_from: "Date (From)",
+                date_to: "Date (To)",
+                clear_filters: "Clear Filters",
+                admin_menu: "Admin Menu",
+                overview: "Overview",
+                download_section_title: "Your Approved Document",
+                download_section_sub: "Your application has been approved. Click below to download.",
+                download_denied_title: "Download Restricted",
+                download_denied_sub: "Your application is not yet approved. Download will be available after approval.",
+                download_admin_file: "Download Admin File",
+                confirm_delete_title: "Delete Application",
+                confirm_delete_msg: "Are you sure you want to delete this application? This action cannot be undone.",
+                confirm_reject_title: "Reject Application",
+                confirm_reject_msg: "Are you sure you want to reject this application?",
+                confirm_cancel_title: "Cancel Application",
+                confirm_cancel_msg: "Are you sure you want to cancel this application?",
+                confirm_common_title: "Confirm",
                 status_pending: "Pending",
-                status_correction: "Need Correction",
+                status_under_review: "Under Review",
                 status_approved: "Approved",
                 status_rejected: "Rejected",
+                status_cancelled: "Cancelled",
                 status_completed: "Completed",
-
+                status_correction: "Need Correction",
                 email_ph: "example@gmail.com",
                 password_ph: "••••••••",
                 full_name_ph: "Enter your full name",
@@ -712,7 +1154,28 @@
                 height_ph: "e.g. 5 feet 8 inch",
                 weight_ph: "e.g. 65 kg",
                 objective_ph: "Brief career objective summary...",
-                skills_ph: "e.g. MS Office, Graphic Design, Web Development (Comma separated)"
+                website_ph: "https://example.com",
+                skills_ph: "e.g. MS Office, Graphic Design, Web Development",
+                languages_ph: "e.g. Bangla, English",
+                experience_ph: "Company Name, Role, Duration...",
+                block_title_ph: "e.g. Language Skills",
+                block_desc_ph: "Enter detailed information...",
+                toast_login_success: "Logged in successfully!",
+                toast_signup_success: "Sign up successful! Please verify your email.",
+                toast_logout_success: "Logged out successfully.",
+                toast_app_submitted: "Application submitted successfully!",
+                toast_app_updated: "Application updated successfully!",
+                toast_app_deleted: "Application deleted.",
+                toast_status_updated: "Status updated successfully.",
+                toast_profile_updated: "Profile updated.",
+                toast_password_updated: "Password updated.",
+                toast_error: "An error occurred. Please try again.",
+                toast_no_permission: "You do not have permission.",
+                toast_download_denied: "Download available only after approval.",
+                error_auth: "Invalid email or password.",
+                error_session: "Session expired. Please login again.",
+                error_network: "Network error. Check your connection.",
+                result_count: "results found"
             }
         };
 
@@ -720,51 +1183,141 @@
             currentLang: 'bn',
             init: function() {
                 const saved = localStorage.getItem('app_lang');
-                if (saved && (saved === 'bn' || saved === 'en')) {
-                    this.currentLang = saved;
-                }
+                if (saved && (saved === 'bn' || saved === 'en')) this.currentLang = saved;
                 this.applyLanguage();
             },
             toggleLanguage: function() {
                 this.currentLang = this.currentLang === 'bn' ? 'en' : 'bn';
                 localStorage.setItem('app_lang', this.currentLang);
                 this.applyLanguage();
+                // Re-render current view if needed
+                if (!document.getElementById('view-admin-dashboard').classList.contains('hidden')) {
+                    admin.loadDashboard();
+                }
+                if (!document.getElementById('view-user-dashboard').classList.contains('hidden')) {
+                    dashboard.loadUserDashboard();
+                }
             },
             applyLanguage: function() {
                 document.getElementById('lang-btn-text').innerText = this.currentLang === 'bn' ? 'English' : 'বাংলা';
-                
                 document.querySelectorAll('[data-i18n]').forEach(el => {
                     const key = el.getAttribute('data-i18n');
                     if (translations[this.currentLang] && translations[this.currentLang][key]) {
                         el.innerText = translations[this.currentLang][key];
                     }
                 });
-
                 document.querySelectorAll('[data-i18n-ph]').forEach(el => {
                     const key = el.getAttribute('data-i18n-ph');
                     if (translations[this.currentLang] && translations[this.currentLang][key]) {
                         el.placeholder = translations[this.currentLang][key];
                     }
                 });
-
                 auth.updateAuthText();
             },
             t: function(key) {
                 return (translations[this.currentLang] && translations[this.currentLang][key]) ? translations[this.currentLang][key] : key;
             },
             getStatusLabel: function(status) {
-                if (status === 'Pending') return this.t('status_pending');
-                if (status === 'Need Correction') return this.t('status_correction');
-                if (status === 'Approved') return this.t('status_approved');
-                if (status === 'Rejected') return this.t('status_rejected');
-                if (status === 'Completed') return this.t('status_completed');
-                return status;
+                const map = {
+                    'pending': 'status_pending',
+                    'under_review': 'status_under_review',
+                    'approved': 'status_approved',
+                    'rejected': 'status_rejected',
+                    'cancelled': 'status_cancelled',
+                    'completed': 'status_completed',
+                    'Need Correction': 'status_correction',
+                    'Pending': 'status_pending',
+                    'Approved': 'status_approved',
+                    'Rejected': 'status_rejected'
+                };
+                return this.t(map[status] || 'status_pending');
+            },
+            getStatusBadgeClass: function(status) {
+                const map = {
+                    'pending': 'badge-pending',
+                    'under_review': 'badge-under-review',
+                    'approved': 'badge-approved',
+                    'rejected': 'badge-rejected',
+                    'cancelled': 'badge-cancelled',
+                    'completed': 'badge-completed',
+                    'Need Correction': 'badge-correction',
+                    'Pending': 'badge-pending',
+                    'Approved': 'badge-approved',
+                    'Rejected': 'badge-rejected'
+                };
+                return map[status] || 'badge-pending';
             }
         };
 
-        // Auth Logic
+        // ==================== UI HELPERS ====================
+        const ui = {
+            showLoading: function() {
+                document.getElementById('loading-overlay').classList.remove('hidden');
+            },
+            hideLoading: function() {
+                document.getElementById('loading-overlay').classList.add('hidden');
+            },
+            toast: function(message, type = 'info', duration = 4000) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                const icons = { success: 'fa-check-circle', error: 'fa-circle-xmark', warning: 'fa-triangle-exclamation', info: 'fa-circle-info' };
+                toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i> <span>${utils.escapeHTML(message)}</span>`;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.animation = 'fadeOut 0.3s ease forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }, duration);
+            },
+            confirmCallback: null,
+            showConfirm: function(title, message, actionText, actionClass, callback) {
+                document.getElementById('confirm-title').innerHTML = `<i class="fa-solid fa-circle-question"></i> ${utils.escapeHTML(title)}`;
+                document.getElementById('confirm-message').innerText = message;
+                const btn = document.getElementById('confirm-action-btn');
+                btn.innerText = actionText;
+                btn.className = actionClass;
+                this.confirmCallback = callback;
+                btn.onclick = () => {
+                    this.closeConfirm();
+                    if (callback) callback();
+                };
+                document.getElementById('confirm-modal').classList.remove('hidden');
+            },
+            closeConfirm: function() {
+                document.getElementById('confirm-modal').classList.add('hidden');
+                this.confirmCallback = null;
+            },
+            openDrawer: function() {
+                document.getElementById('mobile-drawer').classList.remove('hidden');
+                document.getElementById('drawer-overlay').classList.remove('hidden');
+                this.renderDrawerNav();
+            },
+            closeDrawer: function() {
+                document.getElementById('mobile-drawer').classList.add('hidden');
+                document.getElementById('drawer-overlay').classList.add('hidden');
+            },
+            renderDrawerNav: function() {
+                const container = document.getElementById('drawer-nav-content');
+                const isAdmin = auth.isAdminUser;
+                let html = '';
+                if (isAdmin) {
+                    html += `<div class="drawer-item" onclick="ui.closeDrawer(); app.navigateTo('admin-dashboard')"><i class="fa-solid fa-gauge-high"></i> ${i18n.t('overview')}</div>`;
+                    html += `<div class="drawer-item" onclick="ui.closeDrawer(); admin.loadDashboard();"><i class="fa-solid fa-list-check"></i> ${i18n.t('all_applications')}</div>`;
+                } else {
+                    html += `<div class="drawer-item" onclick="ui.closeDrawer(); app.navigateTo('user-dashboard')"><i class="fa-solid fa-house"></i> ${i18n.t('welcome_title')}</div>`;
+                    html += `<div class="drawer-item" onclick="ui.closeDrawer(); app.navigateTo('user-profile')"><i class="fa-solid fa-user"></i> ${i18n.t('my_profile')}</div>`;
+                }
+                html += `<div class="drawer-item" onclick="ui.closeDrawer(); auth.logout()"><i class="fa-solid fa-right-from-bracket"></i> ${i18n.t('logout')}</div>`;
+                container.innerHTML = html;
+            }
+        };
+
+
+        // ==================== AUTH ====================
         const auth = {
             isSignUp: false,
+            currentUser: null,
+            isAdminUser: false,
             toggleAuthMode: function() {
                 this.isSignUp = !this.isSignUp;
                 this.updateAuthText();
@@ -778,33 +1331,61 @@
             },
             handleAuth: async function(e) {
                 e.preventDefault();
-                const email = document.getElementById('auth-email').value;
+                const email = document.getElementById('auth-email').value.trim();
                 const password = document.getElementById('auth-password').value;
+                if (!email || !password) return;
+                ui.showLoading();
                 try {
                     if (this.isSignUp) {
                         const { error } = await _supabase.auth.signUp({ email, password });
                         if (error) throw error;
-                        alert(i18n.currentLang === 'bn' ? "সাইন আপ সফল হয়েছে! আপনার ইমেইল চেক করুন।" : "Sign up successful! Please check your email.");
+                        ui.toast(i18n.t('toast_signup_success'), 'success');
                         this.toggleAuthMode();
                     } else {
                         const { error } = await _supabase.auth.signInWithPassword({ email, password });
                         if (error) throw error;
+                        ui.toast(i18n.t('toast_login_success'), 'success');
                         await this.checkUserAndRedirect();
                     }
-                } catch (err) { alert(err.message || "Authentication error occurred."); }
+                } catch (err) {
+                    ui.toast(err.message || i18n.t('error_auth'), 'error');
+                } finally {
+                    ui.hideLoading();
+                }
             },
             checkUserAndRedirect: async function() {
                 const { data: { session } } = await _supabase.auth.getSession();
-                if (!session) { app.navigateTo('auth'); return; }
-
+                if (!session) {
+                    this.currentUser = null;
+                    this.isAdminUser = false;
+                    document.getElementById('user-nav-actions').classList.add('hidden');
+                    app.navigateTo('auth');
+                    return;
+                }
+                this.currentUser = session.user;
+                this.isAdminUser = utils.isAdmin(session.user.email);
                 document.getElementById('user-nav-actions').classList.remove('hidden');
-                document.getElementById('nav-user-email').innerText = escapeHTML(session.user.email);
+                document.getElementById('nav-user-email').innerText = utils.escapeHTML(session.user.email);
 
-                const { data: profile } = await _supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle();
+                // Ensure profile exists
+                try {
+                    const { data: existing } = await _supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+                    if (!existing) {
+                        await _supabase.from('profiles').insert([{
+                            id: session.user.id,
+                            email: session.user.email,
+                            role: this.isAdminUser ? 'admin' : 'user',
+                            full_name: '',
+                            phone: ''
+                        }]);
+                    } else if (this.isAdminUser && existing.role !== 'admin') {
+                        await _supabase.from('profiles').update({ role: 'admin' }).eq('id', session.user.id);
+                    }
+                } catch (e) { console.log('Profile check error:', e); }
 
-                if (profile && profile.role === 'admin') {
+                if (this.isAdminUser) {
                     app.navigateTo('admin-dashboard');
-                    dashboard.loadAdminDashboard();
+                    admin.loadDashboard();
                 } else {
                     app.navigateTo('user-dashboard');
                     dashboard.loadUserDashboard();
@@ -812,215 +1393,905 @@
                 }
             },
             logout: async function() {
+                ui.showLoading();
                 await _supabase.auth.signOut();
+                this.currentUser = null;
+                this.isAdminUser = false;
                 document.getElementById('user-nav-actions').classList.add('hidden');
+                ui.hideLoading();
+                ui.toast(i18n.t('toast_logout_success'), 'info');
                 app.navigateTo('auth');
             }
         };
 
-        // Services System
-        const services = {
-            loadActiveServices: async function() {
-                const container = document.getElementById('services-list');
-                container.innerHTML = `<p>${i18n.t('loading')}</p>`;
-                const { data: servicesList, error } = await _supabase.from('services').select('*').eq('is_active', true);
-                if (error || !servicesList || servicesList.length === 0) {
-                    container.innerHTML = `<p>${i18n.t('no_data')}</p>`;
+        // ==================== PROFILE ====================
+        const profile = {
+            loadProfile: async function() {
+                if (!auth.currentUser) return;
+                ui.showLoading();
+                try {
+                    document.getElementById('profile-email').value = auth.currentUser.email;
+                    const { data } = await _supabase.from('profiles').select('*').eq('id', auth.currentUser.id).maybeSingle();
+                    if (data) {
+                        document.getElementById('profile-full-name').value = data.full_name || '';
+                        document.getElementById('profile-phone').value = data.phone || '';
+                    }
+                } catch (err) {
+                    ui.toast(i18n.t('toast_error'), 'error');
+                } finally {
+                    ui.hideLoading();
+                }
+            },
+            saveProfile: async function() {
+                if (!auth.currentUser) return;
+                const fullName = document.getElementById('profile-full-name').value.trim();
+                const phone = document.getElementById('profile-phone').value.trim();
+                ui.showLoading();
+                try {
+                    await _supabase.from('profiles').update({ full_name: fullName, phone: phone }).eq('id', auth.currentUser.id);
+                    ui.toast(i18n.t('toast_profile_updated'), 'success');
+                } catch (err) {
+                    ui.toast(i18n.t('toast_error'), 'error');
+                } finally {
+                    ui.hideLoading();
+                }
+            },
+            changePassword: async function() {
+                const newPass = document.getElementById('profile-new-password').value;
+                if (!newPass || newPass.length < 6) {
+                    ui.toast(i18n.currentLang === 'bn' ? 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে' : 'Password must be at least 6 characters', 'warning');
                     return;
                 }
-                container.innerHTML = "";
-                servicesList.forEach(srv => {
-                    const card = document.createElement('div');
-                    card.className = "service-card";
-                    card.innerHTML = `
-                        <h4>${escapeHTML(srv.name)}</h4>
-                        <p>${escapeHTML(srv.description || '')}</p>
-                        <button class="btn-primary btn-sm" onclick="app.openServiceForm('${escapeHTML(srv.code)}')">${i18n.t('apply_now')}</button>
-                    `;
-                    container.appendChild(card);
-                });
+                ui.showLoading();
+                try {
+                    const { error } = await _supabase.auth.updateUser({ password: newPass });
+                    if (error) throw error;
+                    document.getElementById('profile-new-password').value = '';
+                    ui.toast(i18n.t('toast_password_updated'), 'success');
+                } catch (err) {
+                    ui.toast(err.message || i18n.t('toast_error'), 'error');
+                } finally {
+                    ui.hideLoading();
+                }
             }
         };
 
-        // CV Form Handler
+
+        // ==================== SERVICES ====================
+        const services = {
+            loadActiveServices: async function() {
+                const container = document.getElementById('services-list');
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><p>${i18n.t('loading')}</p></div>`;
+                try {
+                    const { data: servicesList, error } = await _supabase.from('services').select('*').eq('is_active', true);
+                    if (error) throw error;
+                    if (!servicesList || servicesList.length === 0) {
+                        container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-cube"></i><p>${i18n.t('no_data')}</p></div>`;
+                        return;
+                    }
+                    container.innerHTML = "";
+                    servicesList.forEach(srv => {
+                        const card = document.createElement('div');
+                        card.className = "service-card";
+                        card.innerHTML = `
+                            <h4>${utils.escapeHTML(srv.name)}</h4>
+                            <p>${utils.escapeHTML(srv.description || '')}</p>
+                            <button class="btn-primary btn-sm" onclick="app.openServiceForm('${utils.escapeHTML(srv.code)}')">
+                                <i class="fa-solid fa-pen-to-square"></i> ${i18n.t('apply_now')}
+                            </button>
+                        `;
+                        container.appendChild(card);
+                    });
+                } catch (err) {
+                    container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>${i18n.t('toast_error')}</p></div>`;
+                }
+            }
+        };
+
+        // ==================== CV FORM ====================
         const cvForm = {
-            toggleSameAddress: function(chk) {
-                if (chk.checked) {
-                    this.syncAddress();
-                }
+            editMode: false,
+            editAppId: null,
+            infoBlocks: [],
+            init: function() {
+                this.addEducationRow();
+                this.setupAddressSync();
             },
-            syncAddress: function() {
-                const chk = document.getElementById('same-as-present-chk');
-                if (chk && chk.checked) {
-                    document.getElementById('cv-perm-village').value = document.getElementById('cv-pres-village').value;
-                    document.getElementById('cv-perm-po').value = document.getElementById('cv-pres-po').value;
-                    document.getElementById('cv-perm-thana').value = document.getElementById('cv-pres-thana').value;
-                    document.getElementById('cv-perm-district').value = document.getElementById('cv-pres-district').value;
-                }
+            setupAddressSync: function() {
+                const presentIds = ['cv-pres-village', 'cv-pres-po', 'cv-pres-thana', 'cv-pres-district'];
+                const permIds = ['cv-perm-village', 'cv-perm-po', 'cv-perm-thana', 'cv-perm-district'];
+                presentIds.forEach((id, idx) => {
+                    document.getElementById(id).addEventListener('input', () => {
+                        if (document.getElementById('addr-same-checkbox').checked) {
+                            document.getElementById(permIds[idx]).value = document.getElementById(id).value;
+                        }
+                    });
+                });
+            },
+            toggleAddressSync: function() {
+                const checked = document.getElementById('addr-same-checkbox').checked;
+                const permFields = ['cv-perm-village', 'cv-perm-po', 'cv-perm-thana', 'cv-perm-district'];
+                const presFields = ['cv-pres-village', 'cv-pres-po', 'cv-pres-thana', 'cv-pres-district'];
+                permFields.forEach((id, idx) => {
+                    const el = document.getElementById(id);
+                    el.disabled = checked;
+                    if (checked) {
+                        el.value = document.getElementById(presFields[idx]).value;
+                    }
+                });
             },
             addEducationRow: function(data = null) {
                 const container = document.getElementById('education-entries-container');
                 const row = document.createElement('div');
-                row.className = "dynamic-item-card edu-row";
+                row.className = "edu-row";
+                row.style.cssText = "margin-bottom:12px; padding:12px; background:white; border:1px solid var(--border-color); border-radius:6px;";
                 row.innerHTML = `
-                    <button type="button" class="btn-danger btn-sm remove-btn" onclick="this.parentElement.remove()"><i class="fa-solid fa-trash"></i> ${i18n.t('remove')}</button>
-                    <div class="form-grid" style="padding-right: 70px;">
-                        <div class="form-group"><label>${i18n.t('exam_name')}</label><input type="text" class="edu-exam" value="${escapeHTML(data?.exam_name || '')}" placeholder="SSC/HSC/BSc"></div>
-                        <div class="form-group"><label>${i18n.t('passing_year')}</label><input type="text" class="edu-year" value="${escapeHTML(data?.passing_year || '')}" placeholder="2022"></div>
-                        <div class="form-group"><label>${i18n.t('institute')}</label><input type="text" class="edu-institute" value="${escapeHTML(data?.institute_name || '')}"></div>
-                        <div class="form-group"><label>${i18n.t('gpa')}</label><input type="text" class="edu-result" value="${escapeHTML(data?.result_gpa || '')}"></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>${i18n.t('exam_name')}</label><input type="text" class="edu-exam" placeholder="SSC/HSC/BSc" value="${data ? utils.escapeHTML(data.exam_name) : ''}"></div>
+                        <div class="form-group"><label>${i18n.t('passing_year')}</label><input type="text" class="edu-year" placeholder="2022" value="${data ? utils.escapeHTML(data.passing_year) : ''}"></div>
+                        <div class="form-group"><label>${i18n.t('institute')}</label><input type="text" class="edu-institute" value="${data ? utils.escapeHTML(data.institute_name) : ''}"></div>
+                        <div class="form-group"><label>${i18n.t('gpa')}</label><input type="text" class="edu-result" value="${data ? utils.escapeHTML(data.result_gpa) : ''}"></div>
+                    </div>
+                    <div style="text-align:right; margin-top:8px;">
+                        <button type="button" class="btn-danger btn-xs" onclick="this.closest('.edu-row').remove()">
+                            <i class="fa-solid fa-trash"></i> ${i18n.t('delete')}
+                        </button>
                     </div>
                 `;
                 container.appendChild(row);
             },
-            addLanguageRow: function(data = null) {
-                const container = document.getElementById('language-entries-container');
-                const row = document.createElement('div');
-                row.className = "dynamic-item-card lang-row";
-                row.innerHTML = `
-                    <button type="button" class="btn-danger btn-sm remove-btn" onclick="this.parentElement.remove()"><i class="fa-solid fa-trash"></i> ${i18n.t('remove')}</button>
-                    <div class="form-grid" style="padding-right: 70px;">
-                        <div class="form-group"><label>${i18n.t('lang_name')}</label><input type="text" class="lang-title" value="${escapeHTML(data?.name || '')}" placeholder="e.g. English"></div>
-                        <div class="form-group"><label>${i18n.t('proficiency')}</label><input type="text" class="lang-level" value="${escapeHTML(data?.proficiency || '')}" placeholder="e.g. Fluent / Native"></div>
+            addInfoBlock: function(data = null) {
+                const container = document.getElementById('additional-info-container');
+                document.getElementById('additional-info-empty').classList.add('hidden');
+                const blockId = 'block_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                const block = document.createElement('div');
+                block.className = "info-block";
+                block.id = blockId;
+                block.innerHTML = `
+                    <div class="info-block-header">
+                        <span class="info-block-title">${i18n.t('sec_additional_info')}</span>
+                        <button type="button" class="info-block-remove" onclick="cvForm.removeInfoBlock('${blockId}')">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>${i18n.t('block_title')}</label>
+                            <input type="text" class="block-title-input" data-i18n-ph="block_title_ph" placeholder="${i18n.t('block_title_ph')}" value="${data ? utils.escapeHTML(data.title) : ''}">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:8px;">
+                        <label>${i18n.t('block_description')}</label>
+                        <textarea class="block-desc-input" rows="3" data-i18n-ph="block_desc_ph" placeholder="${i18n.t('block_desc_ph')}">${data ? utils.escapeHTML(data.description) : ''}</textarea>
                     </div>
                 `;
-                container.appendChild(row);
+                container.appendChild(block);
             },
-            addExperienceRow: function(data = null) {
-                const container = document.getElementById('experience-entries-container');
-                const row = document.createElement('div');
-                row.className = "dynamic-item-card exp-row";
-                row.innerHTML = `
-                    <button type="button" class="btn-danger btn-sm remove-btn" onclick="this.parentElement.remove()"><i class="fa-solid fa-trash"></i> ${i18n.t('remove')}</button>
-                    <div class="form-grid" style="padding-right: 70px;">
-                        <div class="form-group"><label>${i18n.t('company_name')}</label><input type="text" class="exp-company" value="${escapeHTML(data?.company || '')}"></div>
-                        <div class="form-group"><label>${i18n.t('designation')}</label><input type="text" class="exp-designation" value="${escapeHTML(data?.designation || '')}"></div>
-                        <div class="form-group"><label>${i18n.t('duration')}</label><input type="text" class="exp-duration" value="${escapeHTML(data?.duration || '')}" placeholder="2021 - Present"></div>
-                        <div class="form-group" style="grid-column: 1 / -1;"><label>${i18n.t('exp_desc')}</label><textarea class="exp-description">${escapeHTML(data?.description || '')}</textarea></div>
-                    </div>
-                `;
-                container.appendChild(row);
+            removeInfoBlock: function(blockId) {
+                const el = document.getElementById(blockId);
+                if (el) el.remove();
+                const container = document.getElementById('additional-info-container');
+                if (container.children.length === 0) {
+                    document.getElementById('additional-info-empty').classList.remove('hidden');
+                }
+            },
+            resetForm: function() {
+                document.getElementById('cv-application-form').reset();
+                document.getElementById('cv-edit-id').value = '';
+                document.getElementById('education-entries-container').innerHTML = '';
+                document.getElementById('additional-info-container').innerHTML = '';
+                document.getElementById('additional-info-empty').classList.remove('hidden');
+                document.getElementById('addr-same-checkbox').checked = false;
+                this.toggleAddressSync();
+                this.editMode = false;
+                this.editAppId = null;
+                document.getElementById('cv-form-title').innerText = i18n.t('cv_form_title');
+                document.getElementById('cv-submit-text').innerText = i18n.t('btn_submit_app');
+                this.addEducationRow();
+            },
+            cancelForm: function() {
+                this.resetForm();
+                app.navigateTo('dashboard');
+            },
+            loadForEdit: async function(appId) {
+                ui.showLoading();
+                try {
+                    const { data: app, error } = await _supabase.from('applications').select('*').eq('id', appId).single();
+                    if (error || !app) throw new Error('Application not found');
+
+                    // Security check
+                    if (app.user_id !== auth.currentUser.id && !auth.isAdminUser) {
+                        ui.toast(i18n.t('toast_no_permission'), 'error');
+                        ui.hideLoading();
+                        return;
+                    }
+
+                    this.editMode = true;
+                    this.editAppId = appId;
+                    const fd = app.form_data || {};
+                    const p = fd.personal_info || {};
+
+                    // Populate fields
+                    document.getElementById('cv-full-name').value = p.full_name || '';
+                    document.getElementById('cv-mobile').value = p.mobile || '';
+                    document.getElementById('cv-father-name').value = p.father_name || '';
+                    document.getElementById('cv-mother-name').value = p.mother_name || '';
+                    document.getElementById('cv-dob').value = p.dob || '';
+                    document.getElementById('cv-nationality').value = p.nationality || 'Bangladeshi';
+                    document.getElementById('cv-gender').value = p.gender || '';
+                    document.getElementById('cv-marital-status').value = p.marital_status || '';
+                    document.getElementById('cv-height').value = p.height || '';
+                    document.getElementById('cv-weight').value = p.weight || '';
+                    document.getElementById('cv-email').value = p.email || '';
+                    document.getElementById('cv-website').value = p.website || '';
+                    document.getElementById('cv-objective').value = p.objective || '';
+
+                    // Address
+                    const pres = fd.present_address || {};
+                    document.getElementById('cv-pres-village').value = pres.village || '';
+                    document.getElementById('cv-pres-po').value = pres.po || '';
+                    document.getElementById('cv-pres-thana').value = pres.thana || '';
+                    document.getElementById('cv-pres-district').value = pres.district || '';
+
+                    const perm = fd.permanent_address || {};
+                    document.getElementById('cv-perm-village').value = perm.village || '';
+                    document.getElementById('cv-perm-po').value = perm.po || '';
+                    document.getElementById('cv-perm-thana').value = perm.thana || '';
+                    document.getElementById('cv-perm-district').value = perm.district || '';
+
+                    // Check if same address
+                    const sameAddr = pres.village === perm.village && pres.po === perm.po && 
+                                     pres.thana === perm.thana && pres.district === perm.district &&
+                                     pres.village !== '';
+                    document.getElementById('addr-same-checkbox').checked = sameAddr;
+                    this.toggleAddressSync();
+
+                    // Education
+                    document.getElementById('education-entries-container').innerHTML = '';
+                    const edu = fd.education || [];
+                    if (edu.length > 0) {
+                        edu.forEach(e => this.addEducationRow(e));
+                    } else {
+                        this.addEducationRow();
+                    }
+
+                    // Additional Info
+                    document.getElementById('additional-info-container').innerHTML = '';
+                    const addInfo = fd.additional_info || [];
+                    // Migrate old skills/languages/experience to blocks if no additional_info
+                    if (addInfo.length === 0 && (fd.skills || fd.languages || fd.experience)) {
+                        if (fd.skills) this.addInfoBlock({ title: i18n.currentLang === 'bn' ? 'দক্ষতাসমূহ' : 'Skills', description: fd.skills });
+                        if (fd.languages) this.addInfoBlock({ title: i18n.currentLang === 'bn' ? 'ভাষার দক্ষতা' : 'Language Proficiency', description: fd.languages });
+                        if (fd.experience) this.addInfoBlock({ title: i18n.currentLang === 'bn' ? 'কর্মঅভিজ্ঞতা' : 'Work Experience', description: fd.experience });
+                    } else {
+                        addInfo.forEach(b => this.addInfoBlock(b));
+                    }
+                    if (document.getElementById('additional-info-container').children.length > 0) {
+                        document.getElementById('additional-info-empty').classList.add('hidden');
+                    }
+
+                    document.getElementById('cv-edit-id').value = appId;
+                    document.getElementById('cv-form-title').innerText = i18n.t('cv_form_edit_title');
+                    document.getElementById('cv-submit-text').innerText = i18n.t('btn_update_app');
+                    app.navigateTo('cv-form');
+                } catch (err) {
+                    ui.toast(err.message || i18n.t('toast_error'), 'error');
+                } finally {
+                    ui.hideLoading();
+                }
             },
             submitApplication: async function(e) {
                 e.preventDefault();
                 const submitBtn = document.getElementById('cv-submit-btn');
                 submitBtn.disabled = true;
-                submitBtn.innerText = i18n.t('loading');
+                ui.showLoading();
 
                 try {
                     const { data: { session } } = await _supabase.auth.getSession();
+                    if (!session) throw new Error(i18n.t('error_session'));
                     const userId = session.user.id;
 
+                    // Get service
                     const { data: srv } = await _supabase.from('services').select('id').eq('code', 'CV_BIODATA').maybeSingle();
 
-                    const { data: newApp, error: appErr } = await _supabase.from('applications').insert([{
-                        user_id: userId,
-                        service_id: srv ? srv.id : null,
-                        status: 'Pending',
-                        form_data: {}
-                    }]).select().single();
-
-                    if (appErr) throw appErr;
-                    const appId = newApp.id;
-
-                    let photoPath = "";
-                    const photoFile = document.getElementById('cv-photo').files[0];
-                    if (photoFile) {
-                        const safePhotoName = getSafeFilename(photoFile.name);
-                        const pPath = `${userId}/${safePhotoName}`;
-                        const { error: photoErr } = await _supabase.storage.from('profile-avatars').upload(pPath, photoFile);
-                        if (!photoErr) photoPath = pPath;
-                    }
-
-                    const docPaths = [];
-                    const docFiles = document.getElementById('cv-documents').files;
-                    for (let i = 0; i < docFiles.length; i++) {
-                        const dFile = docFiles[i];
-                        const safeDocName = getSafeFilename(dFile.name);
-                        const dPath = `${appId}/${safeDocName}`;
-                        const { error: dErr } = await _supabase.storage.from('application-documents').upload(dPath, dFile);
-                        if (!dErr) docPaths.push({ name: dFile.name, path: dPath });
-                    }
-
+                    // Collect education
                     const eduList = [];
                     document.querySelectorAll('.edu-row').forEach(row => {
-                        const exam = row.querySelector('.edu-exam').value;
-                        if (exam.trim() !== '') {
+                        const exam = row.querySelector('.edu-exam').value.trim();
+                        if (exam) {
                             eduList.push({
                                 exam_name: exam,
-                                passing_year: row.querySelector('.edu-year').value,
-                                institute_name: row.querySelector('.edu-institute').value,
-                                result_gpa: row.querySelector('.edu-result').value
+                                passing_year: row.querySelector('.edu-year').value.trim(),
+                                institute_name: row.querySelector('.edu-institute').value.trim(),
+                                result_gpa: row.querySelector('.edu-result').value.trim()
                             });
                         }
                     });
 
-                    const langList = [];
-                    document.querySelectorAll('.lang-row').forEach(row => {
-                        const name = row.querySelector('.lang-title').value;
-                        if (name.trim() !== '') {
-                            langList.push({
-                                name: name,
-                                proficiency: row.querySelector('.lang-level').value
-                            });
-                        }
-                    });
-
-                    const expList = [];
-                    document.querySelectorAll('.exp-row').forEach(row => {
-                        const company = row.querySelector('.exp-company').value;
-                        if (company.trim() !== '') {
-                            expList.push({
-                                company: company,
-                                designation: row.querySelector('.exp-designation').value,
-                                duration: row.querySelector('.exp-duration').value,
-                                description: row.querySelector('.exp-description').value
-                            });
+                    // Collect additional info
+                    const addInfoList = [];
+                    document.querySelectorAll('.info-block').forEach(block => {
+                        const title = block.querySelector('.block-title-input').value.trim();
+                        const desc = block.querySelector('.block-desc-input').value.trim();
+                        if (title || desc) {
+                            addInfoList.push({ title, description: desc });
                         }
                     });
 
                     const formData = {
                         personal_info: {
-                            full_name: document.getElementById('cv-full-name').value,
-                            mobile: document.getElementById('cv-mobile').value,
-                            website: document.getElementById('cv-website').value,
-                            father_name: document.getElementById('cv-father-name').value,
-                            mother_name: document.getElementById('cv-mother-name').value,
+                            full_name: document.getElementById('cv-full-name').value.trim(),
+                            mobile: document.getElementById('cv-mobile').value.trim(),
+                            father_name: document.getElementById('cv-father-name').value.trim(),
+                            mother_name: document.getElementById('cv-mother-name').value.trim(),
                             dob: document.getElementById('cv-dob').value,
-                            nationality: document.getElementById('cv-nationality').value,
+                            nationality: document.getElementById('cv-nationality').value.trim(),
                             gender: document.getElementById('cv-gender').value,
                             marital_status: document.getElementById('cv-marital-status').value,
-                            height: document.getElementById('cv-height').value,
-                            weight: document.getElementById('cv-weight').value,
-                            email: document.getElementById('cv-email').value,
-                            objective: document.getElementById('cv-objective').value,
-                            photo_path: photoPath
+                            height: document.getElementById('cv-height').value.trim(),
+                            weight: document.getElementById('cv-weight').value.trim(),
+                            email: document.getElementById('cv-email').value.trim(),
+                            website: document.getElementById('cv-website').value.trim(),
+                            objective: document.getElementById('cv-objective').value.trim()
                         },
-                        present_address: { village: document.getElementById('cv-pres-village').value, po: document.getElementById('cv-pres-po').value, thana: document.getElementById('cv-pres-thana').value, district: document.getElementById('cv-pres-district').value },
-                        permanent_address: { village: document.getElementById('cv-perm-village').value, po: document.getElementById('cv-perm-po').value, thana: document.getElementById('cv-perm-thana').value, district: document.getElementById('cv-perm-district').value },
+                        present_address: {
+                            village: document.getElementById('cv-pres-village').value.trim(),
+                            po: document.getElementById('cv-pres-po').value.trim(),
+                            thana: document.getElementById('cv-pres-thana').value.trim(),
+                            district: document.getElementById('cv-pres-district').value.trim()
+                        },
+                        permanent_address: {
+                            village: document.getElementById('cv-perm-village').value.trim(),
+                            po: document.getElementById('cv-perm-po').value.trim(),
+                            thana: document.getElementById('cv-perm-thana').value.trim(),
+                            district: document.getElementById('cv-perm-district').value.trim()
+                        },
                         education: eduList,
-                        skills: document.getElementById('cv-skills').value,
-                        languages: langList,
-                        experiences: expList,
-                        documents: docPaths
+                        additional_info: addInfoList
                     };
 
-                    await _supabase.from('applications').update({ form_data: formData }).eq('id', appId);
+                    let appId = this.editAppId;
 
-                    alert(i18n.currentLang === 'bn' ? "আবেদন সফলভাবে জমা হয়েছে!" : "Application submitted successfully!");
-                    document.getElementById('cv-application-form').reset();
-                    app.navigateTo('user-dashboard');
-                    dashboard.loadUserDashboard();
+                    if (this.editMode && appId) {
+                        // Update existing
+                        const { error } = await _supabase.from('applications').update({
+                            service_id: srv ? srv.id : null,
+                            form_data: formData,
+                            updated_at: new Date().toISOString()
+                        }).eq('id', appId);
+                        if (error) throw error;
+                        ui.toast(i18n.t('toast_app_updated'), 'success');
+                    } else {
+                        // Create new
+                        const { data: newApp, error: appErr } = await _supabase.from('applications').insert([{
+                            user_id: userId,
+                            service_id: srv ? srv.id : null,
+                            status: 'pending',
+                            form_data: formData,
+                            download_allowed: false
+                        }]).select().single();
+                        if (appErr) throw appErr;
+                        appId = newApp.id;
+                        ui.toast(i18n.t('toast_app_submitted'), 'success');
+                    }
 
-                } catch (err) { alert("Error: " + err.message); }
-                finally {
+                    // Handle photo upload
+                    const photoFile = document.getElementById('cv-photo').files[0];
+                    if (photoFile) {
+                        const safePhotoName = utils.getSafeFilename(photoFile.name);
+                        const pPath = `${userId}/${safePhotoName}`;
+                        const { error: photoErr } = await _supabase.storage.from('profile-avatars').upload(pPath, photoFile, { upsert: true });
+                        if (!photoErr) {
+                            formData.personal_info.photo_path = pPath;
+                            await _supabase.from('applications').update({ form_data: formData }).eq('id', appId);
+                        }
+                    }
+
+                    // Handle documents upload
+                    const docFiles = document.getElementById('cv-documents').files;
+                    const docPaths = [];
+                    for (let i = 0; i < docFiles.length; i++) {
+                        const dFile = docFiles[i];
+                        const safeDocName = utils.getSafeFilename(dFile.name);
+                        const dPath = `${appId}/${safeDocName}`;
+                        const { error: dErr } = await _supabase.storage.from('application-documents').upload(dPath, dFile, { upsert: true });
+                        if (!dErr) docPaths.push({ name: dFile.name, path: dPath });
+                    }
+                    if (docPaths.length > 0) {
+                        const current = (await _supabase.from('applications').select('form_data').eq('id', appId).single()).data;
+                        const updatedForm = current.form_data || {};
+                        updatedForm.documents = [...(updatedForm.documents || []), ...docPaths];
+                        await _supabase.from('applications').update({ form_data: updatedForm }).eq('id', appId);
+                    }
+
+                    this.resetForm();
+                    app.navigateTo('dashboard');
+                    if (auth.isAdminUser) {
+                        admin.loadDashboard();
+                    } else {
+                        dashboard.loadUserDashboard();
+                    }
+                } catch (err) {
+                    ui.toast(err.message || i18n.t('toast_error'), 'error');
+                } finally {
                     submitBtn.disabled = false;
-                    submitBtn.innerText = i18n.t('btn_submit_app');
+                    ui.hideLoading();
                 }
             }
         };
 
-        // Professional PDF Generator Engine
+
+        // ==================== USER DASHBOARD ====================
+        const dashboard = {
+            currentApp: null,
+            loadUserDashboard: async function() {
+                if (!auth.currentUser) return;
+                ui.showLoading();
+                try {
+                    const { data: apps, error } = await _supabase.from('applications')
+                        .select('*')
+                        .eq('user_id', auth.currentUser.id)
+                        .order('created_at', { ascending: false });
+
+                    if (error) throw error;
+
+                    // Update stats
+                    const total = apps ? apps.length : 0;
+                    const pending = apps ? apps.filter(a => (a.status || '').toLowerCase() === 'pending').length : 0;
+                    const approved = apps ? apps.filter(a => ['approved', 'completed'].includes((a.status || '').toLowerCase())).length : 0;
+                    const rejected = apps ? apps.filter(a => ['rejected', 'cancelled'].includes((a.status || '').toLowerCase())).length : 0;
+
+                    document.getElementById('user-stat-total').innerText = total;
+                    document.getElementById('user-stat-pending').innerText = pending;
+                    document.getElementById('user-stat-approved').innerText = approved;
+                    document.getElementById('user-stat-rejected').innerText = rejected;
+
+                    const tbody = document.getElementById('user-applications-list');
+                    const emptyState = document.getElementById('user-apps-empty');
+
+                    if (!apps || apps.length === 0) {
+                        tbody.innerHTML = '';
+                        emptyState.classList.remove('hidden');
+                        ui.hideLoading();
+                        return;
+                    }
+                    emptyState.classList.add('hidden');
+                    tbody.innerHTML = "";
+                    apps.forEach(a => {
+                        const name = a.form_data?.personal_info?.full_name || 'N/A';
+                        const statusClass = i18n.getStatusBadgeClass(a.status);
+                        const statusLabel = i18n.getStatusLabel(a.status);
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong>${utils.generateAppNo(a.id)}</strong></td>
+                            <td>CV & Biodata</td>
+                            <td>${utils.formatDate(a.created_at)}</td>
+                            <td><span class="badge ${statusClass}">${statusLabel}</span></td>
+                            <td>
+                                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                    <button class="btn-primary btn-xs" onclick="dashboard.viewAppDetails('${a.id}')">
+                                        <i class="fa-solid fa-eye"></i> ${i18n.t('view')}
+                                    </button>
+                                    <button class="btn-info btn-xs" onclick="cvForm.loadForEdit('${a.id}')">
+                                        <i class="fa-solid fa-pen"></i> ${i18n.t('edit')}
+                                    </button>
+                                    <button class="btn-danger btn-xs" onclick="dashboard.deleteApplication('${a.id}')">
+                                        <i class="fa-solid fa-trash"></i> ${i18n.t('delete')}
+                                    </button>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } catch (err) {
+                    ui.toast(i18n.t('toast_error'), 'error');
+                } finally {
+                    ui.hideLoading();
+                }
+            },
+            deleteApplication: function(appId) {
+                ui.showConfirm(
+                    i18n.t('confirm_delete_title'),
+                    i18n.t('confirm_delete_msg'),
+                    i18n.t('delete'),
+                    'btn-danger',
+                    async () => {
+                        ui.showLoading();
+                        try {
+                            const { error } = await _supabase.from('applications').delete().eq('id', appId).eq('user_id', auth.currentUser.id);
+                            if (error) throw error;
+                            ui.toast(i18n.t('toast_app_deleted'), 'success');
+                            dashboard.loadUserDashboard();
+                        } catch (err) {
+                            ui.toast(err.message || i18n.t('toast_error'), 'error');
+                        } finally {
+                            ui.hideLoading();
+                        }
+                    }
+                );
+            },
+            viewAppDetails: async function(appId, isAdmin = false) {
+                app.navigateTo('app-details');
+                ui.showLoading();
+                try {
+                    const { data: a, error } = await _supabase.from('applications').select('*').eq('id', appId).single();
+                    if (error || !a) throw new Error('Not found');
+                    this.currentApp = a;
+
+                    document.getElementById('det-app-no').innerText = utils.generateAppNo(a.id);
+                    const badge = document.getElementById('det-status-badge');
+                    badge.className = 'badge ' + i18n.getStatusBadgeClass(a.status);
+                    badge.innerText = i18n.getStatusLabel(a.status);
+
+                    // Download section logic
+                    const dlSection = document.getElementById('download-section');
+                    const dlDenied = document.getElementById('download-denied-section');
+                    const adminFileBtn = document.getElementById('download-admin-file-btn');
+                    const statusLower = (a.status || '').toLowerCase();
+                    const canDownload = ['approved', 'completed'].includes(statusLower) || a.download_allowed === true;
+
+                    if (canDownload) {
+                        dlSection.classList.remove('hidden');
+                        dlDenied.classList.add('hidden');
+                        if (a.generated_file_path) {
+                            adminFileBtn.classList.remove('hidden');
+                            adminFileBtn.onclick = async () => {
+                                const { data } = await _supabase.storage.from('generated-files').createSignedUrl(a.generated_file_path, 300);
+                                if (data) window.open(data.signedUrl, '_blank');
+                            };
+                        } else {
+                            adminFileBtn.classList.add('hidden');
+                        }
+                    } else {
+                        dlSection.classList.add('hidden');
+                        dlDenied.classList.remove('hidden');
+                    }
+
+                    // Admin action section
+                    const adminSec = document.getElementById('admin-action-section');
+                    if (isAdmin || auth.isAdminUser) {
+                        adminSec.classList.remove('hidden');
+                        document.getElementById('admin-status-select').value = statusLower;
+                        document.getElementById('admin-note-input').value = a.admin_note || '';
+                    } else {
+                        adminSec.classList.add('hidden');
+                    }
+
+                    // Build detail content
+                    this.renderDetailBody(a);
+                    this.renderStatusTimeline(a);
+                } catch (err) {
+                    ui.toast(i18n.t('toast_error'), 'error');
+                } finally {
+                    ui.hideLoading();
+                }
+            },
+            renderDetailBody: function(a) {
+                const fd = a.form_data || {};
+                const p = fd.personal_info || {};
+                const pres = fd.present_address || {};
+                const perm = fd.permanent_address || {};
+                const edu = fd.education || [];
+                const addInfo = fd.additional_info || [];
+
+                let html = '<div class="detail-grid">';
+
+                // Personal Info
+                html += '<div class="detail-section">';
+                html += `<h4><i class="fa-solid fa-user"></i> ${i18n.t('sec_personal_info')}</h4>`;
+                if (p.full_name) html += `<p><strong>${i18n.t('full_name')}:</strong> ${utils.escapeHTML(p.full_name)}</p>`;
+                if (p.mobile) html += `<p><strong>${i18n.t('mobile')}:</strong> ${utils.escapeHTML(p.mobile)}</p>`;
+                if (p.email) html += `<p><strong>${i18n.t('email')}:</strong> ${utils.escapeHTML(p.email)}</p>`;
+                if (p.website) html += `<p><strong>${i18n.t('website')}:</strong> <a href="${utils.escapeHTML(p.website)}" target="_blank" style="color:var(--accent-sky);">${utils.escapeHTML(p.website)}</a></p>`;
+                if (p.father_name) html += `<p><strong>${i18n.t('father_name')}:</strong> ${utils.escapeHTML(p.father_name)}</p>`;
+                if (p.mother_name) html += `<p><strong>${i18n.t('mother_name')}:</strong> ${utils.escapeHTML(p.mother_name)}</p>`;
+                if (p.dob) html += `<p><strong>${i18n.t('dob')}:</strong> ${utils.escapeHTML(p.dob)}</p>`;
+                if (p.nationality) html += `<p><strong>${i18n.t('nationality')}:</strong> ${utils.escapeHTML(p.nationality)}</p>`;
+                if (p.gender) html += `<p><strong>${i18n.t('gender')}:</strong> ${utils.escapeHTML(p.gender)}</p>`;
+                if (p.marital_status) html += `<p><strong>${i18n.t('marital_status')}:</strong> ${utils.escapeHTML(p.marital_status)}</p>`;
+                if (p.height) html += `<p><strong>${i18n.t('height')}:</strong> ${utils.escapeHTML(p.height)}</p>`;
+                if (p.weight) html += `<p><strong>${i18n.t('weight')}:</strong> ${utils.escapeHTML(p.weight)}</p>`;
+                if (p.objective) html += `<p><strong>${i18n.t('career_objective')}:</strong> ${utils.escapeHTML(p.objective)}</p>`;
+                html += '</div>';
+
+                // Address
+                const presStr = [pres.village, pres.po, pres.thana, pres.district].filter(Boolean).join(', ');
+                const permStr = [perm.village, perm.po, perm.thana, perm.district].filter(Boolean).join(', ');
+                if (presStr || permStr) {
+                    html += '<div class="detail-section">';
+                    html += `<h4><i class="fa-solid fa-location-dot"></i> ${i18n.t('sec_present_addr')} / ${i18n.t('sec_permanent_addr')}</h4>`;
+                    if (presStr) html += `<p><strong>${i18n.t('sec_present_addr')}:</strong> ${utils.escapeHTML(presStr)}</p>`;
+                    if (permStr) html += `<p><strong>${i18n.t('sec_permanent_addr')}:</strong> ${utils.escapeHTML(permStr)}</p>`;
+                    html += '</div>';
+                }
+
+                // Education
+                if (edu.length > 0) {
+                    html += '<div class="detail-section" style="grid-column:1/-1;">';
+                    html += `<h4><i class="fa-solid fa-graduation-cap"></i> ${i18n.t('sec_education')}</h4>`;
+                    html += '<div class="table-responsive"><table class="data-table" style="margin-top:8px;"><thead><tr>';
+                    html += `<th>${i18n.t('exam_name')}</th><th>${i18n.t('institute')}</th><th>${i18n.t('passing_year')}</th><th>${i18n.t('gpa')}</th>`;
+                    html += '</tr></thead><tbody>';
+                    edu.forEach(e => {
+                        html += `<tr><td>${utils.escapeHTML(e.exam_name)}</td><td>${utils.escapeHTML(e.institute_name)}</td><td>${utils.escapeHTML(e.passing_year)}</td><td>${utils.escapeHTML(e.result_gpa)}</td></tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                    html += '</div>';
+                }
+
+                // Additional Info
+                if (addInfo.length > 0) {
+                    addInfo.forEach(block => {
+                        if (!block.title && !block.description) return;
+                        html += '<div class="detail-section">';
+                        html += `<h4>${utils.escapeHTML(block.title || 'Info')}</h4>`;
+                        html += `<p style="white-space:pre-line;">${utils.escapeHTML(block.description || '')}</p>`;
+                        html += '</div>';
+                    });
+                }
+
+                // Documents
+                const docs = fd.documents || [];
+                if (docs.length > 0) {
+                    html += '<div class="detail-section" style="grid-column:1/-1;">';
+                    html += `<h4><i class="fa-solid fa-paperclip"></i> ${i18n.t('sec_documents')}</h4>`;
+                    docs.forEach((doc, idx) => {
+                        html += `<p><i class="fa-solid fa-file"></i> ${utils.escapeHTML(doc.name || 'Document ' + (idx+1))}</p>`;
+                    });
+                    html += '</div>';
+                }
+
+                // Admin note
+                if (a.admin_note) {
+                    html += '<div class="detail-section" style="grid-column:1/-1; background:#FEFCE8; border-color:#FEF08A;">';
+                    html += `<h4><i class="fa-solid fa-user-shield"></i> ${i18n.t('admin_note')}</h4>`;
+                    html += `<p>${utils.escapeHTML(a.admin_note)}</p>`;
+                    html += '</div>';
+                }
+
+                html += '</div>';
+                document.getElementById('det-content-body').innerHTML = html;
+            },
+            renderStatusTimeline: function(a) {
+                const container = document.getElementById('status-timeline-container');
+                const statuses = [
+                    { key: 'pending', label: i18n.t('status_pending'), time: a.created_at },
+                    { key: 'under_review', label: i18n.t('status_under_review'), time: a.status === 'under_review' || ['approved', 'rejected', 'cancelled'].includes(a.status) ? a.updated_at : null },
+                    { key: 'approved', label: i18n.t('status_approved'), time: a.status === 'approved' || a.status === 'completed' ? a.approved_at || a.updated_at : null }
+                ];
+
+                let html = '<div class="status-timeline">';
+                statuses.forEach((s, idx) => {
+                    const isActive = s.time !== null;
+                    const isCurrent = (a.status || '').toLowerCase() === s.key || (s.key === 'approved' && (a.status || '').toLowerCase() === 'completed');
+                    html += `<div class="timeline-item ${isActive ? 'active' : ''} ${isCurrent ? 'current' : ''}">`;
+                    html += `<div class="timeline-content">`;
+                    html += `<h4>${s.label} ${isCurrent ? '<span style="color:var(--accent-sky); font-size:0.75rem;">(Current)</span>' : ''}</h4>`;
+                    if (s.time) html += `<p>${utils.formatDateTime(s.time)}</p>`;
+                    html += `</div></div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            },
+            saveAdminAction: async function() {
+                if (!this.currentApp || !auth.isAdminUser) return;
+                const newStatus = document.getElementById('admin-status-select').value;
+                const note = document.getElementById('admin-note-input').value;
+                const genFile = document.getElementById('admin-gen-file-input').files[0];
+                ui.showLoading();
+                try {
+                    let genFilePath = this.currentApp.generated_file_path || "";
+                    if (genFile) {
+                        const safeName = utils.getSafeFilename(genFile.name);
+                        const gPath = `${this.currentApp.id}/${safeName}`;
+                        const { error } = await _supabase.storage.from('generated-files').upload(gPath, genFile, { upsert: true });
+                        if (!error) genFilePath = gPath;
+                    }
+
+                    const updateData = {
+                        status: newStatus,
+                        admin_note: note,
+                        generated_file_path: genFilePath,
+                        updated_at: new Date().toISOString()
+                    };
+                    if (newStatus === 'approved' || newStatus === 'completed') {
+                        updateData.download_allowed = true;
+                        updateData.approved_at = new Date().toISOString();
+                        updateData.approved_by = auth.currentUser.id;
+                    } else {
+                        updateData.download_allowed = false;
+                    }
+
+                    await _supabase.from('applications').update(updateData).eq('id', this.currentApp.id);
+                    ui.toast(i18n.t('toast_status_updated'), 'success');
+                    this.viewAppDetails(this.currentApp.id, true);
+                    admin.loadDashboard();
+                } catch (err) {
+                    ui.toast(err.message || i18n.t('toast_error'), 'error');
+                } finally {
+                    ui.hideLoading();
+                }
+            },
+            quickApprove: async function() {
+                document.getElementById('admin-status-select').value = 'approved';
+                await this.saveAdminAction();
+            },
+            quickReject: async function() {
+                document.getElementById('admin-status-select').value = 'rejected';
+                await this.saveAdminAction();
+            },
+            backToDashboard: function() {
+                if (auth.isAdminUser) {
+                    app.navigateTo('admin-dashboard');
+                } else {
+                    app.navigateTo('user-dashboard');
+                }
+            }
+        };
+
+
+        // ==================== ADMIN DASHBOARD ====================
+        const admin = {
+            applications: [],
+            filteredApps: [],
+            loadDashboard: async function() {
+                if (!auth.isAdminUser) {
+                    ui.toast(i18n.t('toast_no_permission'), 'error');
+                    app.navigateTo('dashboard');
+                    return;
+                }
+                ui.showLoading();
+                try {
+                    const { data: apps, error } = await _supabase.from('applications')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+                    if (error) throw error;
+                    this.applications = apps || [];
+                    this.filteredApps = [...this.applications];
+                    this.renderStats();
+                    this.renderTable();
+                } catch (err) {
+                    ui.toast(err.message || i18n.t('toast_error'), 'error');
+                } finally {
+                    ui.hideLoading();
+                }
+            },
+            renderStats: function() {
+                const apps = this.applications;
+                const getCount = (statuses) => apps.filter(a => statuses.includes((a.status || '').toLowerCase())).length;
+                document.getElementById('stat-total').innerText = apps.length;
+                document.getElementById('stat-pending').innerText = getCount(['pending']);
+                document.getElementById('stat-review').innerText = getCount(['under_review', 'need correction']);
+                document.getElementById('stat-approved').innerText = getCount(['approved', 'completed']);
+                document.getElementById('stat-rejected').innerText = getCount(['rejected']);
+                document.getElementById('stat-cancelled').innerText = getCount(['cancelled']);
+            },
+            filterApps: function() {
+                const search = document.getElementById('admin-search').value.toLowerCase().trim();
+                const statusFilter = document.getElementById('admin-status-filter').value;
+                const dateFrom = document.getElementById('admin-date-from').value;
+                const dateTo = document.getElementById('admin-date-to').value;
+
+                this.filteredApps = this.applications.filter(a => {
+                    const name = (a.form_data?.personal_info?.full_name || '').toLowerCase();
+                    const appNo = utils.generateAppNo(a.id).toLowerCase();
+                    const matchesSearch = !search || name.includes(search) || appNo.includes(search);
+                    const matchesStatus = !statusFilter || (a.status || '').toLowerCase() === statusFilter;
+                    const created = new Date(a.created_at);
+                    const matchesDateFrom = !dateFrom || created >= new Date(dateFrom);
+                    const matchesDateTo = !dateTo || created <= new Date(dateTo + 'T23:59:59');
+                    return matchesSearch && matchesStatus && matchesDateFrom && matchesDateTo;
+                });
+                this.renderTable();
+            },
+            clearFilters: function() {
+                document.getElementById('admin-search').value = '';
+                document.getElementById('admin-status-filter').value = '';
+                document.getElementById('admin-date-from').value = '';
+                document.getElementById('admin-date-to').value = '';
+                this.filteredApps = [...this.applications];
+                this.renderTable();
+            },
+            renderTable: function() {
+                const tbody = document.getElementById('admin-applications-list');
+                const emptyState = document.getElementById('admin-apps-empty');
+                const countLabel = document.getElementById('admin-result-count');
+
+                countLabel.innerText = `${this.filteredApps.length} ${i18n.t('result_count')}`;
+
+                if (this.filteredApps.length === 0) {
+                    tbody.innerHTML = '';
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+                emptyState.classList.add('hidden');
+                tbody.innerHTML = "";
+                this.filteredApps.forEach(a => {
+                    const name = a.form_data?.personal_info?.full_name || 'N/A';
+                    const statusClass = i18n.getStatusBadgeClass(a.status);
+                    const statusLabel = i18n.getStatusLabel(a.status);
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${utils.generateAppNo(a.id)}</strong></td>
+                        <td>${utils.escapeHTML(name)}</td>
+                        <td>${utils.formatDate(a.created_at)}</td>
+                        <td><span class="badge ${statusClass}">${statusLabel}</span></td>
+                        <td>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                <button class="btn-primary btn-xs" onclick="dashboard.viewAppDetails('${a.id}', true)">
+                                    <i class="fa-solid fa-eye"></i> ${i18n.t('view')}
+                                </button>
+                                <button class="btn-info btn-xs" onclick="cvForm.loadForEdit('${a.id}')">
+                                    <i class="fa-solid fa-pen"></i> ${i18n.t('edit')}
+                                </button>
+                                <button class="btn-success btn-xs" onclick="admin.quickAction('${a.id}', 'approved')">
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+                                <button class="btn-danger btn-xs" onclick="admin.quickAction('${a.id}', 'rejected')">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                                <button class="btn-danger btn-xs" style="background:#7F1D1D;" onclick="admin.deleteApp('${a.id}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            },
+            quickAction: async function(appId, status) {
+                ui.showLoading();
+                try {
+                    const updateData = {
+                        status: status,
+                        updated_at: new Date().toISOString()
+                    };
+                    if (status === 'approved') {
+                        updateData.download_allowed = true;
+                        updateData.approved_at = new Date().toISOString();
+                        updateData.approved_by = auth.currentUser.id;
+                    } else {
+                        updateData.download_allowed = false;
+                    }
+                    await _supabase.from('applications').update(updateData).eq('id', appId);
+                    ui.toast(i18n.t('toast_status_updated'), 'success');
+                    this.loadDashboard();
+                } catch (err) {
+                    ui.toast(err.message || i18n.t('toast_error'), 'error');
+                } finally {
+                    ui.hideLoading();
+                }
+            },
+            deleteApp: function(appId) {
+                ui.showConfirm(
+                    i18n.t('confirm_delete_title'),
+                    i18n.t('confirm_delete_msg'),
+                    i18n.t('delete'),
+                    'btn-danger',
+                    async () => {
+                        ui.showLoading();
+                        try {
+                            await _supabase.from('applications').delete().eq('id', appId);
+                            ui.toast(i18n.t('toast_app_deleted'), 'success');
+                            this.loadDashboard();
+                        } catch (err) {
+                            ui.toast(err.message || i18n.t('toast_error'), 'error');
+                        } finally {
+                            ui.hideLoading();
+                        }
+                    }
+                );
+            },
+            showSection: function(section) {
+                // For future use if we add more admin sections
+                if (section === 'overview' || section === 'applications') {
+                    this.loadDashboard();
+                }
+            }
+        };
+
+
+        // ==================== PDF GENERATOR ====================
         const cvPdf = {
             buildHtmlContent: async function() {
                 const appData = dashboard.currentApp;
@@ -1030,62 +2301,81 @@
                 const pres = appData.form_data?.present_address || {};
                 const perm = appData.form_data?.permanent_address || {};
                 const edu = appData.form_data?.education || [];
-                const skills = appData.form_data?.skills || '';
-                const languages = appData.form_data?.languages || [];
-                const experiences = appData.form_data?.experiences || [];
+                const addInfo = appData.form_data?.additional_info || [];
+
+                // Security check - only allow download if approved
+                const statusLower = (appData.status || '').toLowerCase();
+                if (!['approved', 'completed'].includes(statusLower) && !auth.isAdminUser) {
+                    ui.toast(i18n.t('toast_download_denied'), 'error');
+                    return '';
+                }
 
                 let photoUrl = '';
                 if (info.photo_path) {
-                    const { data } = await _supabase.storage.from('profile-avatars').createSignedUrl(info.photo_path, 300);
-                    if (data) photoUrl = data.signedUrl;
+                    try {
+                        const { data } = await _supabase.storage.from('profile-avatars').createSignedUrl(info.photo_path, 300);
+                        if (data) photoUrl = data.signedUrl;
+                    } catch (e) { console.log('Photo load error', e); }
                 }
 
                 const presentAddrStr = [pres.village, pres.po, pres.thana, pres.district].filter(Boolean).join(', ');
                 const permAddrStr = [perm.village, perm.po, perm.thana, perm.district].filter(Boolean).join(', ');
 
-                return `
+                // Build contact lines
+                let contactHtml = '';
+                if (info.mobile) contactHtml += `<span>📱 ${utils.escapeHTML(info.mobile)}</span>`;
+                if (info.email) contactHtml += `<span>✉️ ${utils.escapeHTML(info.email)}</span>`;
+                if (info.website) contactHtml += `<span>🌐 <a href="${utils.escapeHTML(info.website)}" style="color:var(--accent-sky); text-decoration:none;">${utils.escapeHTML(info.website)}</a></span>`;
+
+                let html = `
                     <div class="pdf-header">
                         <div class="pdf-header-text">
-                            <h1>${escapeHTML(info.full_name || 'CURRICULUM VITAE')}</h1>
-                            ${info.mobile ? `<p><i class="fa-solid fa-phone"></i> ${escapeHTML(info.mobile)}</p>` : ''}
-                            ${info.email ? `<p><i class="fa-solid fa-envelope"></i> ${escapeHTML(info.email)}</p>` : ''}
-                            ${info.website ? `<p><i class="fa-solid fa-globe"></i> ${escapeHTML(info.website)}</p>` : ''}
+                            <h1>${utils.escapeHTML(info.full_name || 'CURRICULUM VITAE')}</h1>
+                            <div class="pdf-contact">${contactHtml}</div>
                         </div>
-                        ${photoUrl ? `<img src="${photoUrl}" class="pdf-photo" alt="Photo" />` : ''}
+                        ${photoUrl ? `<img src="${photoUrl}" class="pdf-photo" alt="Photo" onerror="this.style.display='none'" />` : ''}
                     </div>
+                `;
 
-                    ${info.objective ? `
+                if (info.objective) {
+                    html += `
                         <div class="pdf-section">
                             <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'ক্যারিয়ার উদ্দেশ্য' : 'CAREER OBJECTIVE'}</div>
-                            <p style="font-size:9pt; color:#334155; line-height:1.4;">${escapeHTML(info.objective)}</p>
+                            <p style="font-size:9pt; color:#334155; line-height:1.5;">${utils.escapeHTML(info.objective)}</p>
                         </div>
-                    ` : ''}
+                    `;
+                }
 
+                html += `
                     <div class="pdf-section">
                         <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'ব্যক্তিগত তথ্য' : 'PERSONAL DETAILS'}</div>
                         <div class="pdf-grid">
-                            ${info.father_name ? `<div class="pdf-grid-item"><strong>${i18n.t('father_name')}:</strong> ${escapeHTML(info.father_name)}</div>` : ''}
-                            ${info.mother_name ? `<div class="pdf-grid-item"><strong>${i18n.t('mother_name')}:</strong> ${escapeHTML(info.mother_name)}</div>` : ''}
-                            ${info.dob ? `<div class="pdf-grid-item"><strong>${i18n.t('dob')}:</strong> ${escapeHTML(info.dob)}</div>` : ''}
-                            ${info.nationality ? `<div class="pdf-grid-item"><strong>${i18n.t('nationality')}:</strong> ${escapeHTML(info.nationality)}</div>` : ''}
-                            ${info.gender ? `<div class="pdf-grid-item"><strong>${i18n.t('gender')}:</strong> ${escapeHTML(info.gender)}</div>` : ''}
-                            ${info.marital_status ? `<div class="pdf-grid-item"><strong>${i18n.t('marital_status')}:</strong> ${escapeHTML(info.marital_status)}</div>` : ''}
-                            ${info.height ? `<div class="pdf-grid-item"><strong>${i18n.t('height')}:</strong> ${escapeHTML(info.height)}</div>` : ''}
-                            ${info.weight ? `<div class="pdf-grid-item"><strong>${i18n.t('weight')}:</strong> ${escapeHTML(info.weight)}</div>` : ''}
+                            ${info.father_name ? `<div class="pdf-grid-item"><strong>${i18n.t('father_name')}:</strong> ${utils.escapeHTML(info.father_name)}</div>` : ''}
+                            ${info.mother_name ? `<div class="pdf-grid-item"><strong>${i18n.t('mother_name')}:</strong> ${utils.escapeHTML(info.mother_name)}</div>` : ''}
+                            ${info.dob ? `<div class="pdf-grid-item"><strong>${i18n.t('dob')}:</strong> ${utils.escapeHTML(info.dob)}</div>` : ''}
+                            ${info.nationality ? `<div class="pdf-grid-item"><strong>${i18n.t('nationality')}:</strong> ${utils.escapeHTML(info.nationality)}</div>` : ''}
+                            ${info.gender ? `<div class="pdf-grid-item"><strong>${i18n.t('gender')}:</strong> ${utils.escapeHTML(info.gender)}</div>` : ''}
+                            ${info.marital_status ? `<div class="pdf-grid-item"><strong>${i18n.t('marital_status')}:</strong> ${utils.escapeHTML(info.marital_status)}</div>` : ''}
+                            ${info.height ? `<div class="pdf-grid-item"><strong>${i18n.t('height')}:</strong> ${utils.escapeHTML(info.height)}</div>` : ''}
+                            ${info.weight ? `<div class="pdf-grid-item"><strong>${i18n.t('weight')}:</strong> ${utils.escapeHTML(info.weight)}</div>` : ''}
                         </div>
                     </div>
+                `;
 
-                    ${presentAddrStr || permAddrStr ? `
+                if (presentAddrStr || permAddrStr) {
+                    html += `
                         <div class="pdf-section">
                             <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'ঠিকানা' : 'ADDRESS DETAILS'}</div>
                             <div class="pdf-grid">
-                                ${presentAddrStr ? `<div><strong>${i18n.t('sec_present_addr')}:</strong><br>${escapeHTML(presentAddrStr)}</div>` : ''}
-                                ${permAddrStr ? `<div><strong>${i18n.t('sec_permanent_addr')}:</strong><br>${escapeHTML(permAddrStr)}</div>` : ''}
+                                ${presentAddrStr ? `<div><strong>${i18n.t('sec_present_addr')}:</strong><br>${utils.escapeHTML(presentAddrStr)}</div>` : ''}
+                                ${permAddrStr ? `<div><strong>${i18n.t('sec_permanent_addr')}:</strong><br>${utils.escapeHTML(permAddrStr)}</div>` : ''}
                             </div>
                         </div>
-                    ` : ''}
+                    `;
+                }
 
-                    ${edu.length > 0 ? `
+                if (edu.length > 0) {
+                    html += `
                         <div class="pdf-section">
                             <div class="pdf-section-title">${i18n.t('sec_education')}</div>
                             <table class="pdf-table">
@@ -1100,54 +2390,61 @@
                                 <tbody>
                                     ${edu.map(e => `
                                         <tr>
-                                            <td>${escapeHTML(e.exam_name)}</td>
-                                            <td>${escapeHTML(e.institute_name)}</td>
-                                            <td>${escapeHTML(e.passing_year)}</td>
-                                            <td>${escapeHTML(e.result_gpa)}</td>
+                                            <td>${utils.escapeHTML(e.exam_name)}</td>
+                                            <td>${utils.escapeHTML(e.institute_name)}</td>
+                                            <td>${utils.escapeHTML(e.passing_year)}</td>
+                                            <td>${utils.escapeHTML(e.result_gpa)}</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
                             </table>
                         </div>
-                    ` : ''}
+                    `;
+                }
 
-                    ${experiences.length > 0 ? `
+                // Additional Info Blocks
+                if (addInfo.length > 0) {
+                    addInfo.forEach(block => {
+                        if (!block.title && !block.description) return;
+                        html += `
+                            <div class="pdf-section">
+                                <div class="pdf-section-title">${utils.escapeHTML(block.title || 'INFO')}</div>
+                                <p style="font-size:9pt; white-space:pre-line; color:#334155; line-height:1.5;">${utils.escapeHTML(block.description || '')}</p>
+                            </div>
+                        `;
+                    });
+                }
+
+                // Backward compatibility: old skills/languages/experience
+                const oldSkills = appData.form_data?.skills;
+                const oldLangs = appData.form_data?.languages;
+                const oldExp = appData.form_data?.experience;
+                if (oldSkills || oldLangs || oldExp) {
+                    html += `
                         <div class="pdf-section">
-                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'কর্মঅভিজ্ঞতা' : 'WORK EXPERIENCE'}</div>
-                            ${experiences.map(exp => `
-                                <div style="margin-bottom:8px;">
-                                    <div style="display:flex; justify-content:space-between; font-size:9.5pt; font-weight:600; color:#0A192F;">
-                                        <span>${escapeHTML(exp.designation)} - ${escapeHTML(exp.company)}</span>
-                                        <span>${escapeHTML(exp.duration)}</span>
-                                    </div>
-                                    ${exp.description ? `<p style="font-size:8.5pt; color:#475569; margin-top:2px;">${escapeHTML(exp.description)}</p>` : ''}
-                                </div>
-                            `).join('')}
+                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'দক্ষতা ও অভিজ্ঞতা' : 'SKILLS & EXPERIENCE'}</div>
+                            ${oldSkills ? `<p style="font-size:9pt; margin-bottom:6px;"><strong>${i18n.t('skills')}:</strong> ${utils.escapeHTML(oldSkills)}</p>` : ''}
+                            ${oldLangs ? `<p style="font-size:9pt; margin-bottom:6px;"><strong>${i18n.t('languages')}:</strong> ${utils.escapeHTML(oldLangs)}</p>` : ''}
+                            ${oldExp ? `<p style="font-size:9pt; white-space:pre-line;"><strong>${i18n.currentLang === 'bn' ? 'কর্মঅভিজ্ঞতা' : 'Experience'}:</strong><br>${utils.escapeHTML(oldExp)}</p>` : ''}
                         </div>
-                    ` : ''}
+                    `;
+                }
 
-                    ${skills || languages.length > 0 ? `
-                        <div class="pdf-section">
-                            <div class="pdf-section-title">${i18n.currentLang === 'bn' ? 'দক্ষতা ও ভাষা' : 'SKILLS & LANGUAGES'}</div>
-                            ${skills ? `<p style="font-size:9pt; margin-bottom:4px;"><strong>${i18n.t('skills')}:</strong> ${escapeHTML(skills)}</p>` : ''}
-                            ${languages.length > 0 ? `<p style="font-size:9pt;"><strong>${i18n.t('languages')}:</strong> ${languages.map(l => `${escapeHTML(l.name)} (${escapeHTML(l.proficiency)})`).join(', ')}</p>` : ''}
-                        </div>
-                    ` : ''}
-
+                html += `
                     <div class="pdf-footer">
                         <div class="pdf-signature-line"></div>
-                        <p>${escapeHTML(info.full_name || 'Applicant Signature')}</p>
+                        <p>${utils.escapeHTML(info.full_name || 'Applicant Signature')}</p>
                     </div>
                 `;
+                return html;
             },
             openPreviewModal: async function() {
                 const modal = document.getElementById('preview-modal');
                 const contentContainer = document.getElementById('modal-a4-content');
-                contentContainer.innerHTML = `<p>${i18n.t('loading')}</p>`;
+                contentContainer.innerHTML = `<p style="padding:40px;">${i18n.t('loading')}</p>`;
                 modal.classList.remove('hidden');
-
                 const html = await this.buildHtmlContent();
-                contentContainer.innerHTML = html;
+                if (html) contentContainer.innerHTML = html;
             },
             closePreviewModal: function() {
                 document.getElementById('preview-modal').classList.add('hidden');
@@ -1156,6 +2453,14 @@
                 const appData = dashboard.currentApp;
                 if (!appData) return;
 
+                // Security check
+                const statusLower = (appData.status || '').toLowerCase();
+                if (!['approved', 'completed'].includes(statusLower) && !auth.isAdminUser) {
+                    ui.toast(i18n.t('toast_download_denied'), 'error');
+                    return;
+                }
+
+                ui.showLoading();
                 const tempDiv = document.createElement('div');
                 tempDiv.className = 'a4-paper';
                 tempDiv.style.position = 'fixed';
@@ -1163,7 +2468,9 @@
                 tempDiv.style.top = '0';
                 tempDiv.style.zIndex = '-9999';
                 tempDiv.style.background = '#FFFFFF';
-                tempDiv.innerHTML = await this.buildHtmlContent();
+                const html = await this.buildHtmlContent();
+                if (!html) { ui.hideLoading(); return; }
+                tempDiv.innerHTML = html;
                 document.body.appendChild(tempDiv);
 
                 const info = appData.form_data?.personal_info || {};
@@ -1171,162 +2478,68 @@
                 const fileName = `${cleanName}_CV.pdf`;
 
                 const opt = {
-                    margin:       [10, 10, 10, 10],
-                    filename:     fileName,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+                    margin: [10, 10, 10, 10],
+                    filename: fileName,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, logging: false },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
                 };
 
                 try {
                     await html2pdf().set(opt).from(tempDiv).save();
                 } catch (err) {
-                    alert("PDF Generation Error: " + err.message);
+                    ui.toast("PDF Generation Error: " + err.message, 'error');
                 } finally {
                     document.body.removeChild(tempDiv);
+                    ui.hideLoading();
                 }
             }
         };
 
-        // Dashboards Functionality
-        const dashboard = {
-            currentApp: null,
-            loadUserDashboard: async function() {
-                const { data: { session } } = await _supabase.auth.getSession();
-                const tbody = document.getElementById('user-applications-list');
-                tbody.innerHTML = `<tr><td colspan='5'>${i18n.t('loading')}</td></tr>`;
-
-                const { data: apps, error } = await _supabase.from('applications').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false });
-                if (error || !apps || apps.length === 0) { tbody.innerHTML = `<tr><td colspan='5'>${i18n.t('no_data')}</td></tr>`; return; }
-
-                tbody.innerHTML = "";
-                apps.forEach(a => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><strong>${escapeHTML(a.id.substring(0,8))}</strong></td>
-                        <td>CV & Biodata</td>
-                        <td>${new Date(a.created_at).toLocaleDateString()}</td>
-                        <td><span class="badge badge-pending">${i18n.getStatusLabel(a.status)}</span></td>
-                        <td><button class="btn-primary btn-sm" onclick="dashboard.viewAppDetails('${escapeHTML(a.id)}')">${i18n.t('view')}</button></td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            },
-            loadAdminDashboard: async function() {
-                const tbody = document.getElementById('admin-applications-list');
-                tbody.innerHTML = `<tr><td colspan='5'>${i18n.t('loading')}</td></tr>`;
-                
-                const { data: apps, error } = await _supabase.from('applications').select('*').order('created_at', { ascending: false });
-                if (error || !apps) { tbody.innerHTML = `<tr><td colspan='5'>${i18n.t('no_data')}</td></tr>`; return; }
-
-                document.getElementById('stat-total').innerText = apps.length;
-                document.getElementById('stat-pending').innerText = apps.filter(x => x.status === 'Pending').length;
-                document.getElementById('stat-correction').innerText = apps.filter(x => x.status === 'Need Correction').length;
-                document.getElementById('stat-approved').innerText = apps.filter(x => x.status === 'Approved' || x.status === 'Completed').length;
-
-                tbody.innerHTML = "";
-                apps.forEach(a => {
-                    const name = a.form_data?.personal_info?.full_name || 'N/A';
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><strong>${escapeHTML(a.id.substring(0,8))}</strong></td>
-                        <td>${escapeHTML(name)}</td>
-                        <td>${new Date(a.created_at).toLocaleDateString()}</td>
-                        <td><span class="badge badge-pending">${i18n.getStatusLabel(a.status)}</span></td>
-                        <td><button class="btn-primary btn-sm" onclick="dashboard.viewAppDetails('${escapeHTML(a.id)}', true)">${i18n.t('manage')}</button></td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            },
-            viewAppDetails: async function(appId, isAdmin = false) {
-                app.navigateTo('app-details');
-                const { data: a } = await _supabase.from('applications').select('*').eq('id', appId).single();
-                if (!a) return;
-                this.currentApp = a;
-
-                document.getElementById('det-app-no').innerText = escapeHTML(a.id.substring(0,8));
-                document.getElementById('det-status-badge').innerText = i18n.getStatusLabel(a.status);
-
-                const genContainer = document.getElementById('generated-file-container');
-                if ((a.status === 'Approved' || a.status === 'Completed') && a.generated_file_path) {
-                    genContainer.classList.remove('hidden');
-                    document.getElementById('download-gen-file-btn').onclick = async () => {
-                        const { data } = await _supabase.storage.from('generated-files').createSignedUrl(a.generated_file_path, 300);
-                        if (data) window.open(data.signedUrl, '_blank');
-                    };
-                } else { genContainer.classList.add('hidden'); }
-
-                const adminSec = document.getElementById('admin-action-section');
-                if (isAdmin) {
-                    adminSec.classList.remove('hidden');
-                    document.getElementById('admin-status-select').value = a.status;
-                    document.getElementById('admin-note-input').value = a.admin_note || '';
-                } else { adminSec.classList.add('hidden'); }
-
-                const p = a.form_data?.personal_info || {};
-                let html = `
-                    <div style="margin-top:20px;">
-                        <h3>${i18n.t('sec_personal_info')}</h3>
-                        <p><strong>${i18n.t('full_name')}:</strong> ${escapeHTML(p.full_name)}</p>
-                        <p><strong>${i18n.t('mobile')}:</strong> ${escapeHTML(p.mobile)}</p>
-                        ${p.website ? `<p><strong>${i18n.t('website')}:</strong> ${escapeHTML(p.website)}</p>` : ''}
-                        ${p.father_name ? `<p><strong>${i18n.t('father_name')}:</strong> ${escapeHTML(p.father_name)}</p>` : ''}
-                        ${p.email ? `<p><strong>${i18n.t('email')}:</strong> ${escapeHTML(p.email)}</p>` : ''}
-                    </div>
-                `;
-                document.getElementById('det-content-body').innerHTML = html;
-            },
-            saveAdminAction: async function() {
-                const newStatus = document.getElementById('admin-status-select').value;
-                const note = document.getElementById('admin-note-input').value;
-                const genFile = document.getElementById('admin-gen-file-input').files[0];
-
-                let genFilePath = this.currentApp.generated_file_path || "";
-
-                try {
-                    if (genFile) {
-                        const safeName = getSafeFilename(genFile.name);
-                        const gPath = `${this.currentApp.id}/${safeName}`;
-                        const { error } = await _supabase.storage.from('generated-files').upload(gPath, genFile);
-                        if (!error) genFilePath = gPath;
-                    }
-
-                    await _supabase.from('applications').update({
-                        status: newStatus,
-                        admin_note: note,
-                        generated_file_path: genFilePath
-                    }).eq('id', this.currentApp.id);
-
-                    alert(i18n.currentLang === 'bn' ? "আপডেট সফল হয়েছে!" : "Update successful!");
-                    this.loadAdminDashboard();
-                    app.navigateTo('admin-dashboard');
-                } catch (err) { alert("Error: " + err.message); }
-            },
-            backToDashboard: function() { auth.checkUserAndRedirect(); }
-        };
-
-        // Main App Navigation
+        // ==================== APP ROUTER ====================
         const app = {
             init: function() {
                 i18n.init();
+                cvForm.init();
+                // Listen for auth state changes
+                _supabase.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_OUT') {
+                        auth.currentUser = null;
+                        auth.isAdminUser = false;
+                        document.getElementById('user-nav-actions').classList.add('hidden');
+                        app.navigateTo('auth');
+                    } else if (event === 'SIGNED_IN' && session) {
+                        auth.checkUserAndRedirect();
+                    }
+                });
                 auth.checkUserAndRedirect();
-                
-                cvForm.addEducationRow();
-                cvForm.addLanguageRow();
-                cvForm.addExperienceRow();
             },
             navigateTo: function(viewName) {
                 document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
                 if (viewName === 'auth') document.getElementById('view-auth').classList.remove('hidden');
-                else if (viewName === 'user-dashboard') document.getElementById('view-user-dashboard').classList.remove('hidden');
-                else if (viewName === 'admin-dashboard') document.getElementById('view-admin-dashboard').classList.remove('hidden');
+                else if (viewName === 'user-dashboard') {
+                    document.getElementById('view-user-dashboard').classList.remove('hidden');
+                    dashboard.loadUserDashboard();
+                }
+                else if (viewName === 'user-profile') {
+                    document.getElementById('view-user-profile').classList.remove('hidden');
+                    profile.loadProfile();
+                }
+                else if (viewName === 'admin-dashboard') {
+                    document.getElementById('view-admin-dashboard').classList.remove('hidden');
+                    admin.loadDashboard();
+                }
                 else if (viewName === 'cv-form') document.getElementById('view-cv-form').classList.remove('hidden');
                 else if (viewName === 'app-details') document.getElementById('view-app-details').classList.remove('hidden');
                 else if (viewName === 'dashboard') auth.checkUserAndRedirect();
+                window.scrollTo(0, 0);
             },
             openServiceForm: function(code) {
-                if (code === 'CV_BIODATA') this.navigateTo('cv-form');
+                if (code === 'CV_BIODATA') {
+                    cvForm.resetForm();
+                    this.navigateTo('cv-form');
+                }
             }
         };
 
